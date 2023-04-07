@@ -4,4 +4,4 @@ Logs/
 .vs/
 Assembly-CSharp.csproj
 *.sln
-
+Temp/
