@@ -20,24 +20,7 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    private GameObject GetMouseGameObject(Ray ray)
-    {
-        // Builds a ray from camera point of view to the mouse position 
-        RaycastHit hit;
-        // Casts the ray and get the first game object hit 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
-        {
-            //Instantiate(clickMarker, hit.point, Quaternion.identity); //places clickMarker at hit.point. This isn't needed, just there for visualisation. 
-            return hit.transform.gameObject;
-        }
-        else
-        {
-            return null;
-        }
-            
-    }
-
-    private void MoveCharecter(GameObject hit)
+    public void MoveCharecter(GameObject hit)
     {
         Transform target = hit.transform;
         float horOffset = 0.5f;
@@ -45,16 +28,5 @@ public class PlayerController : MonoBehaviour
         Vector3 targetPosition = new Vector3(target.position.x + horOffset, target.parent.transform.position.y + target.localScale.y - verOffset, target.position.z + horOffset);
         playerTransform.SetPositionAndRotation(targetPosition, playerTransform.rotation);
         tileCharecterOn = hit;
-    }
-
-    void FixedUpdate()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        GameObject Tile = GetMouseGameObject(ray);
-        if (Input.GetMouseButton(0))
-        {
-            MoveCharecter(Tile);
-        }
-
     }
 }
