@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private GameObject tileCharecterOn;
+    [SerializeField] private uint move;
 
     private Transform playerTransform;
     // Start is called before the first frame update
@@ -28,5 +29,10 @@ public class PlayerController : MonoBehaviour
         Vector3 targetPosition = new Vector3(target.position.x + horOffset, target.parent.transform.position.y + target.localScale.y - verOffset, target.position.z + horOffset);
         playerTransform.SetPositionAndRotation(targetPosition, playerTransform.rotation);
         tileCharecterOn = hit;
+    }
+
+    public uint Move
+    {
+        get { return move; }
     }
 }

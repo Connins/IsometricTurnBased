@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.WSA;
 
 public class MapManager : MonoBehaviour
 {
@@ -16,54 +17,71 @@ public class MapManager : MonoBehaviour
     // Start is called before the first frame update
     private Tilemap tilemaps;
     private Grid grid;
+
+    private GameObject[,,] tiles;
+    private Dictionary<Vector3Int, GameObject> tileMap;
+    
     void Start()
     {
-        tilemaps = GetComponentInChildren<Tilemap>();
-        tileLoop(tilemaps);
-        //SpawnBaseMap(baseMapXSize, baseMapZSize);
+        tiles = new GameObject[100, 100, 100];
+        MapTiles();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //if(Input.GetKeyDown(KeyCode.P))
-        //{
-        //    tileLoop(tilemaps[0]);
-        //}
        
     }
 
     private void SpawnBaseMap(int x, int z)
     {
-        //foreach(int i in Enumerable.Range(1, x))
-        //{
-        //    foreach (int j in Enumerable.Range(1, z))
-        //    {
-        //        Vector3 temp = tilemaps[0].GetCellCenterLocal(new Vector3Int(i, 0, j));
-
-        //        Instantiate(baseTile, temp, Quaternion.identity);
-        //    }
-        //}
-        //tilemaps[0].GetTile(new Vector3Int(x, 0, z)).
-        //tilemaps[0].FloodFill(new Vector3Int(x, 0, z),temp.GameObject(baseTile));
-
+        //Idea of this function is to create a grid of blocks from serialized fields
     }
-    private void tileLoop(Tilemap tilemap)
-    {
-        print(tilemap.cellBounds.min.x);
-        print(tilemap.cellBounds.max.x);
-        for (var x = tilemap.cellBounds.min.x; x < tilemap.cellBounds.max.x; x++)
-        {
-            for (var y = tilemap.cellBounds.min.y; y < tilemap.cellBounds.max.y; y++)
-            {
-                for (var z = tilemap.cellBounds.min.z; z < tilemap.cellBounds.max.z; z++)
-                {
 
-                    Debug.LogFormat("x: {0}, y {1}, z: {2}", x, y, z);
-                    tilemap.GetTile(new Vector3Int(x, y, z)).GameObject().GetComponent<Highlight>().ToggleHighlight(true);
+    private void MapTiles()
+    {
+
+        BoxCollider[] boxColliders = GetComponentsInChildren<BoxCollider>();
+
+        foreach (var tile in boxColliders)
+        {
+            //Converts position of tiles into an index we can use. 
+            Vector3Int key = new Vector3Int((int)tile.gameObject.transform.position.x, (int)tile.gameObject.transform.position.y, (int)tile.gameObject.transform.position.z);
+            tiles[key.x,key.y,key.z] = tile.gameObject;
+        }
+    }
+    private void tileLoop()
+    {
+        
+        for (var x = 0; x < tiles.GetLength(0); x++)
+        {
+            for (var y = 0; y < tiles.GetLength(1); y++)
+            {
+                for (var z = 0; z < tiles.GetLength(2); z++)
+                {
+                    if(tiles[x, y, z] != null)
+                    {
+                        //tiles[x, y, z].GetComponent<Highlight>().ToggleHighlight(true);
+                    }
                 }
             }
-
         }
+    }
+
+    public List<GameObject> getTilesInRange(uint move, Vector3Int location)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+        for (var x = -move; x < move; x++)
+        {
+            for (var z = -move; z < move; z++)
+            {
+                if((Mathf.Abs(x) + MathF.Abs(z)) < move && (location.x - x) > 0 && (location.z - z) > 0)
+                {
+                    //tiles[location.x + x, 0, location.z + z].GetComponent<Highlight>().ToggleHighlight(true);
+                    tilesInRange.Add(tiles[location.x + x, 0, location.z + z]);
+                }
+            }
+        }
+        return tilesInRange;
     }
 }
