@@ -46,7 +46,7 @@ public class MapManager : MonoBehaviour
         foreach (var tile in boxColliders)
         {
             //Converts position of tiles into an index we can use. 
-            Vector3Int key = new Vector3Int((int)tile.gameObject.transform.position.x, (int)tile.gameObject.transform.position.y, (int)tile.gameObject.transform.position.z);
+            Vector3Int key = new Vector3Int((int)tile.gameObject.transform.position.x, (int)tile.gameObject.transform.parent.transform.position.y , (int)tile.gameObject.transform.position.z);
             tiles[key.x,key.y,key.z] = tile.gameObject;
         }
     }
@@ -77,6 +77,7 @@ public class MapManager : MonoBehaviour
             {
                 if((Mathf.Abs(x) + MathF.Abs(z)) < move && (location.x - x) > 0 && (location.z - z) > 0)
                 {
+                    print("currenlty problem when near the edge of the board");
                     //tiles[location.x + x, 0, location.z + z].GetComponent<Highlight>().ToggleHighlight(true);
                     tilesInRange.Add(tiles[location.x + x, 0, location.z + z]);
                 }
