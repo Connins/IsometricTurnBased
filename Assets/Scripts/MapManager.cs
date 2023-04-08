@@ -15,16 +15,18 @@ public class MapManager : MonoBehaviour
     [SerializeField] int baseMapZSize;
     [SerializeField] GameObject baseTile;
 
-    // Start is called before the first frame update
-    private Tilemap tilemaps;
-    private Grid grid;
+    [SerializeField] private int xBound;
+    [SerializeField] private int yBound;
+    [SerializeField] private int zBound;
 
     private GameObject[,,] tiles;
     private Dictionary<Vector3Int, GameObject> tileMap;
     
+
+    // Start is called before the first frame update
     void Start()
     {
-        tiles = new GameObject[100, 100, 100];
+        tiles = new GameObject[xBound, yBound, zBound];
         MapTiles();
     }
 
@@ -53,14 +55,14 @@ public class MapManager : MonoBehaviour
     }
     private void tileLoop()
     {
-        
+
         for (var x = 0; x < tiles.GetLength(0); x++)
         {
             for (var y = 0; y < tiles.GetLength(1); y++)
             {
                 for (var z = 0; z < tiles.GetLength(2); z++)
                 {
-                    if(tiles[x, y, z] != null)
+                    if (tiles[x, y, z] != null)
                     {
                         //tiles[x, y, z].GetComponent<Highlight>().ToggleHighlight(true);
                     }
@@ -68,56 +70,70 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-
-    public List<GameObject> getTilesInRange(uint move, Vector3Int location)
+    public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange)
     {
-        List<GameObject> tilesInRange = new List<GameObject>();
-        for (var x = -move; x < move; x++)
+        GameObject tile = tiles[location.x, location.y, location.z];
+        //Checks if we have already stepped on tile if so just return current held tilesInRange
+        if (!tilesInRange.Contains(tile))
         {
-            for (var z = -move; z < move; z++)
+            tilesInRange.Add(tile);
+        }
+
+        if (move > 0)
+        {
+            List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(location, jump);
+            if (validTilesLocation.Count != 0)
             {
-                if((Mathf.Abs(x) + MathF.Abs(z)) < move && (location.x + x) >= 0 && (location.z + z) >= 0)
+                foreach (var nextLocation in validTilesLocation)
                 {
-                    print("currenlty problem when near the edge of the board");
-                    //tiles[location.x + x, 0, location.z + z].GetComponent<Highlight>().ToggleHighlight(true);
-                    tilesInRange.Add(tiles[location.x + x, 0, location.z + z]);
+                    tilesInRange = getTilesInRange(move - 1, jump, nextLocation, tilesInRange);
                 }
             }
         }
+
         return tilesInRange;
     }
 
-    public List<GameObject> getTilesInRangeJump(uint move, uint jump, Vector3Int location)
+    private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump)
     {
-        List<GameObject> tilesInRange = new List<GameObject>();
-        for (var x = -move; x <= move; x++)
+        List<Vector3Int> validTilesLocation = new List<Vector3Int>();
+        Vector3Int xForward = new Vector3Int(location.x + 1, location.y, location.z);
+        Vector3Int xBackward = new Vector3Int(location.x - 1, location.y, location.z);
+        Vector3Int zForward = new Vector3Int(location.x, location.y, location.z + 1);
+        Vector3Int zBackward = new Vector3Int(location.x, location.y, location.z - 1);
+
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xForward, jump));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xBackward, jump));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zForward, jump));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zBackward, jump));
+
+        return validTilesLocation;
+    }
+    private List<Vector3Int> GetValidTilesInCollunm(Vector3Int location, uint jump)
+    {
+        List <Vector3Int> validTilesLocation = new List <Vector3Int>();
+
+        if(IsLocationInBounds(location))
         {
-            for (var z = -move; z <= move; z++)
+            for (var y = -jump; y <= jump; y++)
             {
-                for (var y = -jump; y <= jump; y++)
+                Vector3Int nextLocation = new Vector3Int(location.x, location.y + (int)y, location.z);
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation))
                 {
-                    bool isValidTile = (Mathf.Abs(x) + MathF.Abs(z)) <= move && (location.x + x) >= 0 && (location.y + y) >= 0 && (location.z + z) >= 0 && tiles[location.x + x, location.y + y, location.z + z] != null;
-                    if (isValidTile)
-                    {
-                        Debug.LogFormat("x: {0}, y: {1}, z: {2}", x,y,z);   
-                        tilesInRange.Add(tiles[location.x + x, location.y + y, location.z + z]);   
-                    }
+                    validTilesLocation.Add(nextLocation);
                 }
             }
         }
-        return tilesInRange;
-    }
-
-    //public List<GameObject> getTilesInRangeWalk(uint move, Vector3Int location)
-    //{
         
-    //    if(move == 0)
-    //    {
-    //        List<GameObject> tile = new List<GameObject>();
-    //        tile.Add(tiles[location.x, location.y, location.z]);
-    //        return tile;
-    //    }
-    //    else
-    //    return tilesInRange;
-    //}
+        return validTilesLocation;
+    }
+
+    private bool IsLocationInBounds(Vector3Int location)
+    {
+        return location.x >= 0 && location.y >= 0 && location.z >= 0 && location.x < xBound && location.y < yBound && location.z < zBound;
+    }
+    private bool IsTileStandable(Vector3Int location)
+    {
+        return tiles[location.x, location.y, location.z] != null && tiles[location.x, location.y + 1, location.z] == null;
+    }
 }
