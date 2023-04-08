@@ -75,7 +75,7 @@ public class MapManager : MonoBehaviour
         {
             for (var z = -move; z < move; z++)
             {
-                if((Mathf.Abs(x) + MathF.Abs(z)) < move && (location.x - x) > 0 && (location.z - z) > 0)
+                if((Mathf.Abs(x) + MathF.Abs(z)) < move && (location.x + x) >= 0 && (location.z + z) >= 0)
                 {
                     print("currenlty problem when near the edge of the board");
                     //tiles[location.x + x, 0, location.z + z].GetComponent<Highlight>().ToggleHighlight(true);
