@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.WSA;
+using static UnityEditor.FilePathAttribute;
 
 public class MapManager : MonoBehaviour
 {
@@ -85,4 +86,38 @@ public class MapManager : MonoBehaviour
         }
         return tilesInRange;
     }
+
+    public List<GameObject> getTilesInRangeJump(uint move, uint jump, Vector3Int location)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+        for (var x = -move; x <= move; x++)
+        {
+            for (var z = -move; z <= move; z++)
+            {
+                for (var y = -jump; y <= jump; y++)
+                {
+                    bool isValidTile = (Mathf.Abs(x) + MathF.Abs(z)) <= move && (location.x + x) >= 0 && (location.y + y) >= 0 && (location.z + z) >= 0 && tiles[location.x + x, location.y + y, location.z + z] != null;
+                    if (isValidTile)
+                    {
+                        Debug.LogFormat("x: {0}, y: {1}, z: {2}", x,y,z);   
+                        tilesInRange.Add(tiles[location.x + x, location.y + y, location.z + z]);   
+                    }
+                }
+            }
+        }
+        return tilesInRange;
+    }
+
+    //public List<GameObject> getTilesInRangeWalk(uint move, Vector3Int location)
+    //{
+        
+    //    if(move == 0)
+    //    {
+    //        List<GameObject> tile = new List<GameObject>();
+    //        tile.Add(tiles[location.x, location.y, location.z]);
+    //        return tile;
+    //    }
+    //    else
+    //    return tilesInRange;
+    //}
 }

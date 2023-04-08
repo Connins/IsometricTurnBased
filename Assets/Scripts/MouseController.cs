@@ -34,7 +34,11 @@ public class MouseController : MonoBehaviour
             {
                 CurrentSelectedPlayer = charecterHit;
                 Vector3Int location = new Vector3Int((int)CurrentSelectedPlayer.transform.position.x, (int)CurrentSelectedPlayer.transform.position.y, (int)CurrentSelectedPlayer.transform.position.z);
-                tilesInRange = grid.GetComponent<MapManager>().getTilesInRange(CurrentSelectedPlayer.GetComponent<PlayerController>().Move, location);
+                uint move = CurrentSelectedPlayer.GetComponent<PlayerController>().Move;
+                uint jump = CurrentSelectedPlayer.GetComponent<PlayerController>().Jump;
+
+                //tilesInRange = grid.GetComponent<MapManager>().getTilesInRange(CurrentSelectedPlayer.GetComponent<PlayerController>().Move, location);
+                tilesInRange = grid.GetComponent<MapManager>().getTilesInRangeJump(move, jump, location);
                 highlightTiles(tilesInRange, true);
             }
             else

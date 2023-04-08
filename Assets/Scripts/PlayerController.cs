@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private GameObject tileCharecterOn;
     [SerializeField] private uint move;
+    [SerializeField] private uint jump;
 
     private Transform playerTransform;
     // Start is called before the first frame update
@@ -34,5 +35,9 @@ public class PlayerController : MonoBehaviour
     public uint Move
     {
         get { return move; }
+    }
+    public uint Jump   
+    {
+        get { return jump; }
     }
 }
