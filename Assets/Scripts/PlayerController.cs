@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     {
         Transform target = hit.transform;
         float horOffset = 0.5f;
-        float verOffset = 0.5f;
+        float verOffset = 0f;
         Vector3 targetPosition = new Vector3(target.position.x + horOffset, target.parent.transform.position.y + target.localScale.y - verOffset, target.position.z + horOffset);
         playerTransform.SetPositionAndRotation(targetPosition, playerTransform.rotation);
         tileCharecterOn = hit;

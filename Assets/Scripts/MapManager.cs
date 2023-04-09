@@ -134,6 +134,6 @@ public class MapManager : MonoBehaviour
     }
     private bool IsTileStandable(Vector3Int location)
     {
-        return tiles[location.x, location.y, location.z] != null && tiles[location.x, location.y + 1, location.z] == null;
+        return tiles[location.x, location.y, location.z] != null && tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
     }
 }

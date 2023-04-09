@@ -17,6 +17,8 @@ public class MouseController : MonoBehaviour
     private GameObject hit;
     private GameObject charecterHit;
 
+    private float offset = 1f;
+
     private List<GameObject> tilesInRange;
     // Start is called before the first frame update
     void Start()
@@ -33,7 +35,7 @@ public class MouseController : MonoBehaviour
             if (charecterHit != null)
             {
                 CurrentSelectedPlayer = charecterHit;
-                Vector3Int location = new Vector3Int((int)CurrentSelectedPlayer.transform.position.x, (int)CurrentSelectedPlayer.transform.position.y, (int)CurrentSelectedPlayer.transform.position.z);
+                Vector3Int location = new Vector3Int((int)(CurrentSelectedPlayer.transform.position.x - offset), (int)(CurrentSelectedPlayer.transform.position.y - offset), (int)(CurrentSelectedPlayer.transform.position.z - offset));
                 uint move = CurrentSelectedPlayer.GetComponent<PlayerController>().Move;
                 uint jump = CurrentSelectedPlayer.GetComponent<PlayerController>().Jump;
                 
