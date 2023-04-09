@@ -1,25 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] private Transform follow;
-
     [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private Vector3 moveDirection;
+    [SerializeField] private float dampenHorizontalCameraSpeed;
+    [SerializeField] private float rotationDuration;
 
-    [SerializeField] private float cameraMoveSize = 35;
-    private int angle = 0;
-    private List<Vector3> targetPositon = new List<Vector3>();
-
-    float horInput;
-    float verInput;
+    bool rotateClockwise;
+    bool rotateAntiClockwise;
+    private bool coroutineActive;
     // Start is called before the first frame update
     void Start()
     {
-        SetTargetPositoins();
+        coroutineActive = false;
     }
 
     // Update is called once per frame
@@ -27,71 +26,69 @@ public class CameraController : MonoBehaviour
     {
         HandleInput();
         Move();
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Rotate(false);
-        }
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Rotate(true);
-        }
+        Rotate();
     }
+    
+
     private void HandleInput()
     {
-        horInput = Input.GetAxis("Horizontal");
-        verInput = Input.GetAxis("Vertical");
+        float horInput = Input.GetAxis("Horizontal");
+        float verInput = Input.GetAxis("Vertical");
+        rotateClockwise = Input.GetKeyDown(KeyCode.Q);
+        rotateAntiClockwise = Input.GetKeyDown(KeyCode.E);
+
+        Vector3 camForward = Camera.main.transform.forward;
+        Vector3 camRight = Camera.main.transform.right;
+
+        camForward.y = 0;
+        camRight.y = 0;
+
+        camForward = camForward.normalized;
+        camRight = camRight.normalized;
+
+        Vector3 forwardRelative = verInput * camForward;
+        Vector3 rightRelative = horInput * camRight * dampenHorizontalCameraSpeed;
+
+        moveDirection = forwardRelative + rightRelative;
     }
+
+
 
     private void Move()
     {
-        Vector3 Vec = transform.localPosition;
-        Vec.x += horInput * Time.deltaTime * moveSpeed;
-        Vec.y += verInput * Time.deltaTime * moveSpeed;
-        transform.localPosition = Vec;
+        transform.position += moveDirection * Time.deltaTime * moveSpeed;
     }
 
-    private void Rotate(bool clockWise)
+    private void Rotate()
     {
-        Quaternion targetRotation;
-        int Rotate;
-        float smooth = 5f;
-        if (clockWise) 
+        if (rotateClockwise && !coroutineActive)
         {
-            angle = angle + 1;
-            if (angle == 4)
-            {
-                angle = 0;
-            }
-            transform.parent.Translate(targetPositon[angle], Space.World);
-
-            targetRotation = Quaternion.Euler(0,  90, 0);
-            Rotate = 90;
+            StartCoroutine(RotateOverTime(transform.rotation, Quaternion.Euler(0, transform.rotation.eulerAngles.y + 90, 0), rotationDuration));
         }
-        else
+        if (rotateAntiClockwise && !coroutineActive)
         {
-            transform.parent.Translate(-targetPositon[angle], Space.World);
-
-            angle = angle - 1;
-            if (angle == -1)
-            {
-                angle = 3;
-            }
-            targetRotation = Quaternion.Euler(0, -90, 0);
-            Rotate = -90;
+            StartCoroutine(RotateOverTime(transform.rotation, Quaternion.Euler(0, transform.rotation.eulerAngles.y - 90, 0), rotationDuration));
         }
-        
-        
-        //transform.parent.rotation = Quaternion.Slerp(transform.localToWorldMatrix.rotation, targetRotation, Time.deltaTime * smooth);
-        //transform.parent.position = Vector3.Slerp(transform.parent.position, targetPositon[angle], Time.deltaTime * smooth);
-        transform.parent.Rotate(0,Rotate,0, Space.World);
     }
 
-    private void SetTargetPositoins()
+    IEnumerator RotateOverTime(Quaternion originalRotation, Quaternion finalRotation, float duration)
     {
-        targetPositon.Add(new Vector3(-cameraMoveSize, 0, 0));
-        targetPositon.Add(new Vector3(0, 0, cameraMoveSize));
-        targetPositon.Add(new Vector3(cameraMoveSize, 0, 0));
-        targetPositon.Add(new Vector3(0, 0, -cameraMoveSize));
+        coroutineActive = true;
+        if (duration > 0f)
+        {
+            float startTime = Time.time;
+            float endTime = startTime + duration;
+            transform.rotation = originalRotation;
+            yield return null;
+            while (Time.time < endTime)
+            {
+                float progress = (Time.time - startTime) / duration;
+                // progress will equal 0 at startTime, 1 at endTime.
+                transform.rotation = Quaternion.Slerp(originalRotation, finalRotation, progress);
+                yield return null;
+            }
+        }
+        transform.rotation = finalRotation;
+        coroutineActive = false;
     }
 }
