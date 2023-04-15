@@ -14,9 +14,7 @@ public class TurnManager : MonoBehaviour
     {
         if (isPlayerTurn)
         {
-            print(activePlayerList.Count);
             activePlayerList = new List<GameObject>(goodGuyList);
-            print(activePlayerList.Count);
         }
         else
         {
@@ -45,9 +43,7 @@ public class TurnManager : MonoBehaviour
 
     public void charecterMoved(GameObject charecter)
     {
-        print(goodGuyList.Count);
         activePlayerList.Remove(charecter);
-        print(goodGuyList.Count);
     }
 
     public bool activePlayer(GameObject charecter)
