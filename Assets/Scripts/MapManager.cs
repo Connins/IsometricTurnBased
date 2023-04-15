@@ -34,7 +34,7 @@ public class MapManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+       
     }
 
     // Update is called once per frame
@@ -154,7 +154,11 @@ public class MapManager : MonoBehaviour
     }
     private bool IsTileStandable(Vector3Int location)
     {
-        return tiles[location.x, location.y, location.z] != null && tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
+        bool tileIsThere = tiles[location.x, location.y, location.z] != null;
+        bool noTilesAbove = tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
+        
+
+        return  tileIsThere && noTilesAbove && !isTileOccupied(tiles[location.x, location.y, location.z]);
     }
 
 }

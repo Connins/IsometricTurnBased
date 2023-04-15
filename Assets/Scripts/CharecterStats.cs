@@ -15,9 +15,25 @@ public class CharecterStats : MonoBehaviour
     [SerializeField] private uint speed;
     [SerializeField] private uint magic;
     [SerializeField] private uint magicDefense;
-    
+    [SerializeField] private bool goodGuy;
 
-    
+    private TurnManager turnManager;
+
+
+    private void Awake()
+    {
+        turnManager = GetComponentInParent<TurnManager>();
+
+        if (goodGuy)
+        {
+            turnManager.addGoodGuy(gameObject);
+        }
+        else
+        {
+            turnManager.addBadGuy(gameObject);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {

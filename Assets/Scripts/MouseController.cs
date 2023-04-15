@@ -10,7 +10,7 @@ public class MouseController : MonoBehaviour
 
     [SerializeField] private Grid grid;
     private MapManager mapManager;
-
+    private TurnManager turnManager;
     private GameObject CurrentGameObject;
     private GameObject CurrentSelectedPlayer;
 
@@ -26,6 +26,7 @@ public class MouseController : MonoBehaviour
         CurrentGameObject = null;
         tilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
+        turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
     }
 
     // Update is called once per frame
@@ -33,7 +34,7 @@ public class MouseController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (charecterHit != null)
+            if (charecterHit != null && turnManager.activePlayer(charecterHit))
             {
                 highlightTiles(tilesInRange, false);
                 CurrentSelectedPlayer = charecterHit;
@@ -50,9 +51,11 @@ public class MouseController : MonoBehaviour
                 if (tilesInRange.Contains(hit) && !mapManager.isTileOccupied(hit))
                 {
                     CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(hit);
+                    turnManager.charecterMoved(CurrentSelectedPlayer);
                     CurrentSelectedPlayer = null;
                     highlightTiles(tilesInRange, false);
                     tilesInRange.Clear();
+
                 }
             }
 
