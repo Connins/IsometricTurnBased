@@ -31,7 +31,6 @@ public class Highlight : MonoBehaviour
     {
         if (val)
         {
-            //print("here");
             //foreach (var material in materials)
             //{
             //    //We need to enable the EMISSION

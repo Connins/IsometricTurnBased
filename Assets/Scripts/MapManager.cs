@@ -10,65 +10,51 @@ using static UnityEditor.FilePathAttribute;
 
 public class MapManager : MonoBehaviour
 {
-    [SerializeField] int baseMapXSize;
-    [SerializeField] int baseMapYSize;
-    [SerializeField] int baseMapZSize;
-    [SerializeField] GameObject baseTile;
 
     [SerializeField] private int xBound;
     [SerializeField] private int yBound;
     [SerializeField] private int zBound;
 
-    private GameObject[,,] tiles;
-    private Dictionary<Vector3Int, GameObject> tileMap;
-    
+    private List<GameObject> occupiedTiles = new List<GameObject>();
 
-    // Start is called before the first frame update
-    void Start()
+    private GameObject[,,] tiles;
+
+    //accessor functions
+    public GameObject getTile(Vector3 position)
+    {
+        return tiles[(int)position.x - 1, (int)position.y - 1, (int)position.z - 1];
+    }
+
+    private void Awake()
     {
         tiles = new GameObject[xBound, yBound, zBound];
         MapTiles();
     }
 
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
     // Update is called once per frame
     void Update()
     {
-       
+
     }
 
-    private void SpawnBaseMap(int x, int z)
+    public void addTileToOccupied(GameObject tile)
     {
-        //Idea of this function is to create a grid of blocks from serialized fields
+        occupiedTiles.Add(tile);
+    }
+    public void removeTileFromOccupied(GameObject tile)
+    {
+        occupiedTiles.Remove(tile);
     }
 
-    private void MapTiles()
+    public bool isTileOccupied(GameObject tile)
     {
-
-        BoxCollider[] boxColliders = GetComponentsInChildren<BoxCollider>();
-
-        foreach (var tile in boxColliders)
-        {
-            //Converts position of tiles into an index we can use. 
-            Vector3Int key = new Vector3Int((int)tile.gameObject.transform.position.x, (int)tile.gameObject.transform.parent.transform.position.y , (int)tile.gameObject.transform.position.z);
-            tiles[key.x,key.y,key.z] = tile.gameObject;
-        }
-    }
-    private void tileLoop()
-    {
-
-        for (var x = 0; x < tiles.GetLength(0); x++)
-        {
-            for (var y = 0; y < tiles.GetLength(1); y++)
-            {
-                for (var z = 0; z < tiles.GetLength(2); z++)
-                {
-                    if (tiles[x, y, z] != null)
-                    {
-                        //tiles[x, y, z].GetComponent<Highlight>().ToggleHighlight(true);
-                    }
-                }
-            }
-        }
+        return occupiedTiles.Contains(tile);
     }
     public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange)
     {
@@ -94,6 +80,40 @@ public class MapManager : MonoBehaviour
         return tilesInRange;
     }
 
+    private void SpawnBaseMap(int x, int z)
+    {
+        //Idea of this function is to create a grid of blocks from serialized fields
+    }
+
+    private void MapTiles()
+    {
+
+        BoxCollider[] boxColliders = GetComponentsInChildren<BoxCollider>();
+
+        foreach (var tile in boxColliders)
+        {
+            //Converts position of tiles into an index we can use. 
+            Vector3Int key = new Vector3Int((int)tile.gameObject.transform.position.x, (int)tile.gameObject.transform.parent.transform.position.y, (int)tile.gameObject.transform.position.z);
+            tiles[key.x, key.y, key.z] = tile.gameObject;
+        }
+    }
+    private void tileLoop()
+    {
+
+        for (var x = 0; x < tiles.GetLength(0); x++)
+        {
+            for (var y = 0; y < tiles.GetLength(1); y++)
+            {
+                for (var z = 0; z < tiles.GetLength(2); z++)
+                {
+                    if (tiles[x, y, z] != null)
+                    {
+                        //tiles[x, y, z].GetComponent<Highlight>().ToggleHighlight(true);
+                    }
+                }
+            }
+        }
+    }
     private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump)
     {
         List<Vector3Int> validTilesLocation = new List<Vector3Int>();
@@ -136,4 +156,5 @@ public class MapManager : MonoBehaviour
     {
         return tiles[location.x, location.y, location.z] != null && tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
     }
+
 }

@@ -9,7 +9,7 @@ public class MouseController : MonoBehaviour
     [SerializeField] private LayerMask charecterMask;
 
     [SerializeField] private Grid grid;
-
+    private MapManager mapManager;
 
     private GameObject CurrentGameObject;
     private GameObject CurrentSelectedPlayer;
@@ -25,6 +25,7 @@ public class MouseController : MonoBehaviour
     {
         CurrentGameObject = null;
         tilesInRange = new List<GameObject>();
+        mapManager = grid.GetComponent<MapManager>();
     }
 
     // Update is called once per frame
@@ -34,18 +35,19 @@ public class MouseController : MonoBehaviour
         {
             if (charecterHit != null)
             {
+                highlightTiles(tilesInRange, false);
                 CurrentSelectedPlayer = charecterHit;
                 Vector3Int location = new Vector3Int((int)(CurrentSelectedPlayer.transform.position.x - offset), (int)(CurrentSelectedPlayer.transform.position.y - offset), (int)(CurrentSelectedPlayer.transform.position.z - offset));
-                uint move = CurrentSelectedPlayer.GetComponent<PlayerController>().Move;
-                uint jump = CurrentSelectedPlayer.GetComponent<PlayerController>().Jump;
+                uint move = CurrentSelectedPlayer.GetComponent<CharecterStats>().Move;
+                uint jump = CurrentSelectedPlayer.GetComponent<CharecterStats>().Jump;
                 
                 tilesInRange.Clear();
-                tilesInRange = grid.GetComponent<MapManager>().getTilesInRange(move, jump, location, tilesInRange);
+                tilesInRange = mapManager.getTilesInRange(move, jump, location, tilesInRange);
                 highlightTiles(tilesInRange, true);
             }
             else
             {
-                if (tilesInRange.Contains(hit))
+                if (tilesInRange.Contains(hit) && !mapManager.isTileOccupied(hit))
                 {
                     CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(hit);
                     CurrentSelectedPlayer = null;
@@ -61,6 +63,7 @@ public class MouseController : MonoBehaviour
     {
         hit = GetObject(mapTileMask);
         charecterHit = GetObject(charecterMask);
+        
         if (hit != null)
         {
             if (CurrentGameObject != null && !tilesInRange.Contains(CurrentGameObject))
