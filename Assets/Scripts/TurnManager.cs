@@ -57,7 +57,7 @@ public class TurnManager : MonoBehaviour
         return activePlayerList.Contains(charecter);
     }
 
-    private void switchSides()
+    public void switchSides()
     {
         isPlayerTurn = isPlayerTurn == false;
        
