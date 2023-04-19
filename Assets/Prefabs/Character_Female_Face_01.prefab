@@ -380,7 +380,6 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 1
-  tileCharecterOn: {fileID: 0}
 --- !u!114 &-596324618072641280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,6 +401,7 @@ MonoBehaviour:
   speed: 0
   magic: 0
   magicDefense: 0
+  goodGuy: 1
 --- !u!1 &1940103749398908813
 GameObject:
   m_ObjectHideFlags: 0

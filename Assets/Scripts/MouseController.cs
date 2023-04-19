@@ -36,26 +36,13 @@ public class MouseController : MonoBehaviour
         {
             if (charecterHit != null && turnManager.activePlayer(charecterHit))
             {
-                highlightTiles(tilesInRange, false);
-                CurrentSelectedPlayer = charecterHit;
-                Vector3Int location = new Vector3Int((int)(CurrentSelectedPlayer.transform.position.x - offset), (int)(CurrentSelectedPlayer.transform.position.y - offset), (int)(CurrentSelectedPlayer.transform.position.z - offset));
-                uint move = CurrentSelectedPlayer.GetComponent<CharecterStats>().Move;
-                uint jump = CurrentSelectedPlayer.GetComponent<CharecterStats>().Jump;
-                
-                tilesInRange.Clear();
-                tilesInRange = mapManager.getTilesInRange(move, jump, location, tilesInRange);
-                highlightTiles(tilesInRange, true);
+                selectPlayer();
             }
             else
             {
                 if (tilesInRange.Contains(hit) && !mapManager.isTileOccupied(hit))
                 {
-                    CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(hit);
-                    turnManager.charecterMoved(CurrentSelectedPlayer);
-                    CurrentSelectedPlayer = null;
-                    highlightTiles(tilesInRange, false);
-                    tilesInRange.Clear();
-
+                    selectTileAndMovePlayer();
                 }
             }
 
@@ -101,5 +88,28 @@ public class MouseController : MonoBehaviour
         {
             tile.GetComponent<Highlight>().ToggleHighlight(highlight);
         }
+    }
+
+
+    private void selectPlayer()
+    {
+        highlightTiles(tilesInRange, false);
+        CurrentSelectedPlayer = charecterHit;
+        Vector3Int location = new Vector3Int((int)(CurrentSelectedPlayer.transform.position.x - offset), (int)(CurrentSelectedPlayer.transform.position.y - offset), (int)(CurrentSelectedPlayer.transform.position.z - offset));
+        uint move = CurrentSelectedPlayer.GetComponent<CharecterStats>().Move;
+        uint jump = CurrentSelectedPlayer.GetComponent<CharecterStats>().Jump;
+
+        tilesInRange.Clear();
+        tilesInRange = mapManager.getTilesInRange(move, jump, location, tilesInRange);
+        highlightTiles(tilesInRange, true);
+    }
+
+    private void selectTileAndMovePlayer()
+    {
+        CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(hit);
+        turnManager.charecterMoved(CurrentSelectedPlayer);
+        CurrentSelectedPlayer = null;
+        highlightTiles(tilesInRange, false);
+        tilesInRange.Clear();
     }
 }
