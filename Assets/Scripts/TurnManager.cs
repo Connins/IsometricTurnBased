@@ -47,7 +47,7 @@ public class TurnManager : MonoBehaviour
         badGuyList.Add(badGuy);
     }
 
-    public void charecterMoved(GameObject charecter)
+    public void charecterDoneAction(GameObject charecter)
     {
         activePlayerList.Remove(charecter);
     }

@@ -41,4 +41,13 @@ public class PlayerController : MonoBehaviour
         mapManager.addTileToOccupied(tileCharecterOn);
     }
 
+    public void MoveCharecter(Vector3 target)
+    {
+        playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
+
+        mapManager.removeTileFromOccupied(tileCharecterOn);
+        tileCharecterOn = mapManager.getTile(target); ;
+        mapManager.addTileToOccupied(tileCharecterOn);
+    }
+
 }

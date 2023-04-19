@@ -12,7 +12,10 @@ public class MouseController : MonoBehaviour
     private MapManager mapManager;
     private TurnManager turnManager;
     private GameObject previousTileHighlight;
-    private GameObject CurrentSelectedPlayer;
+    
+    private GameObject currentSelectedPlayer;
+
+    private Vector3 selectedPlayersPosition;
 
     private GameObject currentHighlightedTile;
     private GameObject charecterHit;
@@ -20,9 +23,13 @@ public class MouseController : MonoBehaviour
     private float offset = 1f;
 
     private List<GameObject> tilesInRange;
+
+    private UIController uIController;
+
     // Start is called before the first frame update
     void Start()
     {
+        uIController = FindAnyObjectByType<Canvas>().GetComponent<UIController>();
         previousTileHighlight = null;
         tilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
@@ -34,7 +41,7 @@ public class MouseController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (charecterHit != null && turnManager.activePlayer(charecterHit))
+            if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
             {
                 selectPlayer();
             }
@@ -86,23 +93,45 @@ public class MouseController : MonoBehaviour
     private void selectPlayer()
     {
         highlightTiles(tilesInRange, false);
-        CurrentSelectedPlayer = charecterHit;
-        Vector3Int location = new Vector3Int((int)(CurrentSelectedPlayer.transform.position.x - offset), (int)(CurrentSelectedPlayer.transform.position.y - offset), (int)(CurrentSelectedPlayer.transform.position.z - offset));
-        uint move = CurrentSelectedPlayer.GetComponent<CharecterStats>().Move;
-        uint jump = CurrentSelectedPlayer.GetComponent<CharecterStats>().Jump;
 
+        if (currentSelectedPlayer != null)
+        {
+            playerHasBeenDeselected();
+        }
+
+        currentSelectedPlayer = charecterHit;
+        
+        selectedPlayersPosition = new Vector3(currentSelectedPlayer.transform.position.x, currentSelectedPlayer.transform.position.y, currentSelectedPlayer.transform.position.z);
+
+
+        Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
+        uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
+        uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         tilesInRange.Clear();
-        tilesInRange = mapManager.getTilesInRange(move, jump, location, tilesInRange);
+        tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange);
         highlightTiles(tilesInRange, true);
+
+        uIController.enableWait();
     }
 
     private void selectTileAndMovePlayer()
     {
-        CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
-        turnManager.charecterMoved(CurrentSelectedPlayer);
-        CurrentSelectedPlayer = null;
+        currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
+    }
+
+    public void playerHasOfficialyMoved()
+    {
+        turnManager.charecterDoneAction(currentSelectedPlayer);
+        currentSelectedPlayer = null;
         highlightTiles(tilesInRange, false);
         tilesInRange.Clear();
+        uIController.disableWait();
+    }
+
+    public void playerHasBeenDeselected()
+    {
+        currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+        uIController.disableWait();
     }
 
     private void highlightCurentTile()
