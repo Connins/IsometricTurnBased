@@ -11,10 +11,10 @@ public class MouseController : MonoBehaviour
     [SerializeField] private Grid grid;
     private MapManager mapManager;
     private TurnManager turnManager;
-    private GameObject CurrentGameObject;
+    private GameObject previousTileHighlight;
     private GameObject CurrentSelectedPlayer;
 
-    private GameObject hit;
+    private GameObject currentHighlightedTile;
     private GameObject charecterHit;
 
     private float offset = 1f;
@@ -23,7 +23,7 @@ public class MouseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CurrentGameObject = null;
+        previousTileHighlight = null;
         tilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
@@ -40,7 +40,7 @@ public class MouseController : MonoBehaviour
             }
             else
             {
-                if (tilesInRange.Contains(hit) && !mapManager.isTileOccupied(hit))
+                if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
                 {
                     selectTileAndMovePlayer();
                 }
@@ -51,18 +51,10 @@ public class MouseController : MonoBehaviour
 
     void FixedUpdate()
     {
-        hit = GetObject(mapTileMask);
+        currentHighlightedTile = GetObject(mapTileMask);
         charecterHit = GetObject(charecterMask);
-        
-        if (hit != null)
-        {
-            if (CurrentGameObject != null && !tilesInRange.Contains(CurrentGameObject))
-            {
-                CurrentGameObject.GetComponent<Highlight>().ToggleHighlight(false);
-            }
-            CurrentGameObject = hit;
-            CurrentGameObject.GetComponent<Highlight>().ToggleHighlight(true);
-        }    
+
+        highlightCurentTile();
     }
 
     private GameObject GetObject(LayerMask mask)
@@ -106,10 +98,29 @@ public class MouseController : MonoBehaviour
 
     private void selectTileAndMovePlayer()
     {
-        CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(hit);
+        CurrentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
         turnManager.charecterMoved(CurrentSelectedPlayer);
         CurrentSelectedPlayer = null;
         highlightTiles(tilesInRange, false);
         tilesInRange.Clear();
+    }
+
+    private void highlightCurentTile()
+    { 
+        bool hitEqualsCurrentTile = currentHighlightedTile == previousTileHighlight;
+        bool tileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
+        bool noTileHighlighted = currentHighlightedTile == null && previousTileHighlight != null;
+        bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null && !tileInTilesInRange;
+
+        if (noTileHighlighted || newTileHigghlighted)
+        {
+            previousTileHighlight.GetComponent<Highlight>().ToggleHighlight(false);
+        }
+
+        if (currentHighlightedTile)
+        {
+            currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight(true);
+            previousTileHighlight = currentHighlightedTile;
+        }
     }
 }

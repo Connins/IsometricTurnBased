@@ -11,6 +11,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Block
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 4271e1f51cf274c499b8283b04da0c03, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 4271e1f51cf274c499b8283b04da0c03, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -107,7 +111,4 @@ MonoBehaviour:
   renderers:
   - {fileID: 8317126883142486111}
   color: {r: 1, g: 1, b: 1, a: 1}
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 1
   highlightMaterial: {fileID: 2100000, guid: 1521e9981c8165b46a19c54536c2ac69, type: 2}
