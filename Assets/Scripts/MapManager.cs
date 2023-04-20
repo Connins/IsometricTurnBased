@@ -56,7 +56,7 @@ public class MapManager : MonoBehaviour
     {
         return occupiedTiles.Contains(tile);
     }
-    public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange)
+    public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
         GameObject tile = tiles[location.x, location.y, location.z];
         //Checks if we have already stepped on tile if so just return current held tilesInRange
@@ -67,12 +67,12 @@ public class MapManager : MonoBehaviour
 
         if (move > 0)
         {
-            List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(location, jump);
+            List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(location, jump, passible);
             if (validTilesLocation.Count != 0)
             {
                 foreach (var nextLocation in validTilesLocation)
                 {
-                    tilesInRange = getTilesInRange(move - 1, jump, nextLocation, tilesInRange);
+                    tilesInRange = getTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
                 }
             }
         }
@@ -114,7 +114,7 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-    private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump)
+    private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump, bool passible)
     {
         List<Vector3Int> validTilesLocation = new List<Vector3Int>();
         Vector3Int xForward = new Vector3Int(location.x + 1, location.y, location.z);
@@ -122,14 +122,14 @@ public class MapManager : MonoBehaviour
         Vector3Int zForward = new Vector3Int(location.x, location.y, location.z + 1);
         Vector3Int zBackward = new Vector3Int(location.x, location.y, location.z - 1);
 
-        validTilesLocation.AddRange(GetValidTilesInCollunm(xForward, jump));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(xBackward, jump));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(zForward, jump));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(zBackward, jump));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xForward, jump, passible));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xBackward, jump, passible));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zForward, jump, passible));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zBackward, jump, passible));
 
         return validTilesLocation;
     }
-    private List<Vector3Int> GetValidTilesInCollunm(Vector3Int location, uint jump)
+    private List<Vector3Int> GetValidTilesInCollunm(Vector3Int location, uint jump, bool passible)
     {
         List <Vector3Int> validTilesLocation = new List <Vector3Int>();
 
@@ -138,7 +138,7 @@ public class MapManager : MonoBehaviour
             for (var y = -jump; y <= jump; y++)
             {
                 Vector3Int nextLocation = new Vector3Int(location.x, location.y + (int)y, location.z);
-                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation))
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, passible))
                 {
                     validTilesLocation.Add(nextLocation);
                 }
@@ -152,13 +152,17 @@ public class MapManager : MonoBehaviour
     {
         return location.x >= 0 && location.y >= 0 && location.z >= 0 && location.x < xBound && location.y < yBound && location.z < zBound;
     }
-    private bool IsTileStandable(Vector3Int location)
+    private bool IsTileStandable(Vector3Int location, bool passible)
     {
         bool tileIsThere = tiles[location.x, location.y, location.z] != null;
         bool noTilesAbove = tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
-        
 
-        return  tileIsThere && noTilesAbove && !isTileOccupied(tiles[location.x, location.y, location.z]);
+        bool output = tileIsThere && noTilesAbove;
+        if (!passible)
+        {
+            output = output && !isTileOccupied(tiles[location.x, location.y, location.z]);
+        }
+        return output;
     }
 
 }

@@ -38,8 +38,6 @@ public class Highlight : MonoBehaviour
     {   
         foreach (var renderer in renderers)
         {
-            print("here");
-            print(highlight);
             renderer.material = highlights[highlight];
         }
     }

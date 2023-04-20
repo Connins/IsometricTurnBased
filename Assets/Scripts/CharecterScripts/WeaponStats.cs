@@ -20,4 +20,19 @@ public class WeaponStats : MonoBehaviour
     {
         
     }
+
+    public uint Range
+    {
+        get { return range; }
+    }
+
+    public uint Weight
+    {
+        get { return weight; }
+    }
+
+    public uint WeaponDamage
+    {
+        get { return weaponDamage; }
+    }
 }

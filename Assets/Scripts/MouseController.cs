@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mail;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ public class MouseController : MonoBehaviour
     private float offset = 1f;
 
     private List<GameObject> tilesInRange;
+    private List<GameObject> attackTilesInRange;
 
     private UIController uIController;
 
@@ -32,6 +34,7 @@ public class MouseController : MonoBehaviour
         uIController = FindAnyObjectByType<Canvas>().GetComponent<UIController>();
         previousTileHighlight = null;
         tilesInRange = new List<GameObject>();
+        attackTilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
     }
@@ -93,6 +96,7 @@ public class MouseController : MonoBehaviour
     private void selectPlayer()
     {
         highlightTiles(tilesInRange, "noHighlight");
+        highlightTiles(attackTilesInRange, "noHighlight");
 
         if (currentSelectedPlayer != null)
         {
@@ -107,16 +111,28 @@ public class MouseController : MonoBehaviour
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
+        uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
         tilesInRange.Clear();
-        tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange);
+        tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange, false);
         highlightTiles(tilesInRange, "inMoveRangeHighlight");
-
+        attackTilesInRange.Clear();
+        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         uIController.enableWait();
     }
 
     private void selectTileAndMovePlayer()
     {
+        highlightTiles(attackTilesInRange, "noHighlight");
+        highlightTiles(tilesInRange, "inMoveRangeHighlight");
+        attackTilesInRange.Clear();
+        uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
+
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
+        Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
+        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
+
     }
 
     public void playerHasOfficialyMoved()
@@ -125,6 +141,8 @@ public class MouseController : MonoBehaviour
         currentSelectedPlayer = null;
         highlightTiles(tilesInRange, "noHighlight");
         tilesInRange.Clear();
+        highlightTiles(attackTilesInRange, "noHighlight");
+        attackTilesInRange.Clear();
         uIController.disableWait();
     }
 
@@ -137,16 +155,17 @@ public class MouseController : MonoBehaviour
     private void highlightCurentTile()
     { 
         bool hitEqualsCurrentTile = currentHighlightedTile == previousTileHighlight;
-        bool tileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
+        bool previousTileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
+        bool currentTileInAttackTilesInRange = attackTilesInRange.Contains(currentHighlightedTile);
         bool noTileHighlighted = currentHighlightedTile == null && previousTileHighlight != null;
-        bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null && !tileInTilesInRange;
+        bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null && !previousTileInTilesInRange;
 
         if (noTileHighlighted || newTileHigghlighted)
         {
             previousTileHighlight.GetComponent<Highlight>().ToggleHighlight("noHighlight");
         }
 
-        if (currentHighlightedTile)
+        if (currentHighlightedTile && !currentTileInAttackTilesInRange)
         {
             currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight("inMoveRangeHighlight");
             previousTileHighlight = currentHighlightedTile;
