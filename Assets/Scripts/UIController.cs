@@ -22,7 +22,7 @@ public class UIController : MonoBehaviour
     {
         endTurn.onClick.AddListener(endTurnOnClick);
         wait.onClick.AddListener(waitOnClick);
-        wait.enabled = false;
+        wait.interactable = false;
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
     }
@@ -47,12 +47,14 @@ public class UIController : MonoBehaviour
 
     public void disableWait()
     {
-        wait.enabled = false;
+        //wait.enabled = false;
+        wait.interactable = false;
     }
 
     public void enableWait()
     {
-        print("This is currently not working");
-        wait.enabled = true;
+        //print("This is currently not working");
+        //wait.enabled = true;
+        wait.interactable = true;
     }
 }
