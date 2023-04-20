@@ -2065,6 +2065,7 @@ GameObject:
   - component: {fileID: 1916369871746887852}
   - component: {fileID: 1916369871746887853}
   - component: {fileID: 8632188016734910227}
+  - component: {fileID: 3143642556473498633}
   m_Layer: 3
   m_Name: Bad_Guy
   m_TagString: Untagged
@@ -2166,6 +2167,21 @@ MonoBehaviour:
   magic: 0
   magicDefense: 0
   goodGuy: 0
+--- !u!114 &3143642556473498633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1918041382144182726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69cfa2d8002ac244b9f06ff944173247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 1
+  weight: 0
+  weaponDamage: 5
 --- !u!1 &1918049118292426574
 GameObject:
   m_ObjectHideFlags: 0

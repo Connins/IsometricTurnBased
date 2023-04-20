@@ -81,7 +81,7 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    private void highlightTiles(List<GameObject> tiles, bool highlight)
+    private void highlightTiles(List<GameObject> tiles, string highlight)
     {
         foreach (GameObject tile in tiles)
         {
@@ -92,7 +92,7 @@ public class MouseController : MonoBehaviour
 
     private void selectPlayer()
     {
-        highlightTiles(tilesInRange, false);
+        highlightTiles(tilesInRange, "noHighlight");
 
         if (currentSelectedPlayer != null)
         {
@@ -109,7 +109,7 @@ public class MouseController : MonoBehaviour
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         tilesInRange.Clear();
         tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange);
-        highlightTiles(tilesInRange, true);
+        highlightTiles(tilesInRange, "inMoveRangeHighlight");
 
         uIController.enableWait();
     }
@@ -123,7 +123,7 @@ public class MouseController : MonoBehaviour
     {
         turnManager.charecterDoneAction(currentSelectedPlayer);
         currentSelectedPlayer = null;
-        highlightTiles(tilesInRange, false);
+        highlightTiles(tilesInRange, "noHighlight");
         tilesInRange.Clear();
         uIController.disableWait();
     }
@@ -143,12 +143,12 @@ public class MouseController : MonoBehaviour
 
         if (noTileHighlighted || newTileHigghlighted)
         {
-            previousTileHighlight.GetComponent<Highlight>().ToggleHighlight(false);
+            previousTileHighlight.GetComponent<Highlight>().ToggleHighlight("noHighlight");
         }
 
         if (currentHighlightedTile)
         {
-            currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight(true);
+            currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight("inMoveRangeHighlight");
             previousTileHighlight = currentHighlightedTile;
         }
     }
