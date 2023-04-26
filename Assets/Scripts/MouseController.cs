@@ -138,18 +138,24 @@ public class MouseController : MonoBehaviour
     public void playerHasOfficialyMoved()
     {
         turnManager.charecterDoneAction(currentSelectedPlayer);
-        currentSelectedPlayer = null;
-        highlightTiles(tilesInRange, "noHighlight");
-        tilesInRange.Clear();
-        highlightTiles(attackTilesInRange, "noHighlight");
-        attackTilesInRange.Clear();
+        clearCharectersHighlights();
         uIController.disableWait();
     }
 
     public void playerHasBeenDeselected()
     {
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+        clearCharectersHighlights();
         uIController.disableWait();
+    }
+
+    public void clearCharectersHighlights()
+    {
+        currentSelectedPlayer = null;
+        highlightTiles(tilesInRange, "noHighlight");
+        tilesInRange.Clear();
+        highlightTiles(attackTilesInRange, "noHighlight");
+        attackTilesInRange.Clear();
     }
 
     private void highlightCurentTile()

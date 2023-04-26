@@ -7,7 +7,7 @@ public class TurnManager : MonoBehaviour
 {
     [SerializeField] private bool isPlayerTurn;
     [SerializeField] TMP_Text turnText;
-
+    [SerializeField] GameObject mouseController;
 
     private List<GameObject> goodGuyList = new List<GameObject>();
     private List<GameObject> badGuyList = new List<GameObject>();
@@ -60,7 +60,7 @@ public class TurnManager : MonoBehaviour
     public void switchSides()
     {
         isPlayerTurn = isPlayerTurn == false;
-       
+        
         if(isPlayerTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);

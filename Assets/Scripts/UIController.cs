@@ -38,6 +38,7 @@ public class UIController : MonoBehaviour
     private void endTurnOnClick()
     {
         turnManager.switchSides();
+        mouseController.playerHasBeenDeselected();    
     }
 
     private void waitOnClick()
