@@ -15,6 +15,9 @@ public class MouseController : MonoBehaviour
     private GameObject previousTileHighlight;
     
     private GameObject currentSelectedPlayer;
+    private GameObject currentSelectedEnemy;
+
+
 
     private Vector3 selectedPlayersPosition;
 

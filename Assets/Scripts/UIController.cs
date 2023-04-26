@@ -10,7 +10,8 @@ public class UIController : MonoBehaviour
 
     [SerializeField] private Button endTurn;
     [SerializeField] private Button wait;
-    
+    [SerializeField] private Button attack;
+
     [SerializeField] private GameObject Charecters;
     private TurnManager turnManager;
 
@@ -23,6 +24,9 @@ public class UIController : MonoBehaviour
         endTurn.onClick.AddListener(endTurnOnClick);
         wait.onClick.AddListener(waitOnClick);
         wait.interactable = false;
+        attack.onClick.AddListener(attackOnClick);
+        attack.interactable = false;
+
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
     }
@@ -46,16 +50,28 @@ public class UIController : MonoBehaviour
        mouseController.playerHasOfficialyMoved();
     }
 
+    private void attackOnClick()
+    {
+        //mouseController.playerHasOfficialyMoved();
+    }
+
     public void disableWait()
     {
-        //wait.enabled = false;
         wait.interactable = false;
     }
 
     public void enableWait()
     {
-        //print("This is currently not working");
-        //wait.enabled = true;
         wait.interactable = true;
     }
+    public void disableAttack()
+    {
+        attack.interactable = false;
+    }
+
+    public void enableAttack()
+    {
+        attack.interactable = true;
+    }
+
 }

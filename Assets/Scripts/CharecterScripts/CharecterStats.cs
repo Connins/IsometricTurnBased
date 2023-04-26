@@ -55,4 +55,28 @@ public class CharecterStats : MonoBehaviour
     { 
         get { return jump; } 
     }
+
+    public bool GoodGuy
+    { 
+        get { return goodGuy; } 
+    }
+
+
+    public void TakeHit(uint damage)
+    {
+        //could do calcula tion of how much damage would be done based on stats but for now will keepo it simple
+        health -= damage;
+        if(health < 0)
+        {
+            Die();
+        }
+
+    }
+
+    private void Die()
+    {
+        //play animation for death also make charecter unselectable.
+        Debug.Log("play animation for death also make charecter unselectable");
+    }
 }
+
