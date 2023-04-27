@@ -51,12 +51,14 @@ public class MouseController : MonoBehaviour
             {
                 selectPlayer();
             }
-            else
+            else if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
             {
-                if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
-                {
-                    selectTileAndMovePlayer();
-                }
+                currentSelectedEnemy = charecterHit;
+                
+            }
+            else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
+            {
+                selectTileAndMovePlayer();
             }
 
         }

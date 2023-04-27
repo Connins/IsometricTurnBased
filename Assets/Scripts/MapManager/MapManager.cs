@@ -15,7 +15,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int yBound;
     [SerializeField] private int zBound;
 
-    private List<GameObject> occupiedTiles = new List<GameObject>();
+    private List<OccupiedTile> occupiedTiles = new List<OccupiedTile>();
 
     private GameObject[,,] tiles;
 
@@ -43,18 +43,21 @@ public class MapManager : MonoBehaviour
 
     }
 
-    public void addTileToOccupied(GameObject tile)
+    public void addToOccupied(GameObject occupier, Vector3 position)
     {
-        occupiedTiles.Add(tile);
+        GameObject tile = getTile(position);
+        Vector3Int tileIndex = new Vector3Int((int)position.x - 1, (int)position.y - 1, (int)position.z - 1);
+        occupiedTiles.Add(new OccupiedTile(tile, occupier, tileIndex));
     }
-    public void removeTileFromOccupied(GameObject tile)
+    public void removeFromOccupied(Vector3 position)
     {
-        occupiedTiles.Remove(tile);
+        GameObject tile = getTile(position);
+        occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
     }
 
     public bool isTileOccupied(GameObject tile)
     {
-        return occupiedTiles.Contains(tile);
+        return occupiedTiles.Any(x => x.GetTile() == tile);
     }
     public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
