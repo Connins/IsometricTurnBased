@@ -52,7 +52,7 @@ public class UIController : MonoBehaviour
 
     private void attackOnClick()
     {
-        //mouseController.playerHasOfficialyMoved();
+        mouseController.setInAttackMode(true);
     }
 
     public void disableWait()

@@ -2329,7 +2329,7 @@ MonoBehaviour:
   maxHealth: 10
   move: 3
   jump: 1
-  stength: 0
+  stength: 5
   defense: 0
   speed: 0
   magic: 0

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class CharecterStats : MonoBehaviour
 {
 
-    [SerializeField] private uint health;
+    [SerializeField] private int health;
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
@@ -69,19 +69,25 @@ public class CharecterStats : MonoBehaviour
         get { return goodGuy; } 
     }
 
-
-    public void TakeHit(uint damage)
+    public uint outpPutDamage()
     {
-        //could do calcula tion of how much damage would be done based on stats but for now will keepo it simple
-        health -= damage;
-        if(health < 0)
+        //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
+        return stength;
+    }
+
+    public void takeHit(uint damage)
+    {
+        //could do calculation of how much damage would be taken based on stats but for now will keep it simple
+        health -= (int)damage;
+
+        if (health <= 0)
         {
-            Die();
+            die();
         }
 
     }
 
-    private void Die()
+    private void die()
     {
         //play animation for death also make charecter unselectable.
         Debug.Log("play animation for death also make charecter unselectable");

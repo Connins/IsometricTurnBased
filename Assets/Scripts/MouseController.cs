@@ -8,20 +8,20 @@ public class MouseController : MonoBehaviour
 {
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
-
     [SerializeField] private Grid grid;
+    private UIController uIController;
+
     private MapManager mapManager;
     private TurnManager turnManager;
-    private GameObject previousTileHighlight;
     
     private GameObject currentSelectedPlayer;
-    private GameObject currentSelectedEnemy;
-
-
-
     private Vector3 selectedPlayersPosition;
 
+    private GameObject currentSelectedEnemy;
+    [SerializeField] private bool inAttackMode;
+
     private GameObject currentHighlightedTile;
+    private GameObject previousTileHighlight;
     private GameObject charecterHit;
 
     private float offset = 1f;
@@ -29,7 +29,6 @@ public class MouseController : MonoBehaviour
     private List<GameObject> tilesInRange;
     private List<GameObject> attackTilesInRange;
 
-    private UIController uIController;
 
     // Start is called before the first frame update
     void Start()
@@ -47,19 +46,19 @@ public class MouseController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
+            if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
+            {
+                attackAndOfficiallyMove();
+            }
+            else if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
             {
                 selectPlayer();
-            }
-            else if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
-            {
-                currentSelectedEnemy = charecterHit;
-                
             }
             else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
             {
                 selectTileAndMovePlayer();
             }
+            
 
         }
     }
@@ -129,6 +128,7 @@ public class MouseController : MonoBehaviour
 
     private void selectTileAndMovePlayer()
     {
+        inAttackMode = false;
         highlightTiles(attackTilesInRange, "noHighlight");
         highlightTiles(tilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
@@ -142,20 +142,31 @@ public class MouseController : MonoBehaviour
 
     }
 
+    private void attackAndOfficiallyMove()
+    {
+        uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
+        charecterHit.GetComponent<CharecterStats>().takeHit(damage);
+        inAttackMode = false;
+        playerHasOfficialyMoved();
+    }
     public void playerHasOfficialyMoved()
     {
         turnManager.charecterDoneAction(currentSelectedPlayer);
         clearCharectersHighlights();
         uIController.disableWait();
+        uIController.disableAttack();
     }
 
     public void playerHasBeenDeselected()
     {
-        currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
-        clearCharectersHighlights();
-        uIController.disableWait();
-        uIController.disableAttack();
-
+        if(currentSelectedPlayer != null)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+            clearCharectersHighlights();
+            inAttackMode = false;
+            uIController.disableWait();
+            uIController.disableAttack();
+        }  
     }
 
     public void clearCharectersHighlights()
@@ -167,6 +178,10 @@ public class MouseController : MonoBehaviour
         attackTilesInRange.Clear();
     }
 
+    public void setInAttackMode(bool isInAttackMode)
+    {
+        inAttackMode = isInAttackMode;
+    }
     private void highlightCurentTile()
     { 
         bool hitEqualsCurrentTile = currentHighlightedTile == previousTileHighlight;
