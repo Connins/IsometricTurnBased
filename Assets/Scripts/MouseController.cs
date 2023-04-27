@@ -151,7 +151,7 @@ public class MouseController : MonoBehaviour
 
     public void playerHasBeenDeselected()
     {
-        currentSelectedPlayer.GetComponent<PlayerController>(). MoveCharecter(selectedPlayersPosition);
+        currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
         clearCharectersHighlights();
         uIController.disableWait();
         uIController.disableAttack();

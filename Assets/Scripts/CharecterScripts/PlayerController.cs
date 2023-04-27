@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
     public void MoveCharecter(Vector3 target)
     {
-        mapManager.removeFromOccupied(target);
+        mapManager.removeFromOccupied(transform.position);
         playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
