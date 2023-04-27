@@ -60,6 +60,16 @@ public class MapManager : MonoBehaviour
     {
         return occupiedTiles.Any(x => x.GetTile() == tile);
     }
+
+    public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)
+    {
+        bool output = false;
+
+        output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>().GoodGuy != goodGuy);
+
+        return output;
+    }
+
     public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
         GameObject tile = tiles[location.x, location.y, location.z];

@@ -124,6 +124,7 @@ public class MouseController : MonoBehaviour
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         uIController.enableWait();
+        checkEnemyInRange();
     }
 
     private void selectTileAndMovePlayer()
@@ -137,6 +138,7 @@ public class MouseController : MonoBehaviour
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
+        checkEnemyInRange();
 
     }
 
@@ -152,6 +154,8 @@ public class MouseController : MonoBehaviour
         currentSelectedPlayer.GetComponent<PlayerController>(). MoveCharecter(selectedPlayersPosition);
         clearCharectersHighlights();
         uIController.disableWait();
+        uIController.disableAttack();
+
     }
 
     public void clearCharectersHighlights()
@@ -183,9 +187,19 @@ public class MouseController : MonoBehaviour
         }
     }
 
-    private bool CheckEnemyInRange()
+    private void checkEnemyInRange()
     {
+        bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
 
-        return true;
+        bool enemyInRange = mapManager.isEnemyInTiles(attackTilesInRange, goodGuy);
+
+        if (enemyInRange)
+        {
+            uIController.enableAttack();
+        }
+        else
+        {
+            uIController.disableAttack();
+        }
     }
 }
