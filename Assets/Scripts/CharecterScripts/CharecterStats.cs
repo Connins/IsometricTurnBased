@@ -48,8 +48,10 @@ public class CharecterStats : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        //This is handling canvas update could put this in a seperate script.
         healthBar.value = health;
-        canvas.transform.LookAt(Camera.main.transform.position);
+        canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
         canvas.transform.transform.Rotate(0, 180, 0);
     }
 
