@@ -149,7 +149,7 @@ public class MouseController : MonoBehaviour
 
     public void playerHasBeenDeselected()
     {
-        currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+        currentSelectedPlayer.GetComponent<PlayerController>(). MoveCharecter(selectedPlayersPosition);
         clearCharectersHighlights();
         uIController.disableWait();
     }
@@ -181,5 +181,11 @@ public class MouseController : MonoBehaviour
             currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight("inMoveRangeHighlight");
             previousTileHighlight = currentHighlightedTile;
         }
+    }
+
+    private bool CheckEnemyInRange()
+    {
+
+        return true;
     }
 }

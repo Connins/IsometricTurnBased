@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharecterStats : MonoBehaviour
 {
@@ -18,7 +19,8 @@ public class CharecterStats : MonoBehaviour
     [SerializeField] private bool goodGuy;
 
     private TurnManager turnManager;
-
+    private Canvas canvas;
+    public Slider healthBar;
 
     private void Awake()
     {
@@ -37,13 +39,18 @@ public class CharecterStats : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        canvas = GetComponentInChildren<Canvas>();
+        healthBar = GetComponentInChildren<Slider>();
+        healthBar.maxValue = maxHealth;
+        healthBar.value = health;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        healthBar.value = health;
+        canvas.transform.LookAt(Camera.main.transform.position);
+        canvas.transform.transform.Rotate(0, 180, 0);
     }
 
     //accessor functions
