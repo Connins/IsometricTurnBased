@@ -12,12 +12,10 @@ public class TurnManager : MonoBehaviour
     private List<GameObject> goodGuyList = new List<GameObject>();
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
-    private Canvas UI;
   
     // Start is called before the first frame update
     void Start()
     {
-        UI = FindAnyObjectByType<Canvas>();
         if (isPlayerTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
@@ -47,6 +45,17 @@ public class TurnManager : MonoBehaviour
         badGuyList.Add(badGuy);
     }
 
+    public void removeCharecterFromList(GameObject charecter)
+    {
+        if (charecter.GetComponent<CharecterStats>().GoodGuy)
+        {
+            goodGuyList.Remove(charecter);
+        }
+        else
+        {
+            badGuyList.Remove(charecter);
+        }
+    }
     public void charecterDoneAction(GameObject charecter)
     {
         activePlayerList.Remove(charecter);

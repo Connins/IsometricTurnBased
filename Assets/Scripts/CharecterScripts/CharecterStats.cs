@@ -19,12 +19,15 @@ public class CharecterStats : MonoBehaviour
     [SerializeField] private bool goodGuy;
 
     private TurnManager turnManager;
+    private MapManager mapManager;
+
     private Canvas canvas;
     public Slider healthBar;
 
     private void Awake()
     {
         turnManager = GetComponentInParent<TurnManager>();
+        mapManager = FindAnyObjectByType<MapManager>();
 
         if (goodGuy)
         {
@@ -91,6 +94,9 @@ public class CharecterStats : MonoBehaviour
     {
         //play animation for death also make charecter unselectable.
         Debug.Log("play animation for death also make charecter unselectable");
+        turnManager.removeCharecterFromList(gameObject);
+        mapManager.removeFromOccupied(transform.position);
+
     }
 }
 

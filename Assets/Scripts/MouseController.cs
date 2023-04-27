@@ -33,7 +33,7 @@ public class MouseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        uIController = FindAnyObjectByType<Canvas>().GetComponent<UIController>();
+        uIController = FindAnyObjectByType<UIController>();
         previousTileHighlight = null;
         tilesInRange = new List<GameObject>();
         attackTilesInRange = new List<GameObject>();
