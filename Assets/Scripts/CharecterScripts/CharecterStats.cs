@@ -52,7 +52,6 @@ public class CharecterStats : MonoBehaviour
         //This is handling canvas update could put this in a seperate script.
         healthBar.value = health;
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
-        canvas.transform.transform.Rotate(0, 180, 0);
     }
 
     //accessor functions

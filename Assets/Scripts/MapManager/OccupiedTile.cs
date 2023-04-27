@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OccupiedTile : MonoBehaviour
+public class OccupiedTile
 {
     private GameObject _tile;
     private GameObject _occuppier;

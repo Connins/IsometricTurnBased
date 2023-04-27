@@ -47,7 +47,8 @@ public class MapManager : MonoBehaviour
     {
         GameObject tile = getTile(position);
         Vector3Int tileIndex = new Vector3Int((int)position.x - 1, (int)position.y - 1, (int)position.z - 1);
-        occupiedTiles.Add(new OccupiedTile(tile, occupier, tileIndex));
+        OccupiedTile occupiedTile = new OccupiedTile(tile, occupier, tileIndex);
+        occupiedTiles.Add(occupiedTile);
     }
     public void removeFromOccupied(Vector3 position)
     {
