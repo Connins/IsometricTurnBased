@@ -93,7 +93,7 @@ public class CharecterStats : MonoBehaviour
     private void die()
     {
         //play animation for death also make charecter unselectable.
-        Debug.Log("play animation for death also make charecter unselectable");
+        GetComponent<Animator>().SetTrigger("Death");
         turnManager.removeCharecterFromList(gameObject);
         mapManager.removeFromOccupied(transform.position);
 

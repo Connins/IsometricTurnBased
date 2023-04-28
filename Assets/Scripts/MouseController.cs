@@ -112,7 +112,7 @@ public class MouseController : MonoBehaviour
         selectedPlayersPosition = new Vector3(currentSelectedPlayer.transform.position.x, currentSelectedPlayer.transform.position.y, currentSelectedPlayer.transform.position.z);
 
 
-        Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
+        Vector3Int tileIndex = mapManager.getTileIndex(currentSelectedPlayer);
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;

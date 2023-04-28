@@ -70,6 +70,11 @@ public class MapManager : MonoBehaviour
         return output;
     }
 
+    public Vector3Int getTileIndex(GameObject occupier)
+    {
+        return occupiedTiles.Find(x => x.GetOccupier() == occupier).GetTileIndex();
+    }
+
     public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
         GameObject tile = tiles[location.x, location.y, location.z];

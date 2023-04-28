@@ -3419,6 +3419,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5671404576448151122, guid: a4c741e6ccdcd3e459160e253c15c6c8, type: 3}
+      propertyPath: mapManager
+      value: 
+      objectReference: {fileID: 1804041880}
     - target: {fileID: 6869867866352967939, guid: a4c741e6ccdcd3e459160e253c15c6c8, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4996,6 +5000,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   grid: {fileID: 1804041881}
+  inAttackMode: 0
 --- !u!4 &722467484
 Transform:
   m_ObjectHideFlags: 0

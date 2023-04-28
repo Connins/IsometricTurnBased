@@ -6,13 +6,13 @@ public class OccupiedTile
 {
     private GameObject _tile;
     private GameObject _occuppier;
-    private Vector3Int _position;
+    private Vector3Int _tileIndex;
     
-    public OccupiedTile(GameObject tile, GameObject occupier, Vector3Int position)
+    public OccupiedTile(GameObject tile, GameObject occupier, Vector3Int tileIndex)
     {
         _tile = tile;
         _occuppier = occupier;
-        _position = position;
+        _tileIndex = tileIndex;
     }
 
     public GameObject GetTile()
@@ -25,8 +25,8 @@ public class OccupiedTile
         return _occuppier;
     }
 
-    public Vector3Int GetPosition() 
+    public Vector3Int GetTileIndex() 
     {
-        return _position; 
+        return _tileIndex; 
     }
 }
