@@ -47,7 +47,7 @@ public class UIController : MonoBehaviour
 
     private void waitOnClick()
     {
-       mouseController.playerHasOfficialyMoved();
+        mouseController.setInWaitMode(true);
     }
 
     private void attackOnClick()

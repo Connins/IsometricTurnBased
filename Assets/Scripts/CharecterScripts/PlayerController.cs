@@ -37,6 +37,24 @@ public class PlayerController : MonoBehaviour
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
 
+    public void rotateCharecter()
+    {  
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Vector3 targetPosition = hit.point;
+            targetPosition.y = transform.position.y;
+            transform.LookAt(targetPosition);
+            transform.rotation = Quaternion.Euler(0, Mathf.Round(transform.rotation.eulerAngles.y / 90f) * 90f, 0);
+        }
+    }
+    public void rotateCharecter(Vector3 targetPosition)
+    {        
+        targetPosition.y = transform.position.y;
+        transform.LookAt(targetPosition);
+        transform.rotation = Quaternion.Euler(0, Mathf.Round(transform.rotation.eulerAngles.y / 90f) * 90f, 0);   
+    }
+
     public void MoveCharecter(Vector3 target)
     {
         mapManager.removeFromOccupied(transform.position);

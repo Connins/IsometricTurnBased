@@ -19,6 +19,7 @@ public class MouseController : MonoBehaviour
 
     private GameObject currentSelectedEnemy;
     [SerializeField] private bool inAttackMode;
+    [SerializeField] private bool inWaitMode;
 
     private GameObject currentHighlightedTile;
     private GameObject previousTileHighlight;
@@ -44,7 +45,11 @@ public class MouseController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (inWaitMode && currentHighlightedTile != null)
+        {
+            chooseRotation();
+        }
+        else if (Input.GetMouseButtonDown(0))
         {
             if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
             {
@@ -61,6 +66,8 @@ public class MouseController : MonoBehaviour
             
 
         }
+
+        
     }
 
     void FixedUpdate()
@@ -99,8 +106,7 @@ public class MouseController : MonoBehaviour
 
     private void selectPlayer()
     {
-        highlightTiles(tilesInRange, "noHighlight");
-        highlightTiles(attackTilesInRange, "noHighlight");
+        clearCharectersHighlights();
 
         if (currentSelectedPlayer != null)
         {
@@ -144,6 +150,7 @@ public class MouseController : MonoBehaviour
 
     private void attackAndOfficiallyMove()
     {
+        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
         charecterHit.GetComponent<CharecterStats>().takeHit(damage);
         inAttackMode = false;
@@ -152,6 +159,7 @@ public class MouseController : MonoBehaviour
     public void playerHasOfficialyMoved()
     {
         turnManager.charecterDoneAction(currentSelectedPlayer);
+        currentSelectedPlayer = null;
         clearCharectersHighlights();
         uIController.disableWait();
         uIController.disableAttack();
@@ -162,6 +170,7 @@ public class MouseController : MonoBehaviour
         if(currentSelectedPlayer != null)
         {
             currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+            currentSelectedPlayer = null;
             clearCharectersHighlights();
             inAttackMode = false;
             uIController.disableWait();
@@ -169,9 +178,17 @@ public class MouseController : MonoBehaviour
         }  
     }
 
+    private void chooseRotation()
+    {
+        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter();
+        if (Input.GetMouseButtonDown(0))
+        {
+            inWaitMode = false;
+            playerHasOfficialyMoved();
+        }
+    }
     public void clearCharectersHighlights()
     {
-        currentSelectedPlayer = null;
         highlightTiles(tilesInRange, "noHighlight");
         tilesInRange.Clear();
         highlightTiles(attackTilesInRange, "noHighlight");
@@ -181,6 +198,14 @@ public class MouseController : MonoBehaviour
     public void setInAttackMode(bool isInAttackMode)
     {
         inAttackMode = isInAttackMode;
+    }
+    public void setInWaitMode(bool isInWaitMode)
+    {
+        inWaitMode = isInWaitMode;
+        if (inWaitMode)
+        {
+            clearCharectersHighlights();
+        }
     }
     private void highlightCurentTile()
     { 
