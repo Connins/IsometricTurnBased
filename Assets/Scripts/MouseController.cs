@@ -63,8 +63,6 @@ public class MouseController : MonoBehaviour
             {
                 selectTileAndMovePlayer();
             }
-            
-
         }
 
         
@@ -117,7 +115,6 @@ public class MouseController : MonoBehaviour
         
         selectedPlayersPosition = new Vector3(currentSelectedPlayer.transform.position.x, currentSelectedPlayer.transform.position.y, currentSelectedPlayer.transform.position.z);
 
-
         Vector3Int tileIndex = mapManager.getTileIndex(currentSelectedPlayer);
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
@@ -151,6 +148,7 @@ public class MouseController : MonoBehaviour
     private void attackAndOfficiallyMove()
     {
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
+        currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
         charecterHit.GetComponent<CharecterStats>().takeHit(damage);
         inAttackMode = false;

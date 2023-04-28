@@ -3133,43 +3133,43 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 27.7
+      value: 27.700073
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.9
+      value: -1.899985
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -32.2
+      value: -32.200157
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.6441758
+      value: -0.64624137
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.75143033
+      value: 0.68357
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.11250833
+      value: 0.09996377
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.087930635
+      value: -0.3242088
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -81.075
+      value: -54.953
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 175.266
+      value: 274.542
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 201.08
+      value: 104.601
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 47a4d480549968c479fc707f64da7a06, type: 3}
       propertyPath: m_Materials.Array.data[0]
