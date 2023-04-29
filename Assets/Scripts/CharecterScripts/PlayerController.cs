@@ -37,6 +37,12 @@ public class PlayerController : MonoBehaviour
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
 
+    public void MoveCharecter(Vector3 target)
+    {
+        mapManager.removeFromOccupied(transform.position);
+        playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
+        mapManager.addToOccupied(transform.gameObject, transform.position);
+    }
     public void rotateCharecter()
     {  
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -55,10 +61,5 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, Mathf.Round(transform.rotation.eulerAngles.y / 90f) * 90f, 0);   
     }
 
-    public void MoveCharecter(Vector3 target)
-    {
-        mapManager.removeFromOccupied(transform.position);
-        playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
-    }
+    
 }
