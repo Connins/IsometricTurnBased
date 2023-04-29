@@ -87,6 +87,10 @@ public class CharecterStats : MonoBehaviour
         {
             die();
         }
+        else
+        {
+            GetComponent<Animator>().Play("TakeHit");
+        }
 
     }
 

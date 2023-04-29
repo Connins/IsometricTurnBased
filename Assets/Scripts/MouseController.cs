@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net.Mail;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -150,9 +152,16 @@ public class MouseController : MonoBehaviour
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
         currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
-        charecterHit.GetComponent<CharecterStats>().takeHit(damage);
+        StartCoroutine(enemyHit(0.9f, damage));
         inAttackMode = false;
         playerHasOfficialyMoved();
+    }
+
+    IEnumerator enemyHit(float delayTime, uint damage)
+    {
+        yield return new WaitForSeconds(delayTime);
+        charecterHit.GetComponent<CharecterStats>().takeHit(damage);
+        yield return null;
     }
     public void playerHasOfficialyMoved()
     {
