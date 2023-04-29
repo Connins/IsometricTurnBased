@@ -98,9 +98,9 @@ public class CharecterStats : MonoBehaviour
     {
         //play animation for death also make charecter unselectable.
         GetComponent<Animator>().SetTrigger("Death");
-        turnManager.removeCharecterFromList(gameObject);
         mapManager.removeFromOccupied(transform.position);
-
+        turnManager.removeCharecterFromList(gameObject);
+        canvas.enabled = false;
     }
 }
 

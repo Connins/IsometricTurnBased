@@ -73,12 +73,27 @@ public class TurnManager : MonoBehaviour
         if(isPlayerTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
-            turnText.text = "Your turn";
+            if(activePlayerList.Count > 0)
+            {
+                turnText.text = "Your turn";
+            }
+            else
+            {
+                switchSides();
+            }
+            
         }
         else
         {
             activePlayerList = new List<GameObject>(badGuyList);
-            turnText.text = "Enemy turn";
+            if (activePlayerList.Count > 0)
+            {
+                turnText.text = "Enemy turn";
+            }
+            else
+            {
+                switchSides();
+            }
         }
     }
 }

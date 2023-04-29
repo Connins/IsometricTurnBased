@@ -32,6 +32,7 @@ public class MouseController : MonoBehaviour
     private List<GameObject> tilesInRange;
     private List<GameObject> attackTilesInRange;
 
+    private bool coroutineActive;
 
     // Start is called before the first frame update
     void Start()
@@ -42,32 +43,34 @@ public class MouseController : MonoBehaviour
         attackTilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
+        coroutineActive = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (inWaitMode && currentHighlightedTile != null)
+        if (!coroutineActive)
         {
-            chooseRotation();
-        }
-        else if (Input.GetMouseButtonDown(0))
-        {
-            if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
+            if (inWaitMode && currentHighlightedTile != null)
             {
-                attackAndOfficiallyMove();
+                chooseRotation();
             }
-            else if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
+            else if (Input.GetMouseButtonDown(0))
             {
-                selectPlayer();
+                if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
+                {
+                    attackAndOfficiallyMove();
+                }
+                else if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
+                {
+                    selectPlayer();
+                }
+                else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
+                {
+                    selectTileAndMovePlayer();
+                }
             }
-            else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
-            {
-                selectTileAndMovePlayer();
-            }
-        }
-
-        
+        }        
     }
 
     void FixedUpdate()
@@ -149,19 +152,24 @@ public class MouseController : MonoBehaviour
 
     private void attackAndOfficiallyMove()
     {
+        currentSelectedEnemy = charecterHit;
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
         currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
-        inAttackMode = false;
-        playerHasOfficialyMoved();
     }
 
     IEnumerator enemyHit(float delayTime, uint damage)
     {
+        coroutineActive = true;
         yield return new WaitForSeconds(delayTime);
-        charecterHit.GetComponent<CharecterStats>().takeHit(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().takeHit(damage);
+        currentSelectedEnemy = null;
+        coroutineActive = false;
+        inAttackMode = false;
+        playerHasOfficialyMoved();
         yield return null;
+        
     }
     public void playerHasOfficialyMoved()
     {
