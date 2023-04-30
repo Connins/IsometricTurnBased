@@ -228,9 +228,9 @@ public class MouseController : MonoBehaviour
         bool previousTileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
         bool currentTileInAttackTilesInRange = attackTilesInRange.Contains(currentHighlightedTile);
         bool noTileHighlighted = currentHighlightedTile == null && previousTileHighlight != null;
-        bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null && !previousTileInTilesInRange;
+        bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null;
 
-        if (noTileHighlighted || newTileHigghlighted)
+        if ((noTileHighlighted || newTileHigghlighted) && !previousTileInTilesInRange)
         {
             previousTileHighlight.GetComponent<Highlight>().ToggleHighlight("noHighlight");
         }
