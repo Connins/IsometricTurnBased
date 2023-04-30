@@ -72,7 +72,7 @@ public class CharecterStats : MonoBehaviour
         get { return goodGuy; } 
     }
 
-    public uint outpPutDamage()
+    public uint outPutDamage()
     {
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
         return stength;
@@ -82,6 +82,7 @@ public class CharecterStats : MonoBehaviour
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         health -= (int)damage;
+        GetComponent<DamageTextController>().startDamageIndicatorCoroutine(-(int)damage);
 
         if (health <= 0)
         {
@@ -96,11 +97,10 @@ public class CharecterStats : MonoBehaviour
 
     private void die()
     {
-        //play animation for death also make charecter unselectable.
         GetComponent<Animator>().SetTrigger("Death");
         mapManager.removeFromOccupied(transform.position);
         turnManager.removeCharecterFromList(gameObject);
-        canvas.enabled = false;
+        healthBar.gameObject.SetActive(false);
     }
 }
 

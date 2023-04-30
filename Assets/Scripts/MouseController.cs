@@ -155,7 +155,7 @@ public class MouseController : MonoBehaviour
         currentSelectedEnemy = charecterHit;
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
         currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
-        uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outpPutDamage();
+        uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
 
