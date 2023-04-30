@@ -17,7 +17,7 @@ public class MouseController : MonoBehaviour
     private TurnManager turnManager;
     
     private GameObject currentSelectedPlayer;
-    private Vector3 selectedPlayersPosition;
+    private Transform selectedPlayersOriginalTransform;
 
     private GameObject currentSelectedEnemy;
     [SerializeField] private bool inAttackMode;
@@ -50,7 +50,11 @@ public class MouseController : MonoBehaviour
     void Update()
     {
         if (!coroutineActive)
-        {
+        {   
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                playerHasBeenDeselected();
+            }
             if (inWaitMode && currentHighlightedTile != null)
             {
                 chooseRotation();
@@ -117,8 +121,8 @@ public class MouseController : MonoBehaviour
         }
 
         currentSelectedPlayer = charecterHit;
-        
-        selectedPlayersPosition = new Vector3(currentSelectedPlayer.transform.position.x, currentSelectedPlayer.transform.position.y, currentSelectedPlayer.transform.position.z);
+
+        cacheOriginalTransform();
 
         Vector3Int tileIndex = mapManager.getTileIndex(currentSelectedPlayer);
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
@@ -184,15 +188,23 @@ public class MouseController : MonoBehaviour
     {
         if(currentSelectedPlayer != null)
         {
-            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersPosition);
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersOriginalTransform);
             currentSelectedPlayer = null;
             clearCharectersHighlights();
+            inWaitMode = false;
             inAttackMode = false;
             uIController.disableWait();
             uIController.disableAttack();
         }  
     }
 
+    private void cacheOriginalTransform()
+    {
+        selectedPlayersOriginalTransform = new GameObject().transform;
+        selectedPlayersOriginalTransform.position = currentSelectedPlayer.transform.position;
+        selectedPlayersOriginalTransform.rotation = currentSelectedPlayer.transform.rotation;
+        selectedPlayersOriginalTransform.localScale = currentSelectedPlayer.transform.localScale;
+    }
     private void chooseRotation()
     {
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter();

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using static UnityEngine.GraphicsBuffer;
 
 public class PlayerController : MonoBehaviour
 {
@@ -41,6 +42,12 @@ public class PlayerController : MonoBehaviour
     {
         mapManager.removeFromOccupied(transform.position);
         playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
+        mapManager.addToOccupied(transform.gameObject, transform.position);
+    }
+    public void MoveCharecter(Transform targetTransform)
+    {
+        mapManager.removeFromOccupied(transform.position);
+        playerTransform.SetPositionAndRotation(targetTransform.position, targetTransform.rotation);
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
     public void rotateCharecter()
