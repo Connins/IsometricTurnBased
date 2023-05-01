@@ -65,7 +65,7 @@ public class MapManager : MonoBehaviour
     {
         bool output = false;
 
-        output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>().GoodGuy != goodGuy);
+        output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>() != null && x.GetOccupier().GetComponent<CharecterStats>().GoodGuy != goodGuy);
 
         return output;
     }
