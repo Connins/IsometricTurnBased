@@ -17,7 +17,9 @@ public class MouseController : MonoBehaviour
     private TurnManager turnManager;
     
     private GameObject currentSelectedPlayer;
-    private Transform selectedPlayersOriginalTransform;
+    private Vector3 selectedPlayersOriginalPosition;
+    private Quaternion selectedPlayersOriginalRotation;
+
 
     private GameObject currentSelectedEnemy;
     [SerializeField] private bool inAttackMode;
@@ -50,7 +52,7 @@ public class MouseController : MonoBehaviour
     void Update()
     {
         if (!coroutineActive)
-        {   
+        {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
                 playerHasBeenDeselected();
@@ -74,7 +76,7 @@ public class MouseController : MonoBehaviour
                     selectTileAndMovePlayer();
                 }
             }
-        }        
+        }       
     }
 
     void FixedUpdate()
@@ -188,7 +190,7 @@ public class MouseController : MonoBehaviour
     {
         if(currentSelectedPlayer != null)
         {
-            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersOriginalTransform);
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersOriginalPosition, selectedPlayersOriginalRotation);
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
@@ -200,10 +202,8 @@ public class MouseController : MonoBehaviour
 
     private void cacheOriginalTransform()
     {
-        selectedPlayersOriginalTransform = new GameObject().transform;
-        selectedPlayersOriginalTransform.position = currentSelectedPlayer.transform.position;
-        selectedPlayersOriginalTransform.rotation = currentSelectedPlayer.transform.rotation;
-        selectedPlayersOriginalTransform.localScale = currentSelectedPlayer.transform.localScale;
+        selectedPlayersOriginalPosition = currentSelectedPlayer.transform.position;
+        selectedPlayersOriginalRotation = currentSelectedPlayer.transform.rotation;
     }
     private void chooseRotation()
     {

@@ -44,11 +44,12 @@ public class PlayerController : MonoBehaviour
         playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
-    public void MoveCharecter(Transform targetTransform)
+    public void MoveCharecter(Vector3 targetPosition, Quaternion targetRotation)
     {
         mapManager.removeFromOccupied(transform.position);
-        playerTransform.SetPositionAndRotation(targetTransform.position, targetTransform.rotation);
+        playerTransform.SetPositionAndRotation(targetPosition, targetRotation);
         mapManager.addToOccupied(transform.gameObject, transform.position);
+
     }
     public void rotateCharecter()
     {  
