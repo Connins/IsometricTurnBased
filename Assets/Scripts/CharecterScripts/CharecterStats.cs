@@ -82,7 +82,7 @@ public class CharecterStats : MonoBehaviour
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         health -= (int)damage;
-        GetComponent<DamageTextController>().startDamageIndicatorCoroutine(-(int)damage);
+        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
 
         if (health <= 0)
         {

@@ -12,7 +12,7 @@ public class MouseController : MonoBehaviour
     [SerializeField] private LayerMask charecterMask;
     [SerializeField] private Grid grid;
     private UIController uIController;
-
+    private CharecterUIController charecterUIController;
     private MapManager mapManager;
     private TurnManager turnManager;
     
@@ -189,12 +189,12 @@ public class MouseController : MonoBehaviour
         if(currentSelectedPlayer != null)
         {
             currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(selectedPlayersOriginalTransform);
-            currentSelectedPlayer = null;
             clearCharectersHighlights();
-            inWaitMode = false;
-            inAttackMode = false;
+            setInWaitMode(false);
+            setInAttackMode(false);
             uIController.disableWait();
             uIController.disableAttack();
+            currentSelectedPlayer = null;
         }  
     }
 
@@ -210,7 +210,7 @@ public class MouseController : MonoBehaviour
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter();
         if (Input.GetMouseButtonDown(0))
         {
-            inWaitMode = false;
+            setInWaitMode(false);
             playerHasOfficialyMoved();
         }
     }
@@ -233,6 +233,7 @@ public class MouseController : MonoBehaviour
         {
             clearCharectersHighlights();
         }
+        currentSelectedPlayer.GetComponent<CharecterUIController>().setDirectionHighlight(inWaitMode);
     }
     private void highlightCurentTile()
     { 

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DamageTextController : MonoBehaviour
+public class CharecterUIController : MonoBehaviour
 {
     public float fadeTime = 1f;
     public float moveSpeed = 1f;
@@ -12,6 +12,7 @@ public class DamageTextController : MonoBehaviour
     public int damageValue = 0;
 
     private TMP_Text damageText;
+    [SerializeField] private GameObject directionHighlight;
 
     void Start()
     {
@@ -41,5 +42,10 @@ public class DamageTextController : MonoBehaviour
         }
         damageText.rectTransform.position = startPos;
         damageText.enabled = false;
+    }
+
+    public void setDirectionHighlight(bool value)
+    {
+        directionHighlight.GetComponent<MeshRenderer>().enabled = value;
     }
 }
