@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.XR;
 using static UnityEngine.GraphicsBuffer;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private LayerMask layerMask;
     
@@ -33,16 +34,12 @@ public class PlayerController : MonoBehaviour
         float verOffset = 0f;
         Vector3 targetPosition = new Vector3(target.position.x + horOffset, target.parent.transform.position.y + target.localScale.y - verOffset, target.position.z + horOffset);
 
-        mapManager.removeFromOccupied(transform.position);
-        playerTransform.SetPositionAndRotation(targetPosition, playerTransform.rotation);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
+        MoveCharecter(targetPosition, playerTransform.rotation);
     }
 
     public void MoveCharecter(Vector3 target)
     {
-        mapManager.removeFromOccupied(transform.position);
-        playerTransform.SetPositionAndRotation(target, playerTransform.rotation);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
+        MoveCharecter(target, playerTransform.rotation);
     }
     public void MoveCharecter(Vector3 targetPosition, Quaternion targetRotation)
     {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,7 @@ public class MenuUIController : MonoBehaviour
 
     private void localPlayOnClick()
     {
+        NetworkManager.Singleton.StartHost();
         UIManager.SwitchUI(3);
     }
 
