@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIController : MonoBehaviour
+public class PlayerUIController : MonoBehaviour
 {
 
     [SerializeField] private Button endTurn;
@@ -17,7 +17,7 @@ public class UIController : MonoBehaviour
 
     [SerializeField] private GameObject MouseController;
     private MouseController mouseController;
-
+     
     // Start is called before the first frame update
     void Start()
     {
@@ -30,15 +30,6 @@ public class UIController : MonoBehaviour
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
     }
-
-    
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void endTurnOnClick()
     {
         turnManager.switchSides();

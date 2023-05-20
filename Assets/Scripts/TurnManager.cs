@@ -12,7 +12,8 @@ public class TurnManager : MonoBehaviour
     private List<GameObject> goodGuyList = new List<GameObject>();
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
-  
+    
+
     // Start is called before the first frame update
     void Start()
     {

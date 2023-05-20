@@ -11,7 +11,7 @@ public class MouseController : MonoBehaviour
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
     [SerializeField] private Grid grid;
-    private UIController uIController;
+    private PlayerUIController uIController;
     private CharecterUIController charecterUIController;
     private MapManager mapManager;
     private TurnManager turnManager;
@@ -39,7 +39,7 @@ public class MouseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        uIController = FindAnyObjectByType<UIController>();
+        uIController = FindAnyObjectByType<PlayerUIController>();
         previousTileHighlight = null;
         tilesInRange = new List<GameObject>();
         attackTilesInRange = new List<GameObject>();
