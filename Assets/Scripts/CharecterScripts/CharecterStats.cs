@@ -1,13 +1,15 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharecterStats : MonoBehaviour
+public class CharecterStats : NetworkBehaviour
 {
 
-    [SerializeField] private int health;
+    [SerializeField] NetworkVariable<int> healthServerState;
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
@@ -23,6 +25,26 @@ public class CharecterStats : MonoBehaviour
 
     private Canvas canvas;
     public Slider healthBar;
+
+    private void OnEnable()
+    {
+        healthServerState.OnValueChanged += OnHealthServerStateChanged;
+    }
+
+    private void OnHealthServerStateChanged(int previousValue, int newValue)
+    {
+        int damage = newValue - previousValue;
+        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine((int)damage);
+
+        if (healthServerState.Value <= 0)
+        {
+            die();
+        }
+        else
+        {
+            GetComponent<Animator>().Play("TakeHit");
+        }
+    }
 
     private void Awake()
     {
@@ -45,7 +67,7 @@ public class CharecterStats : MonoBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
-        healthBar.value = health;
+        healthBar.value = healthServerState.Value;
     }
 
     // Update is called once per frame
@@ -53,7 +75,7 @@ public class CharecterStats : MonoBehaviour
     {
 
         //This is handling canvas update could put this in a seperate script.
-        healthBar.value = health;
+        healthBar.value = healthServerState.Value;
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
@@ -78,21 +100,11 @@ public class CharecterStats : MonoBehaviour
         return stength;
     }
 
-    public void takeHit(uint damage)
+    [ServerRpc(RequireOwnership = false)]
+    public void takeHitServerRPC(uint damage)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
-        health -= (int)damage;
-        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
-
-        if (health <= 0)
-        {
-            die();
-        }
-        else
-        {
-            GetComponent<Animator>().Play("TakeHit");
-        }
-
+        healthServerState.Value -= (int)damage;
     }
 
     private void die()

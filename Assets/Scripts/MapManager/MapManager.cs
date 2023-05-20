@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.WSA;
-using static UnityEditor.FilePathAttribute;
+
 
 public class MapManager : MonoBehaviour
 {

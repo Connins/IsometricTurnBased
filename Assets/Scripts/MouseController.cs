@@ -169,7 +169,7 @@ public class MouseController : MonoBehaviour
     {
         coroutineActive = true;
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().takeHit(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().takeHitServerRPC(damage);
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;
