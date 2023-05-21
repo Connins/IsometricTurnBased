@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,8 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField] private Button wait;
     [SerializeField] private Button attack;
 
+    [SerializeField] TMP_Text turnText;
+
     [SerializeField] private GameObject Charecters;
     private TurnManager turnManager;
 
@@ -21,6 +24,7 @@ public class PlayerUIController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         endTurn.onClick.AddListener(endTurnOnClick);
         wait.onClick.AddListener(waitOnClick);
         wait.interactable = false;
@@ -65,4 +69,16 @@ public class PlayerUIController : MonoBehaviour
         attack.interactable = true;
     }
 
+    public void EnablePlayerUI(bool enable)
+    {
+        endTurn.interactable = enable;
+        if (enable)
+        {
+            turnText.text = "Your turn";
+        }
+        else
+        {
+            turnText.text = "Enemy turn";
+        }
+    }
 }

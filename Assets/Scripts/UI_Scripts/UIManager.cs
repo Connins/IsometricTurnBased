@@ -38,4 +38,9 @@ public class UIManager : MonoBehaviour
         UIList[UIIndex].enabled = show;
     }
 
+    public void EnablePlayerUI(bool enable)
+    {
+        playerUI.GetComponent<PlayerUIController>().EnablePlayerUI(enable);
+    }
+
 }

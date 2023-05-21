@@ -848,6 +848,7 @@ MonoBehaviour:
   endTurn: {fileID: 311818153}
   wait: {fileID: 1097142261}
   attack: {fileID: 1476742657}
+  turnText: {fileID: 1575047389}
   Charecters: {fileID: 685507667}
   MouseController: {fileID: 722467482}
 --- !u!4 &80551442 stripped
@@ -4812,7 +4813,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayerTurn: 1
-  turnText: {fileID: 1575047389}
   mouseController: {fileID: 722467482}
   turnVariable:
     m_InternalValue: 1

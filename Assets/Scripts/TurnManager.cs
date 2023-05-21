@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class TurnManager : NetworkBehaviour
 {
     [SerializeField] private bool isPlayerTurn;
-    [SerializeField] TMP_Text turnText;
     [SerializeField] GameObject mouseController;
     [SerializeField] NetworkVariable<bool> turnVariable;
     [SerializeField] GameObject UIManager;
@@ -35,8 +34,7 @@ public class TurnManager : NetworkBehaviour
     void Update()
     {
 
-        UIManager.GetComponent<UIManager>().ShowUI(YourTurn(), 2);
-        
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
         if (activePlayerList.Count == 0)
         {
             SwitchSides();
@@ -116,7 +114,7 @@ public class TurnManager : NetworkBehaviour
             activePlayerList = new List<GameObject>(goodGuyList);
             if(activePlayerList.Count > 0)
             {
-                turnText.text = "Player 1";
+
             }
             else
             {
@@ -129,7 +127,7 @@ public class TurnManager : NetworkBehaviour
             activePlayerList = new List<GameObject>(badGuyList);
             if (activePlayerList.Count > 0)
             {
-                turnText.text = "Player 2";
+
             }
             else
             {
