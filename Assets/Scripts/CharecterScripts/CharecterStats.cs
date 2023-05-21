@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,12 +27,10 @@ public class CharecterStats : NetworkBehaviour
 
     private Canvas canvas;
     public Slider healthBar;
-
     private void OnEnable()
     {
         healthServerState.OnValueChanged += OnHealthServerStateChanged;
     }
-
     private void OnHealthServerStateChanged(int previousValue, int newValue)
     {
         if (IsServer)
@@ -42,6 +41,7 @@ public class CharecterStats : NetworkBehaviour
         if(health != healthServerState.Value)
         {
             Debug.Log("Health does not match the network variable health maybe implement some reconciliation");
+            health = healthServerState.Value;
         }
     }
 
@@ -67,15 +67,15 @@ public class CharecterStats : NetworkBehaviour
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
         health = healthServerState.Value;
-        healthBar.value = health;
+        healthBar.value = health;     
     }
 
     // Update is called once per frame
     void Update()
     {
         //This is handling canvas update could put this in a seperate script.
-        //healthBar.value = healthServerState.Value;
-        healthBar.value = health;
+        healthBar.value = healthServerState.Value;
+        //healthBar.value = health;
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
@@ -100,13 +100,12 @@ public class CharecterStats : NetworkBehaviour
         return stength;
     }
 
-    
-
     public void NetworktTakeHit(uint damage)
     {
         if(IsServer)
         {
             TakeHitClientRPC(damage);
+            healthServerState.Value -= (int)damage;
         }
         else
         {
@@ -126,7 +125,6 @@ public class CharecterStats : NetworkBehaviour
     public void TakeHitClientRPC(uint damage)
     {
         TakeHit(damage);
-        healthServerState.Value -= (int)damage;
     }
 
     private void TakeHit(uint damage)
