@@ -9,19 +9,28 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Canvas networkUI;
     [SerializeField] private Canvas playerUI;
 
+    private List<Canvas> UIList = new List<Canvas>();
+    private Canvas currentUI;
     // Start is called before the first frame update
     void Start()
     {
+        currentUI = menuUI;
+        UIList.Add(menuUI);
+        UIList.Add(networkUI);
+        UIList.Add(playerUI);
         SwitchUI(1);
     }
 
     public void SwitchUI(int uiIndex)
     {
-        menuUI.enabled = (uiIndex == 1);
+        currentUI.enabled = false;
+        currentUI = UIList[uiIndex];
+        currentUI.enabled = true;
+    }
 
-        networkUI.enabled = (uiIndex == 2);
-
-        playerUI.enabled = (uiIndex == 3);
+    public void ShowCurrentUI(bool show)
+    {
+        currentUI.enabled = show;
     }
 
 }

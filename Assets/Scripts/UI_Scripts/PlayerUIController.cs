@@ -32,7 +32,7 @@ public class PlayerUIController : MonoBehaviour
     }
     private void endTurnOnClick()
     {
-        turnManager.switchSides();
+        turnManager.NetworkSwitchSides();
         mouseController.playerHasBeenDeselected();    
     }
 

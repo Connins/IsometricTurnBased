@@ -53,7 +53,7 @@ public class MouseController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!coroutineActive)
+        if (!coroutineActive && turnManager.YourTurn())
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
