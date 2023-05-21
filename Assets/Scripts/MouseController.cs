@@ -173,7 +173,6 @@ public class MouseController : NetworkBehaviour
         coroutineActive = true;
         yield return new WaitForSeconds(delayTime);
         currentSelectedEnemy.GetComponent<CharecterStats>().NetworktTakeHit(damage);
-        print("This is where a mistake is happening, we need to do a take hit in client and send to server need to move away from how we have done health");
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;

@@ -9,8 +9,8 @@ using UnityEngine.UI;
 public class CharecterStats : NetworkBehaviour
 {
 
-    //[SerializeField] NetworkVariable<int> healthServerState;
-    [SerializeField] private int health;
+    [SerializeField] NetworkVariable<int> healthServerState;
+    private int health;
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
@@ -27,25 +27,23 @@ public class CharecterStats : NetworkBehaviour
     private Canvas canvas;
     public Slider healthBar;
 
-    //private void OnEnable()
-    //{
-    //    healthServerState.OnValueChanged += OnHealthServerStateChanged;
-    //}
+    private void OnEnable()
+    {
+        healthServerState.OnValueChanged += OnHealthServerStateChanged;
+    }
 
-    //private void OnHealthServerStateChanged(int previousValue, int newValue)
-    //{
-    //    int damage = newValue - previousValue;
-    //    GetComponent<CharecterUIController>().startDamageIndicatorCoroutine((int)damage);
-
-    //    if (healthServerState.Value <= 0)
-    //    {
-    //        die();
-    //    }
-    //    else
-    //    {
-    //        GetComponent<Animator>().Play("TakeHit");
-    //    }
-    //}
+    private void OnHealthServerStateChanged(int previousValue, int newValue)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+        
+        if(health != healthServerState.Value)
+        {
+            Debug.Log("Health does not match the network variable health maybe implement some reconciliation");
+        }
+    }
 
     private void Awake()
     {
@@ -68,14 +66,13 @@ public class CharecterStats : NetworkBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
-        //healthBar.value = healthServerState.Value;
+        health = healthServerState.Value;
         healthBar.value = health;
     }
 
     // Update is called once per frame
     void Update()
     {
-
         //This is handling canvas update could put this in a seperate script.
         //healthBar.value = healthServerState.Value;
         healthBar.value = health;
@@ -113,22 +110,23 @@ public class CharecterStats : NetworkBehaviour
         }
         else
         {
-            TakeHitServerRPC(damage);
             TakeHit(damage);
+            TakeHitServerRPC(damage);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void TakeHitServerRPC(uint damage)
-    { 
-        //healthServerState.Value -= (int)damage;
+    {
         TakeHit(damage);
+        healthServerState.Value -= (int)damage;
     }
     
     [ClientRpc]
     public void TakeHitClientRPC(uint damage)
     {
         TakeHit(damage);
+        healthServerState.Value -= (int)damage;
     }
 
     private void TakeHit(uint damage)
@@ -151,11 +149,7 @@ public class CharecterStats : NetworkBehaviour
     {
         GetComponent<Animator>().SetTrigger("Death");
         mapManager.removeFromOccupied(transform.position);
-        print("before");
-
         turnManager.removeCharecterFromList(gameObject);
-        print("after");
-
         healthBar.gameObject.SetActive(false);
     }
 }

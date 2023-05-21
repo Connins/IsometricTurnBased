@@ -48,19 +48,12 @@ public class TurnManager : MonoBehaviour
 
     public void removeCharecterFromList(GameObject charecter)
     {
-        print("here");
         if (charecter.GetComponent<CharecterStats>().GoodGuy)
         {
-            print("heregood");
-            print(goodGuyList.Count);
             goodGuyList.Remove(charecter);
-            print(goodGuyList.Count);
-
         }
         else
         {
-            print("herebad");
-
             badGuyList.Remove(charecter);
         }
     }
