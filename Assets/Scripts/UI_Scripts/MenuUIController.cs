@@ -21,11 +21,11 @@ public class MenuUIController : MonoBehaviour
     private void localPlayOnClick()
     {
         NetworkManager.Singleton.StartHost();
-        UIManager.SwitchUI(3);
+        UIManager.SwitchUI(2);
     }
 
     private void onlineOnClick()
     {
-        UIManager.SwitchUI(2);
+        UIManager.SwitchUI(1);
     }
 }

@@ -18,19 +18,24 @@ public class UIManager : MonoBehaviour
         UIList.Add(menuUI);
         UIList.Add(networkUI);
         UIList.Add(playerUI);
-        SwitchUI(1);
+        SwitchUI(0);
     }
 
-    public void SwitchUI(int uiIndex)
+    public void SwitchUI(int UIIndex)
     {
         currentUI.enabled = false;
-        currentUI = UIList[uiIndex];
+        currentUI = UIList[UIIndex];
         currentUI.enabled = true;
     }
 
     public void ShowCurrentUI(bool show)
     {
         currentUI.enabled = show;
+    }
+
+    public void ShowUI(bool show, int UIIndex)
+    {
+        UIList[UIIndex].enabled = show;
     }
 
 }

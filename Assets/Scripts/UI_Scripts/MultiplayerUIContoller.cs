@@ -21,12 +21,12 @@ public class MultiplayerUIContoller : MonoBehaviour
     private void hostOnClick()
     {
         NetworkManager.Singleton.StartHost();
-        UIManager.SwitchUI(3);
+        UIManager.SwitchUI(2);
     }
 
     private void clientOnClick()
     {
         NetworkManager.Singleton.StartClient();
-        UIManager.SwitchUI(3);
+        UIManager.SwitchUI(2);
     }
 }

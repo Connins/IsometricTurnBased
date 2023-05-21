@@ -35,7 +35,7 @@ public class TurnManager : NetworkBehaviour
     void Update()
     {
 
-        UIManager.GetComponent<UIManager>().ShowCurrentUI(YourTurn());
+        UIManager.GetComponent<UIManager>().ShowUI(YourTurn(), 2);
         
         if (activePlayerList.Count == 0)
         {
