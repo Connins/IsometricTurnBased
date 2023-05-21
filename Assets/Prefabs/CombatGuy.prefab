@@ -427,6 +427,7 @@ GameObject:
   - component: {fileID: -8052259700170811187}
   - component: {fileID: 7608409571335250782}
   - component: {fileID: 9063657154561651645}
+  - component: {fileID: -2641036443346380492}
   m_Layer: 3
   m_Name: CombatGuy
   m_TagString: Untagged
@@ -521,7 +522,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthServerState:
-    m_InternalValue: 0
+    m_InternalValue: 10
+  health: 10
   maxHealth: 10
   move: 3
   jump: 1
@@ -580,6 +582,18 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-2641036443346380492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2585366715313242247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b34e56fdfc57f8429d17859fa637685, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2585372602549368335
 GameObject:
   m_ObjectHideFlags: 0

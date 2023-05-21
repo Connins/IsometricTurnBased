@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public class CharecterStats : NetworkBehaviour
 {
 
-    [SerializeField] NetworkVariable<int> healthServerState;
+    //[SerializeField] NetworkVariable<int> healthServerState;
+    [SerializeField] private int health;
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
@@ -26,25 +27,25 @@ public class CharecterStats : NetworkBehaviour
     private Canvas canvas;
     public Slider healthBar;
 
-    private void OnEnable()
-    {
-        healthServerState.OnValueChanged += OnHealthServerStateChanged;
-    }
+    //private void OnEnable()
+    //{
+    //    healthServerState.OnValueChanged += OnHealthServerStateChanged;
+    //}
 
-    private void OnHealthServerStateChanged(int previousValue, int newValue)
-    {
-        int damage = newValue - previousValue;
-        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine((int)damage);
+    //private void OnHealthServerStateChanged(int previousValue, int newValue)
+    //{
+    //    int damage = newValue - previousValue;
+    //    GetComponent<CharecterUIController>().startDamageIndicatorCoroutine((int)damage);
 
-        if (healthServerState.Value <= 0)
-        {
-            die();
-        }
-        else
-        {
-            GetComponent<Animator>().Play("TakeHit");
-        }
-    }
+    //    if (healthServerState.Value <= 0)
+    //    {
+    //        die();
+    //    }
+    //    else
+    //    {
+    //        GetComponent<Animator>().Play("TakeHit");
+    //    }
+    //}
 
     private void Awake()
     {
@@ -67,7 +68,8 @@ public class CharecterStats : NetworkBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
-        healthBar.value = healthServerState.Value;
+        //healthBar.value = healthServerState.Value;
+        healthBar.value = health;
     }
 
     // Update is called once per frame
@@ -75,7 +77,8 @@ public class CharecterStats : NetworkBehaviour
     {
 
         //This is handling canvas update could put this in a seperate script.
-        healthBar.value = healthServerState.Value;
+        //healthBar.value = healthServerState.Value;
+        healthBar.value = health;
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
@@ -100,18 +103,59 @@ public class CharecterStats : NetworkBehaviour
         return stength;
     }
 
+    
+
+    public void NetworktTakeHit(uint damage)
+    {
+        if(IsServer)
+        {
+            TakeHitClientRPC(damage);
+        }
+        else
+        {
+            TakeHitServerRPC(damage);
+            TakeHit(damage);
+        }
+    }
+
     [ServerRpc(RequireOwnership = false)]
-    public void takeHitServerRPC(uint damage)
+    public void TakeHitServerRPC(uint damage)
+    { 
+        //healthServerState.Value -= (int)damage;
+        TakeHit(damage);
+    }
+    
+    [ClientRpc]
+    public void TakeHitClientRPC(uint damage)
+    {
+        TakeHit(damage);
+    }
+
+    private void TakeHit(uint damage)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
-        healthServerState.Value -= (int)damage;
+        health -= (int)damage;
+        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
+
+        if (health <= 0)
+        {
+            die();
+        }
+        else
+        {
+            GetComponent<Animator>().Play("TakeHit");
+        }
     }
 
     private void die()
     {
         GetComponent<Animator>().SetTrigger("Death");
         mapManager.removeFromOccupied(transform.position);
+        print("before");
+
         turnManager.removeCharecterFromList(gameObject);
+        print("after");
+
         healthBar.gameObject.SetActive(false);
     }
 }

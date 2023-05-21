@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net.Mail;
+using TMPro;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class MouseController : MonoBehaviour
+public class MouseController : NetworkBehaviour
 {
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
@@ -152,6 +154,7 @@ public class MouseController : MonoBehaviour
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
+
         checkEnemyInRange();
 
     }
@@ -160,7 +163,7 @@ public class MouseController : MonoBehaviour
     {
         currentSelectedEnemy = charecterHit;
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
-        currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
+        currentSelectedPlayer.GetComponent<CharecterAnimationController>().NetworkPlayAnimation("Attack");
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
@@ -169,7 +172,8 @@ public class MouseController : MonoBehaviour
     {
         coroutineActive = true;
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().takeHitServerRPC(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().NetworktTakeHit(damage);
+        print("This is where a mistake is happening, we need to do a take hit in client and send to server need to move away from how we have done health");
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;
@@ -179,7 +183,7 @@ public class MouseController : MonoBehaviour
     }
     public void playerHasOfficialyMoved()
     {
-        turnManager.charecterDoneAction(currentSelectedPlayer);
+        currentSelectedPlayer.GetComponent<PlayerController>().NetworkOfficiallyMoved();
         currentSelectedPlayer = null;
         clearCharectersHighlights();
         uIController.disableWait();
