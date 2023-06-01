@@ -14,9 +14,9 @@ public class CharecterAnimationController : NetworkBehaviour
 
     public void NetworkPlayAnimation(string animationName)
     {
-        if(IsServer)
+        if (IsServer)
         {
-            PlayAnimationClientRPC(animationName); 
+            PlayAnimationClientRPC(animationName);
         }
         else
         {
@@ -33,6 +33,11 @@ public class CharecterAnimationController : NetworkBehaviour
 
     [ClientRpc]
     private void PlayAnimationClientRPC(string animationName)
+    {
+        animator.Play(animationName);
+    }
+
+    public void PlayAnimation(string animationName)
     {
         animator.Play(animationName);
     }

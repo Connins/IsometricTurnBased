@@ -27,6 +27,12 @@ public class CharecterStats : NetworkBehaviour
 
     private Canvas canvas;
     public Slider healthBar;
+
+    public override void OnNetworkSpawn()
+    { 
+        health = healthServerState.Value;
+        healthBar.value = health;
+    }
     private void OnEnable()
     {
         healthServerState.OnValueChanged += OnHealthServerStateChanged;
@@ -40,7 +46,7 @@ public class CharecterStats : NetworkBehaviour
         
         if(health != healthServerState.Value)
         {
-            Debug.Log("Health does not match the network variable health maybe implement some reconciliation");
+            Debug.Log("Health does not match the network variable health doing very basic reconciliation");
             health = healthServerState.Value;
         }
     }
@@ -66,16 +72,14 @@ public class CharecterStats : NetworkBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
-        health = healthServerState.Value;
-        healthBar.value = health;     
+             
     }
 
     // Update is called once per frame
     void Update()
     {
+        healthBar.value = health;
         //This is handling canvas update could put this in a seperate script.
-        healthBar.value = healthServerState.Value;
-        //healthBar.value = health;
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
