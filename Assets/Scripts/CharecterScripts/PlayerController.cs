@@ -15,6 +15,8 @@ public class PlayerController : NetworkBehaviour
     private MapManager mapManager;
     private Transform playerTransform;
     private TurnManager turnManager;
+
+    NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +27,29 @@ public class PlayerController : NetworkBehaviour
         turnManager = gameObject.GetComponentInParent<TurnManager>();
     }
 
+    private void OnEnable()
+    {
+        serverTransformState.OnValueChanged += OnServerStateChanged;
+    }
+
+    private void OnServerStateChanged(TransformState previousValue, TransformState serverState)
+    {
+        if (IsServer)
+        {
+            return;
+        }
+        TransformState clientTransformState =  new TransformState()
+        {
+            tick = 0,
+            position = transform.position,
+            rotation = transform.rotation,
+        };
+
+        if (clientTransformState.position != serverState.position || clientTransformState.rotation != serverState.rotation)
+        {
+            Debug.Log("client position of charecter does not match server reconciliation should happen");
+        }
+    }
     public void Moving(Vector3 targetPosition, Quaternion targetRotation)
     {
         mapManager.removeFromOccupied(transform.position);
@@ -50,12 +75,13 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsServer)
         {
-            MoveCharecterClientRPC(targetPosition, targetRotation);
+            MoveClientsUpdateServerTransform(targetPosition, targetRotation);
+
         }
         else
         {
-            MoveCharecterServerRpc(targetPosition, targetRotation);
             Moving(targetPosition, targetRotation);
+            MoveCharecterServerRpc(targetPosition, targetRotation);
         }
     }
 
@@ -68,7 +94,21 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void MoveCharecterServerRpc(Vector3 targetPosition, Quaternion targetRotation)
     {
-        Moving(targetPosition, targetRotation);
+        MoveClientsUpdateServerTransform(targetPosition, targetRotation); 
+    }
+
+    public void MoveClientsUpdateServerTransform(Vector3 targetPosition, Quaternion targetRotation)
+    {
+        MoveCharecterClientRPC(targetPosition, targetRotation);
+
+        TransformState state = new TransformState()
+        {
+            tick = 0,
+            position = transform.position,
+            rotation = transform.rotation,
+        };
+
+        serverTransformState.Value = state;
     }
     public void rotateCharecter()
     {  
