@@ -32,8 +32,6 @@ public class Highlight : MonoBehaviour
         initializeHighlightMap();
     }
 
-    
-
     public void ToggleHighlight(string highlight)
     {   
         foreach (var renderer in renderers)

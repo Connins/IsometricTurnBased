@@ -51,9 +51,24 @@ public class MapManager : MonoBehaviour
         occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
     }
 
+    public GameObject getOccupier(Vector3 position)
+    {
+        GameObject tile = getTile(position);
+        GameObject output = null;
+        if (isTileOccupied(tile))
+        {
+            output = occupiedTiles.First(x => x.GetTile() == tile).GetOccupier();
+        }
+        return output;
+    }
     public bool isTileOccupied(GameObject tile)
     {
         return occupiedTiles.Any(x => x.GetTile() == tile);
+    }
+
+    public bool isTileOccupied(Vector3Int location)
+    {
+        return isTileOccupied(tiles[location.x, location.y, location.z]);
     }
 
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)

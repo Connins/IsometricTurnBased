@@ -104,7 +104,7 @@ public class CharecterStats : NetworkBehaviour
         return stength;
     }
 
-    public void NetworktTakeHit(uint damage)
+    public void NetworkTakeHit(uint damage)
     {
         if(IsServer)
         {
@@ -131,7 +131,7 @@ public class CharecterStats : NetworkBehaviour
         TakeHit(damage);
     }
 
-    private void TakeHit(uint damage)
+    public void TakeHit(uint damage)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         health -= (int)damage;

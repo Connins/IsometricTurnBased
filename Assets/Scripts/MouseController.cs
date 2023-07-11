@@ -8,7 +8,7 @@ using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class MouseController : NetworkBehaviour
+public class MouseController : MonoBehaviour
 {
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
@@ -158,27 +158,24 @@ public class MouseController : NetworkBehaviour
         checkEnemyInRange();
 
     }
-
     private void attackAndOfficiallyMove()
     {
         currentSelectedEnemy = charecterHit;
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
-        currentSelectedPlayer.GetComponent<CharecterAnimationController>().NetworkPlayAnimation("Attack");
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
-
     IEnumerator enemyHit(float delayTime, uint damage)
     {
         coroutineActive = true;
+        currentSelectedPlayer.GetComponent<CharecterAnimationController>().NetworkPlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().NetworktTakeHit(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().NetworkTakeHit(damage);
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;
         playerHasOfficialyMoved();
         yield return null;
-        
     }
     public void playerHasOfficialyMoved()
     {

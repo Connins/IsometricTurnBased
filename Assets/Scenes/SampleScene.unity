@@ -12776,7 +12776,7 @@ MonoBehaviour:
   DebugSimulator:
     PacketDelayMS: 0
     PacketJitterMS: 0
-    PacketDropRate: 0
+    PacketDropRate: 50
 --- !u!114 &1554093602
 MonoBehaviour:
   m_ObjectHideFlags: 0
