@@ -47,7 +47,9 @@ public class PlayerController : NetworkBehaviour
 
         if (clientTransformState.position != serverState.position || clientTransformState.rotation != serverState.rotation)
         {
-            Debug.Log("client position of charecter does not match server reconciliation should happen");
+
+            Moving(serverState.position, serverState.rotation);
+            Debug.Log("client position being updated according to the server popsition, This update is not based on ticks which it should be");
         }
     }
     public void Moving(Vector3 targetPosition, Quaternion targetRotation)
@@ -75,37 +77,37 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsServer)
         {
-            MoveClientsUpdateServerTransform(targetPosition, targetRotation);
-
+            UpdateServerTransform(targetPosition, targetRotation); 
         }
         else
         {
             Moving(targetPosition, targetRotation);
-            MoveCharecterServerRpc(targetPosition, targetRotation);
+            UpdateServerTransformServerRpc(targetPosition, targetRotation);
         }
     }
 
-    [ClientRpc]
-    private void MoveCharecterClientRPC(Vector3 targetPosition, Quaternion targetRotation)
-    {
-        Moving(targetPosition, targetRotation);
-    }
-
     [ServerRpc(RequireOwnership = false)]
-    private void MoveCharecterServerRpc(Vector3 targetPosition, Quaternion targetRotation)
+    private void UpdateServerTransformServerRpc(Vector3 targetPosition, Quaternion targetRotation)
     {
-        MoveClientsUpdateServerTransform(targetPosition, targetRotation); 
+        Debug.Log("Should do a check to see if move is possible to avoid cheaters");
+
+        if (IsServer && !IsClient)
+        {
+            Moving(targetPosition, targetRotation);
+        }
+        UpdateServerTransform(targetPosition, targetRotation); 
     }
 
-    public void MoveClientsUpdateServerTransform(Vector3 targetPosition, Quaternion targetRotation)
+    public void UpdateServerTransform(Vector3 targetPosition, Quaternion targetRotation)
     {
-        MoveCharecterClientRPC(targetPosition, targetRotation);
+        //MoveCharecterClientRPC(targetPosition, targetRotation);
+        Moving(targetPosition, targetRotation);
 
         TransformState state = new TransformState()
         {
             tick = 0,
-            position = transform.position,
-            rotation = transform.rotation,
+            position = targetPosition,
+            rotation = targetRotation,
         };
 
         serverTransformState.Value = state;

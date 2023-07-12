@@ -46,8 +46,9 @@ public class CharecterStats : NetworkBehaviour
         
         if(health != healthServerState.Value)
         {
-            Debug.Log("Health does not match the network variable health doing very basic reconciliation");
-            health = healthServerState.Value;
+            Debug.Log("Health network variable changes are detected before actual health change has occured");
+            //Debug.Log("Health does not match the network variable health doing very basic reconciliation");
+            //health = healthServerState.Value;
         }
     }
 
@@ -79,7 +80,7 @@ public class CharecterStats : NetworkBehaviour
     void Update()
     {
         healthBar.value = health;
-        //This is handling canvas update could put this in a seperate script.
+         //This is handling canvas update could put this in a seperate script.
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
@@ -134,6 +135,10 @@ public class CharecterStats : NetworkBehaviour
     public void TakeHit(uint damage)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
+        if (IsServer)
+        {
+            healthServerState.Value -= (int)damage;
+        }
         health -= (int)damage;
         GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
 

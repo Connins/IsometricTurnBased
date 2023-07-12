@@ -66,9 +66,9 @@ public class MapManager : MonoBehaviour
         return occupiedTiles.Any(x => x.GetTile() == tile);
     }
 
-    public bool isTileOccupied(Vector3Int location)
+    public bool isTileOccupied(Vector3 location)
     {
-        return isTileOccupied(tiles[location.x, location.y, location.z]);
+        return isTileOccupied(getTile(location));
     }
 
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)

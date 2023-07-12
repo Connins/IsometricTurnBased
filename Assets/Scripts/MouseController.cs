@@ -1,14 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Net.Mail;
-using TMPro;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class MouseController : MonoBehaviour
+public class MouseController : NetworkBehaviour
 {
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
@@ -67,7 +62,7 @@ public class MouseController : MonoBehaviour
             {
                 if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
                 {
-                    attackAndOfficiallyMove();
+                    NetworkAttackAndOfficiallyMove();
                 }
                 else if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
                 {
@@ -158,19 +153,74 @@ public class MouseController : MonoBehaviour
         checkEnemyInRange();
 
     }
-    private void attackAndOfficiallyMove()
+
+    private void NetworkAttackAndOfficiallyMove()
     {
         currentSelectedEnemy = charecterHit;
-        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
+
+        if (IsServer && !IsClient)
+        {
+            //Not sure the below comment is true as this section of code should never be hit. Also we do update position and health in server so that is always tracked
+            //Needs to do attack itself or a basic version of it with no animation, currently we do not have a server that is not a client
+        }
+        if(IsServer && IsClient)
+        {
+            attackAndOfficiallyMoveClientRPC(currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+        }
+        if(!IsServer && IsClient)
+        {
+            checkAttackCanHappenServerRpc(currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+            //need to tell server to check if attack is legit and then it can send clients to attack.
+        }
+        
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void checkAttackCanHappenServerRpc(Vector3 playerPosition, Vector3 enemyPosition)
+    {
+        Debug.Log("This check simply checks tiles are occupied not that the tiles can attack one another this should be also checked");
+        if(mapManager.isTileOccupied(playerPosition) && mapManager.isTileOccupied(enemyPosition))
+        {
+            attackAndOfficiallyMoveClientRPC(playerPosition, enemyPosition);
+        }
+        else
+        {
+            Debug.Log("client is requesting an attack where tiles are not currently occupied");
+        }
+    }
+
+    [ClientRpc]
+    private void attackAndOfficiallyMoveClientRPC(Vector3 playerPosition, Vector3 enemyPosition)
+    {
+        print(playerPosition);
+        print(enemyPosition);
+        currentSelectedPlayer = mapManager.getOccupier(playerPosition);
+        currentSelectedEnemy = mapManager.getOccupier(enemyPosition);
+        if(currentSelectedPlayer == null)
+        {
+            Debug.Log("no player found");
+        }
+
+        if (currentSelectedEnemy == null)
+        {
+            Debug.Log("no enemy found");
+        }
+        attackAndOfficiallyMove();
+    }
+
+    private void attackAndOfficiallyMove()
+    {
+        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(currentSelectedEnemy.transform.position);
+        
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
     IEnumerator enemyHit(float delayTime, uint damage)
     {
         coroutineActive = true;
-        currentSelectedPlayer.GetComponent<CharecterAnimationController>().NetworkPlayAnimation("Attack");
+        currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().NetworkTakeHit(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage);
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;
