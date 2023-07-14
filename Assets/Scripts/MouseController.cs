@@ -31,7 +31,7 @@ public class MouseController : NetworkBehaviour
     private List<GameObject> tilesInRange;
     private List<GameObject> attackTilesInRange;
 
-    private bool coroutineActive;
+    private bool attackHappening;
 
     // Start is called before the first frame update
     void Start()
@@ -42,13 +42,13 @@ public class MouseController : NetworkBehaviour
         attackTilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
-        coroutineActive = false;
+        attackHappening = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!coroutineActive && turnManager.YourTurn())
+        if (!attackHappening && turnManager.YourTurn())
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
@@ -74,11 +74,7 @@ public class MouseController : NetworkBehaviour
                 }
             }
         }
-        if (coroutineActive)
-        {
-            uIController.DisablePlayerUI();
-        }
-        else
+        if(!attackHappening)
         {
             uIController.EnablePlayerUI(turnManager.YourTurn());
         }
@@ -164,7 +160,10 @@ public class MouseController : NetworkBehaviour
 
     private void NetworkAttackAndOfficiallyMove()
     {
+        attackHappening = true;
+        uIController.DisablePlayerUI();
         currentSelectedEnemy = charecterHit;
+
         if (IsServer && !IsClient)
         {
             //Not sure the below comment is true as this section of code should never be hit. Also we do update position and health in server so that is always tracked
@@ -222,12 +221,11 @@ public class MouseController : NetworkBehaviour
     }
     IEnumerator enemyHit(float delayTime, uint damage)
     {
-        coroutineActive = true;
         currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
         currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage);
         currentSelectedEnemy = null;
-        coroutineActive = false;
+        attackHappening = false;
         inAttackMode = false;
 
         playerHasOfficialyMoved();
