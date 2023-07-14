@@ -19,7 +19,6 @@ public class TurnManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         if (isPlayerTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
@@ -28,13 +27,25 @@ public class TurnManager : NetworkBehaviour
         {
             activePlayerList = new List<GameObject>(badGuyList);
         }
+
     }
 
+    public override void OnNetworkSpawn()
+    {
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+    }
+
+    private void OnEnable()
+    {
+        turnVariable.OnValueChanged += OnTurnVariableStateChanged;
+    }
+    private void OnTurnVariableStateChanged(bool previousValue, bool newValue)
+    {
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+    }
     // Update is called once per frame
     void Update()
     {
-
-        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
         if (activePlayerList.Count == 0)
         {
             SwitchSides();
@@ -104,6 +115,7 @@ public class TurnManager : NetworkBehaviour
     public void SwitchSidesServerRpc() { SwitchSides(); }
     public void SwitchSides()
     {
+
         isPlayerTurn = isPlayerTurn == false;
         if (IsServer)
         {

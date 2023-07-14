@@ -73,7 +73,15 @@ public class MouseController : NetworkBehaviour
                     selectTileAndMovePlayer();
                 }
             }
-        }       
+        }
+        if (coroutineActive)
+        {
+            uIController.DisablePlayerUI();
+        }
+        else
+        {
+            uIController.EnablePlayerUI(turnManager.YourTurn());
+        }
     }
 
     void FixedUpdate()
@@ -157,7 +165,6 @@ public class MouseController : NetworkBehaviour
     private void NetworkAttackAndOfficiallyMove()
     {
         currentSelectedEnemy = charecterHit;
-
         if (IsServer && !IsClient)
         {
             //Not sure the below comment is true as this section of code should never be hit. Also we do update position and health in server so that is always tracked
@@ -172,7 +179,7 @@ public class MouseController : NetworkBehaviour
             checkAttackCanHappenServerRpc(currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
             //need to tell server to check if attack is legit and then it can send clients to attack.
         }
-        
+
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -192,8 +199,6 @@ public class MouseController : NetworkBehaviour
     [ClientRpc]
     private void attackAndOfficiallyMoveClientRPC(Vector3 playerPosition, Vector3 enemyPosition)
     {
-        print(playerPosition);
-        print(enemyPosition);
         currentSelectedPlayer = mapManager.getOccupier(playerPosition);
         currentSelectedEnemy = mapManager.getOccupier(enemyPosition);
         if(currentSelectedPlayer == null)
@@ -224,6 +229,7 @@ public class MouseController : NetworkBehaviour
         currentSelectedEnemy = null;
         coroutineActive = false;
         inAttackMode = false;
+
         playerHasOfficialyMoved();
         yield return null;
     }

@@ -69,6 +69,16 @@ public class PlayerUIController : MonoBehaviour
         attack.interactable = true;
     }
 
+    public void disableEndTurn()
+    {
+        endTurn.interactable = false;
+    }
+
+    public void enableEndTurn()
+    {
+        endTurn.interactable = true;
+    }
+
     public void EnablePlayerUI(bool enable)
     {
         endTurn.interactable = enable;
@@ -80,5 +90,12 @@ public class PlayerUIController : MonoBehaviour
         {
             turnText.text = "Enemy turn";
         }
+    }
+
+    public void DisablePlayerUI()
+    {
+        endTurn.interactable = false;
+        attack.interactable = false;
+        wait.interactable = false;
     }
 }
