@@ -30,6 +30,7 @@ public class MouseController : NetworkBehaviour
 
     private List<GameObject> tilesInRange;
     private List<GameObject> attackTilesInRange;
+    private List<GameObject> enemiesInRange;
 
     private bool attackHappening;
 
@@ -60,7 +61,8 @@ public class MouseController : NetworkBehaviour
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
+                bool validAttackCharecter = inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy && mapManager.isThisCharecterInTiles(attackTilesInRange, charecterHit);
+                if (validAttackCharecter)
                 {
                     NetworkAttackAndOfficiallyMove();
                 }

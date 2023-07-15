@@ -80,6 +80,15 @@ public class MapManager : MonoBehaviour
         return output;
     }
 
+    public bool isThisCharecterInTiles(List<GameObject> tiles, GameObject charecter)
+    {
+        bool output = false;
+
+        output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>() != null && x.GetOccupier() == charecter);
+
+        return output;
+    }
+
     public Vector3Int getTileIndex(GameObject occupier)
     {
         return occupiedTiles.Find(x => x.GetOccupier() == occupier).GetTileIndex();
