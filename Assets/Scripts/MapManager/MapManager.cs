@@ -50,6 +50,10 @@ public class MapManager : MonoBehaviour
         GameObject tile = getTile(position);
         occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
     }
+    public void removeFromOccupied(GameObject charecter)
+    {
+        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter); ;
+    }
 
     public GameObject getOccupier(Vector3 position)
     {

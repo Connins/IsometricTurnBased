@@ -27,6 +27,12 @@ public class PlayerController : NetworkBehaviour
         turnManager = gameObject.GetComponentInParent<TurnManager>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        mapManager.removeFromOccupied(transform.gameObject);
+        mapManager.addToOccupied(transform.gameObject, transform.position);
+        //seems network obejcts transforms are matched to hosts on network spawn already. Annoyying
+    }
     private void OnEnable()
     {
         serverTransformState.OnValueChanged += OnServerStateChanged;
