@@ -19,21 +19,11 @@ public class TurnManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //if (isPlayerTurn)
-        //{
-        //    activePlayerList = new List<GameObject>(goodGuyList);
-        //}
-        //else
-        //{
-        //    activePlayerList = new List<GameObject>(badGuyList);
-        //}
 
     }
 
     public override void OnNetworkSpawn()
     {
-        print("Here2");
-
         isHostTurn = turnVariable.Value;
         UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
         RefreshActiveCharecters();
@@ -45,8 +35,6 @@ public class TurnManager : NetworkBehaviour
     }
     private void OnTurnVariableStateChanged(bool previousValue, bool newValue)
     {
-        print("Here3");
-
         isHostTurn = newValue;
         UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurnLocal());
         RefreshActiveCharecters();
@@ -71,7 +59,6 @@ public class TurnManager : NetworkBehaviour
 
     public void LocalChangeTurnVariable()
     {
-        print("Here");
         isHostTurn = isHostTurn == false;
     }
 
