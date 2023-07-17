@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class TurnManager : NetworkBehaviour
 {
-    [SerializeField] private bool isPlayerTurn;
+    [SerializeField] private bool isHostTurn;
     [SerializeField] GameObject mouseController;
     [SerializeField] NetworkVariable<bool> turnVariable;
     [SerializeField] GameObject UIManager;
@@ -19,20 +19,24 @@ public class TurnManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (isPlayerTurn)
-        {
-            activePlayerList = new List<GameObject>(goodGuyList);
-        }
-        else
-        {
-            activePlayerList = new List<GameObject>(badGuyList);
-        }
+        //if (isPlayerTurn)
+        //{
+        //    activePlayerList = new List<GameObject>(goodGuyList);
+        //}
+        //else
+        //{
+        //    activePlayerList = new List<GameObject>(badGuyList);
+        //}
 
     }
 
     public override void OnNetworkSpawn()
     {
+        print("Here2");
+
+        isHostTurn = turnVariable.Value;
         UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+        RefreshActiveCharecters();
     }
 
     private void OnEnable()
@@ -41,15 +45,40 @@ public class TurnManager : NetworkBehaviour
     }
     private void OnTurnVariableStateChanged(bool previousValue, bool newValue)
     {
-        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+        print("Here3");
+
+        isHostTurn = newValue;
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurnLocal());
+        RefreshActiveCharecters();
     }
     // Update is called once per frame
     void Update()
     {
-        if (activePlayerList.Count == 0)
+        
+    }
+
+    public void NetworkChangeTurnVariable()
+    {
+        if(IsServer)
         {
-            SwitchSides();
+            turnVariable.Value = turnVariable.Value == false;
         }
+        else
+        {
+            SwapSidesServerRpc();
+        }
+    }
+
+    public void LocalChangeTurnVariable()
+    {
+        print("Here");
+        isHostTurn = isHostTurn == false;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SwapSidesServerRpc()
+    {
+        turnVariable.Value = turnVariable.Value == false;
     }
 
     public void addGoodGuy(GameObject goodGuy)
@@ -76,6 +105,11 @@ public class TurnManager : NetworkBehaviour
     public void charecterDoneAction(GameObject charecter)
     {
         activePlayerList.Remove(charecter);
+        if (activePlayerList.Count == 0)
+        {
+            LocalChangeTurnVariable();
+            NetworkChangeTurnVariable();
+        }
     }
 
     public bool activePlayer(GameObject charecter)
@@ -95,56 +129,26 @@ public class TurnManager : NetworkBehaviour
         }
     }
 
-    public void NetworkSwitchSides()
+    public bool YourTurnLocal()
     {
         if (IsServer)
         {
-            SwitchSidesClientRpc();
+            return isHostTurn;
         }
         else
         {
-            SwitchSidesServerRpc();
-            SwitchSides();
+            return !isHostTurn;
         }
     }
-
-    [ClientRpc]
-    public void SwitchSidesClientRpc() { SwitchSides(); }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void SwitchSidesServerRpc() { SwitchSides(); }
-    public void SwitchSides()
+    public void RefreshActiveCharecters()
     {
-
-        isPlayerTurn = isPlayerTurn == false;
-        if (IsServer)
-        {
-            turnVariable.Value = turnVariable.Value == false;
-        }
-        if (isPlayerTurn)
+        if (isHostTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
-            if(activePlayerList.Count > 0)
-            {
-
-            }
-            else
-            {
-                SwitchSides();
-            }
-            
         }
         else
         {
             activePlayerList = new List<GameObject>(badGuyList);
-            if (activePlayerList.Count > 0)
-            {
-
-            }
-            else
-            {
-                SwitchSides();
-            }
         }
     }
 }

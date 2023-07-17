@@ -33,6 +33,7 @@ public class MouseController : NetworkBehaviour
     private List<GameObject> enemiesInRange;
 
     private bool attackHappening;
+    private bool youAttacked;
 
     // Start is called before the first frame update
     void Start()
@@ -44,12 +45,13 @@ public class MouseController : NetworkBehaviour
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
         attackHappening = false;
+        youAttacked = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!attackHappening && turnManager.YourTurn())
+        if (!attackHappening && turnManager.YourTurn() && turnManager.YourTurnLocal())
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
@@ -78,7 +80,7 @@ public class MouseController : NetworkBehaviour
         }
         if(!attackHappening)
         {
-            uIController.EnablePlayerUI(turnManager.YourTurn());
+            uIController.EnablePlayerUI(turnManager.YourTurnLocal());
         }
     }
 
@@ -163,6 +165,7 @@ public class MouseController : NetworkBehaviour
     private void NetworkAttackAndOfficiallyMove()
     {
         attackHappening = true;
+        youAttacked = true;
         uIController.DisablePlayerUI();
         currentSelectedEnemy = charecterHit;
 
@@ -229,13 +232,17 @@ public class MouseController : NetworkBehaviour
         currentSelectedEnemy = null;
         attackHappening = false;
         inAttackMode = false;
-
+        if(youAttacked)
+        {
+            turnManager.charecterDoneAction(currentSelectedPlayer);
+            youAttacked = false;
+        }
         playerHasOfficialyMoved();
+
         yield return null;
     }
     public void playerHasOfficialyMoved()
     {
-        currentSelectedPlayer.GetComponent<PlayerController>().NetworkOfficiallyMoved();
         currentSelectedPlayer = null;
         clearCharectersHighlights();
         uIController.disableWait();
@@ -267,6 +274,7 @@ public class MouseController : NetworkBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             setInWaitMode(false);
+            turnManager.charecterDoneAction(currentSelectedPlayer);
             playerHasOfficialyMoved();
         }
     }

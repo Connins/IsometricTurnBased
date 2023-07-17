@@ -24,7 +24,6 @@ public class PlayerUIController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
         endTurn.onClick.AddListener(endTurnOnClick);
         wait.onClick.AddListener(waitOnClick);
         wait.interactable = false;
@@ -36,7 +35,8 @@ public class PlayerUIController : MonoBehaviour
     }
     private void endTurnOnClick()
     {
-        turnManager.NetworkSwitchSides();
+        turnManager.LocalChangeTurnVariable();
+        turnManager.NetworkChangeTurnVariable();
         mouseController.playerHasBeenDeselected();    
     }
 
