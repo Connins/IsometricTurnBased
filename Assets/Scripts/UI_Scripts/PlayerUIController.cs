@@ -81,14 +81,33 @@ public class PlayerUIController : MonoBehaviour
 
     public void EnablePlayerUI(bool enable)
     {
-        endTurn.interactable = enable;
-        if (enable)
+        endTurn.interactable = enable;  
+    }
+
+    public void PlayerTurnText(bool yourTurn)
+    {
+        if (turnManager.LocalPlay)
         {
-            turnText.text = "Your turn";
+            if (yourTurn)
+            {
+                turnText.text = "Player 1 Turn";
+            }
+            else
+            {
+                turnText.text = "Player 2 Turn";
+            }
+
         }
         else
         {
-            turnText.text = "Enemy turn";
+            if (yourTurn)
+            {
+                turnText.text = "Your turn";
+            }
+            else
+            {
+                turnText.text = "Enemy turn";
+            }
         }
     }
 

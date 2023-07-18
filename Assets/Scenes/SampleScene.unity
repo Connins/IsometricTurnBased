@@ -4816,7 +4816,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 342252e39805fcd48bc869c2fcad232c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayerTurn: 1
+  isHostTurn: 0
   mouseController: {fileID: 722467482}
   turnVariable:
     m_InternalValue: 1
@@ -6813,6 +6813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   localPlay: {fileID: 1316401346}
   online: {fileID: 1217990392}
+  Charecters: {fileID: 685507667}
 --- !u!1001 &925306245
 PrefabInstance:
   m_ObjectHideFlags: 0

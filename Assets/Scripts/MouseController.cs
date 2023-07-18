@@ -51,7 +51,13 @@ public class MouseController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!attackHappening && turnManager.YourTurn() && turnManager.YourTurnLocal())
+        bool playerControl = turnManager.LocalPlay;
+
+        if (!playerControl) {
+            playerControl = turnManager.YourTurn() && turnManager.YourTurnLocal();
+        }
+
+        if (!attackHappening && playerControl)
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
@@ -80,7 +86,7 @@ public class MouseController : NetworkBehaviour
         }
         if(!attackHappening)
         {
-            uIController.EnablePlayerUI(turnManager.YourTurnLocal());
+            uIController.EnablePlayerUI(playerControl);
         }
     }
 

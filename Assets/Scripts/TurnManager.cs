@@ -15,7 +15,7 @@ public class TurnManager : NetworkBehaviour
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
 
-
+    private bool localPlay = false; 
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +26,7 @@ public class TurnManager : NetworkBehaviour
     {
         isHostTurn = turnVariable.Value;
         UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+        UIManager.GetComponentInChildren<PlayerUIController>().PlayerTurnText(YourTurn());
         RefreshActiveCharecters();
     }
 
@@ -37,6 +38,7 @@ public class TurnManager : NetworkBehaviour
     {
         isHostTurn = newValue;
         UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurnLocal());
+        UIManager.GetComponentInChildren<PlayerUIController>().PlayerTurnText(YourTurnLocal());
         RefreshActiveCharecters();
     }
     // Update is called once per frame
@@ -113,6 +115,19 @@ public class TurnManager : NetworkBehaviour
         else
         {
             return !turnVariable.Value;
+        }
+    }
+
+    public void IsLocalPlay()
+    {
+        localPlay = true;
+    }
+
+    public bool LocalPlay
+    {
+        get
+        { 
+            return localPlay; 
         }
     }
 
