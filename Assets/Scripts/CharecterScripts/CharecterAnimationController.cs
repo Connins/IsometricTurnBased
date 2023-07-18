@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharecterAnimationController : NetworkBehaviour
@@ -12,6 +13,8 @@ public class CharecterAnimationController : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
+    //this only works if server is also a client as ServerRPC command just plays the animation
+    //it does not call a clientRPC command
     public void NetworkPlayAnimation(string animationName)
     {
         if (IsServer)

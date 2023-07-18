@@ -46,7 +46,8 @@ public class CharecterStats : NetworkBehaviour
         
         if(health != healthServerState.Value)
         {
-            Debug.Log("Health network variable changes are detected before actual health change has occured");
+            Debug.Log("Health network variable changes are detected before actual health change has occured" +
+                " This is stopping any reconciliation we need ticking system to avoid this");
             //Debug.Log("Health does not match the network variable health doing very basic reconciliation");
             //health = healthServerState.Value;
         }
@@ -105,6 +106,8 @@ public class CharecterStats : NetworkBehaviour
         return stength;
     }
 
+    //this only works if server is also a client as ServerRPC command just calls wanted function
+    //it does not call a clientRPC command
     public void NetworkTakeHit(uint damage)
     {
         if(IsServer)

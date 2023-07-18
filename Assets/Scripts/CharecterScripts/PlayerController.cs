@@ -29,9 +29,11 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        //This needs to occur as when client connects it changes transform of game object to host automatically 
+        //I cannot seem to stop this occurring
+        //so we need to sort out occupied tiles with this.
         mapManager.removeFromOccupied(transform.gameObject);
         mapManager.addToOccupied(transform.gameObject, transform.position);
-        //seems network obejcts transforms are matched to hosts on network spawn already. Annoyying
     }
     private void OnEnable()
     {
@@ -135,6 +137,8 @@ public class PlayerController : NetworkBehaviour
         MoveCharecter(transform.position, targetRotation);
     }
 
+    //this only works if server is also a client as ServerRPC command just calls wanted function
+    //it does not call a clientRPC command
     public void NetworkOfficiallyMoved()
     {
         if (IsServer)
