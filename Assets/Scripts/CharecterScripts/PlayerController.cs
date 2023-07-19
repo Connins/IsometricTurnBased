@@ -42,10 +42,6 @@ public class PlayerController : NetworkBehaviour
 
     private void OnServerStateChanged(TransformState previousValue, TransformState serverState)
     {
-        if (IsServer)
-        {
-            return;
-        }
         TransformState clientTransformState =  new TransformState()
         {
             tick = 0,
@@ -83,34 +79,31 @@ public class PlayerController : NetworkBehaviour
 
     public void MoveCharecter(Vector3 targetPosition, Quaternion targetRotation)
     {
+        Moving(targetPosition, targetRotation);
+    }
+
+    public void OfficiallyMoveCharecter(Vector3 targetPosition, Quaternion targetRotation)
+    {
         if (IsServer)
         {
-            UpdateServerTransform(targetPosition, targetRotation); 
+            UpdateServerTransform(targetPosition, targetRotation);
         }
         else
         {
-            Moving(targetPosition, targetRotation);
             UpdateServerTransformServerRpc(targetPosition, targetRotation);
         }
     }
+
 
     [ServerRpc(RequireOwnership = false)]
     private void UpdateServerTransformServerRpc(Vector3 targetPosition, Quaternion targetRotation)
     {
         Debug.Log("Should do a check to see if move is possible to avoid cheaters");
-
-        if (IsServer && !IsClient)
-        {
-            Moving(targetPosition, targetRotation);
-        }
         UpdateServerTransform(targetPosition, targetRotation); 
     }
 
     public void UpdateServerTransform(Vector3 targetPosition, Quaternion targetRotation)
     {
-        //MoveCharecterClientRPC(targetPosition, targetRotation);
-        Moving(targetPosition, targetRotation);
-
         TransformState state = new TransformState()
         {
             tick = 0,
@@ -126,11 +119,11 @@ public class PlayerController : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Vector3 targetPosition = hit.point;
-            rotateCharecter(targetPosition);
+            snapRotateCharecter(targetPosition);
         }
     }
-    public void rotateCharecter(Vector3 targetPosition)
-    {        
+    public void snapRotateCharecter(Vector3 targetPosition)
+    {
         targetPosition.y = transform.position.y;
         transform.LookAt(targetPosition);
         Quaternion targetRotation = Quaternion.Euler(0, Mathf.Round(transform.rotation.eulerAngles.y / 90f) * 90f, 0);

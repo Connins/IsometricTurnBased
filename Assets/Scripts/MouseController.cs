@@ -28,7 +28,7 @@ public class MouseController : NetworkBehaviour
 
     private float offset = 1f;
 
-    private List<GameObject> tilesInRange;
+    private List<GameObject> moveTilesInRange;
     private List<GameObject> attackTilesInRange;
     private List<GameObject> enemiesInRange;
 
@@ -40,7 +40,7 @@ public class MouseController : NetworkBehaviour
     {
         uIController = FindAnyObjectByType<PlayerUIController>();
         previousTileHighlight = null;
-        tilesInRange = new List<GameObject>();
+        moveTilesInRange = new List<GameObject>();
         attackTilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
@@ -78,7 +78,7 @@ public class MouseController : NetworkBehaviour
                 {
                     selectPlayer();
                 }
-                else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
+                else if (moveTilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
                 {
                     selectTileAndMovePlayer();
                 }
@@ -141,9 +141,9 @@ public class MouseController : NetworkBehaviour
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
-        tilesInRange.Clear();
-        tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange, false);
-        highlightTiles(tilesInRange, "inMoveRangeHighlight");
+        moveTilesInRange.Clear();
+        moveTilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
@@ -155,7 +155,7 @@ public class MouseController : NetworkBehaviour
     {
         inAttackMode = false;
         highlightTiles(attackTilesInRange, "noHighlight");
-        highlightTiles(tilesInRange, "inMoveRangeHighlight");
+        highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
 
@@ -175,41 +175,43 @@ public class MouseController : NetworkBehaviour
         uIController.DisablePlayerUI();
         currentSelectedEnemy = charecterHit;
 
-        if (IsServer && !IsClient)
-        {
-            //Not sure the below comment is true as this section of code should never be hit. Also we do update position and health in server so that is always tracked
-            //Needs to do attack itself or a basic version of it with no animation, currently we do not have a server that is not a client
-        }
         if(IsServer && IsClient)
         {
-            attackAndOfficiallyMoveClientRPC(currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+            attackAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
         }
         if(!IsServer && IsClient)
         {
-            checkAttackCanHappenServerRpc(currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
             //need to tell server to check if attack is legit and then it can send clients to attack.
+            checkAttackCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
         }
 
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void checkAttackCanHappenServerRpc(Vector3 playerPosition, Vector3 enemyPosition)
+    private void checkAttackCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
     {
-        Debug.Log("This check simply checks tiles are occupied not that the tiles can attack one another this should be also checked");
-        if(mapManager.isTileOccupied(playerPosition) && mapManager.isTileOccupied(enemyPosition))
+
+        if (canAttackHappen(playersOriginalPosition, playersNewPosition, enemyPosition))
         {
-            attackAndOfficiallyMoveClientRPC(playerPosition, enemyPosition);
+            attackAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition, enemyPosition);
         }
         else
         {
-            Debug.Log("client is requesting an attack where tiles are not currently occupied");
+            Debug.Log("client is requesting an attack but there was a descrepency between client and server");
         }
     }
 
     [ClientRpc]
-    private void attackAndOfficiallyMoveClientRPC(Vector3 playerPosition, Vector3 enemyPosition)
+    private void attackAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
     {
-        currentSelectedPlayer = mapManager.getOccupier(playerPosition);
+        if (youAttacked)
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersNewPosition);
+        }
+        else
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersOriginalPosition);
+        }
         currentSelectedEnemy = mapManager.getOccupier(enemyPosition);
         if(currentSelectedPlayer == null)
         {
@@ -220,13 +222,18 @@ public class MouseController : NetworkBehaviour
         {
             Debug.Log("no enemy found");
         }
-        attackAndOfficiallyMove();
+        attackAndOfficiallyMove(playersNewPosition);
     }
 
-    private void attackAndOfficiallyMove()
+    private void attackAndOfficiallyMove(Vector3 playerPosition)
     {
-        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(currentSelectedEnemy.transform.position);
-        
+        if (!youAttacked)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition);
+        }
+        currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
+        currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
@@ -281,13 +288,14 @@ public class MouseController : NetworkBehaviour
         {
             setInWaitMode(false);
             turnManager.charecterDoneAction(currentSelectedPlayer);
+            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
             playerHasOfficialyMoved();
         }
     }
     public void clearCharectersHighlights()
     {
-        highlightTiles(tilesInRange, "noHighlight");
-        tilesInRange.Clear();
+        highlightTiles(moveTilesInRange, "noHighlight");
+        moveTilesInRange.Clear();
         highlightTiles(attackTilesInRange, "noHighlight");
         attackTilesInRange.Clear();
     }
@@ -308,7 +316,7 @@ public class MouseController : NetworkBehaviour
     private void highlightCurentTile()
     { 
         bool hitEqualsCurrentTile = currentHighlightedTile == previousTileHighlight;
-        bool previousTileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
+        bool previousTileInTilesInRange = moveTilesInRange.Contains(previousTileHighlight);
         bool currentTileInAttackTilesInRange = attackTilesInRange.Contains(currentHighlightedTile);
         bool noTileHighlighted = currentHighlightedTile == null && previousTileHighlight != null;
         bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null;
@@ -339,5 +347,40 @@ public class MouseController : NetworkBehaviour
         {
             uIController.disableAttack();
         }
+    }
+
+    private bool canAttackHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+        Debug.Log("Checking if attack can happen");
+        bool checkAttackCanHappen = false;
+
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+        GameObject enemy = mapManager.getOccupier(enemyPosition);
+
+        if (enemy == null)
+        {
+            Debug.Log("no attacking player found from clients position not doing attack");
+            return false;
+        }
+        if (player == null)
+        {
+            Debug.Log("no enemy found from clients position not doing attack");
+            return false;
+        }
+
+        List<GameObject> testTileRange = new List<GameObject>();
+        uint move = player.GetComponent<CharecterStats>().Move;
+        uint jump = player.GetComponent<CharecterStats>().Jump;
+        Vector3Int tileIndex = mapManager.getTileIndex(player);
+        testTileRange = mapManager.getTilesInRange(move, jump, tileIndex, testTileRange, false);
+        GameObject testTile = mapManager.getTile(playersNewPosition);
+
+        checkAttackCanHappen = testTileRange.Contains(testTile);
+        if (!checkAttackCanHappen)
+        {
+            Debug.Log("movement of player according to server is not possible not doing attack");
+        }
+        print(checkAttackCanHappen);
+        return checkAttackCanHappen;
     }
 }
