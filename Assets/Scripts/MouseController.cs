@@ -1,17 +1,14 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Net.Mail;
-using Unity.VisualScripting;
+using Unity.Netcode;
 using UnityEngine;
 
-public class MouseController : MonoBehaviour
+public class MouseController : NetworkBehaviour
 {
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
     [SerializeField] private Grid grid;
-    private UIController uIController;
+    private PlayerUIController uIController;
     private CharecterUIController charecterUIController;
     private MapManager mapManager;
     private TurnManager turnManager;
@@ -31,27 +28,36 @@ public class MouseController : MonoBehaviour
 
     private float offset = 1f;
 
-    private List<GameObject> tilesInRange;
+    private List<GameObject> moveTilesInRange;
     private List<GameObject> attackTilesInRange;
+    private List<GameObject> enemiesInRange;
 
-    private bool coroutineActive;
+    private bool attackHappening;
+    private bool youAttacked;
 
     // Start is called before the first frame update
     void Start()
     {
-        uIController = FindAnyObjectByType<UIController>();
+        uIController = FindAnyObjectByType<PlayerUIController>();
         previousTileHighlight = null;
-        tilesInRange = new List<GameObject>();
+        moveTilesInRange = new List<GameObject>();
         attackTilesInRange = new List<GameObject>();
         mapManager = grid.GetComponent<MapManager>();
         turnManager = GameObject.Find("Charecters").GetComponent<TurnManager>();
-        coroutineActive = false;
+        attackHappening = false;
+        youAttacked = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!coroutineActive)
+        bool playerControl = turnManager.LocalPlay;
+
+        if (!playerControl) {
+            playerControl = turnManager.YourTurn() && turnManager.YourTurnLocal();
+        }
+
+        if (!attackHappening && playerControl)
         {
             if(Input.GetKeyDown(KeyCode.Escape))
             {
@@ -63,20 +69,25 @@ public class MouseController : MonoBehaviour
             }
             else if (Input.GetMouseButtonDown(0))
             {
-                if (inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy)
+                bool validAttackCharecter = inAttackMode && charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy && mapManager.isThisCharecterInTiles(attackTilesInRange, charecterHit);
+                if (validAttackCharecter)
                 {
-                    attackAndOfficiallyMove();
+                    NetworkAttackAndOfficiallyMove();
                 }
                 else if (charecterHit != null && turnManager.activePlayer(charecterHit) && charecterHit != currentSelectedPlayer)
                 {
                     selectPlayer();
                 }
-                else if (tilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
+                else if (moveTilesInRange.Contains(currentHighlightedTile) && !mapManager.isTileOccupied(currentHighlightedTile))
                 {
                     selectTileAndMovePlayer();
                 }
             }
-        }       
+        }
+        if(!attackHappening)
+        {
+            uIController.EnablePlayerUI(playerControl);
+        }
     }
 
     void FixedUpdate()
@@ -130,9 +141,9 @@ public class MouseController : MonoBehaviour
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
-        tilesInRange.Clear();
-        tilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, tilesInRange, false);
-        highlightTiles(tilesInRange, "inMoveRangeHighlight");
+        moveTilesInRange.Clear();
+        moveTilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
@@ -144,7 +155,7 @@ public class MouseController : MonoBehaviour
     {
         inAttackMode = false;
         highlightTiles(attackTilesInRange, "noHighlight");
-        highlightTiles(tilesInRange, "inMoveRangeHighlight");
+        highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
 
@@ -152,34 +163,99 @@ public class MouseController : MonoBehaviour
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
+
         checkEnemyInRange();
 
     }
 
-    private void attackAndOfficiallyMove()
+    private void NetworkAttackAndOfficiallyMove()
     {
+        attackHappening = true;
+        youAttacked = true;
+        uIController.DisablePlayerUI();
         currentSelectedEnemy = charecterHit;
-        currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter(charecterHit.transform.position);
-        currentSelectedPlayer.GetComponent<Animator>().Play("Attack");
+
+        if(IsServer && IsClient)
+        {
+            attackAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+        }
+        if(!IsServer && IsClient)
+        {
+            //need to tell server to check if attack is legit and then it can send clients to attack.
+            checkAttackCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+        }
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void checkAttackCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+
+        if (canAttackHappen(playersOriginalPosition, playersNewPosition, enemyPosition))
+        {
+            attackAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition, enemyPosition);
+        }
+        else
+        {
+            Debug.Log("client is requesting an attack but there was a descrepency between client and server");
+        }
+    }
+
+    [ClientRpc]
+    private void attackAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+        if (youAttacked)
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersNewPosition);
+        }
+        else
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersOriginalPosition);
+        }
+        currentSelectedEnemy = mapManager.getOccupier(enemyPosition);
+        if(currentSelectedPlayer == null)
+        {
+            Debug.Log("no player found");
+        }
+
+        if (currentSelectedEnemy == null)
+        {
+            Debug.Log("no enemy found");
+        }
+        attackAndOfficiallyMove(playersNewPosition);
+    }
+
+    private void attackAndOfficiallyMove(Vector3 playerPosition)
+    {
+        if (!youAttacked)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition);
+        }
+        currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
+        currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         StartCoroutine(enemyHit(0.9f, damage));
     }
-
     IEnumerator enemyHit(float delayTime, uint damage)
     {
-        coroutineActive = true;
+        currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().takeHit(damage);
+        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage);
         currentSelectedEnemy = null;
-        coroutineActive = false;
+        attackHappening = false;
         inAttackMode = false;
+        if(youAttacked)
+        {
+            turnManager.charecterDoneAction(currentSelectedPlayer);
+            youAttacked = false;
+        }
         playerHasOfficialyMoved();
+
         yield return null;
-        
     }
     public void playerHasOfficialyMoved()
     {
-        turnManager.charecterDoneAction(currentSelectedPlayer);
         currentSelectedPlayer = null;
         clearCharectersHighlights();
         uIController.disableWait();
@@ -211,13 +287,15 @@ public class MouseController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             setInWaitMode(false);
+            turnManager.charecterDoneAction(currentSelectedPlayer);
+            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
             playerHasOfficialyMoved();
         }
     }
     public void clearCharectersHighlights()
     {
-        highlightTiles(tilesInRange, "noHighlight");
-        tilesInRange.Clear();
+        highlightTiles(moveTilesInRange, "noHighlight");
+        moveTilesInRange.Clear();
         highlightTiles(attackTilesInRange, "noHighlight");
         attackTilesInRange.Clear();
     }
@@ -238,7 +316,7 @@ public class MouseController : MonoBehaviour
     private void highlightCurentTile()
     { 
         bool hitEqualsCurrentTile = currentHighlightedTile == previousTileHighlight;
-        bool previousTileInTilesInRange = tilesInRange.Contains(previousTileHighlight);
+        bool previousTileInTilesInRange = moveTilesInRange.Contains(previousTileHighlight);
         bool currentTileInAttackTilesInRange = attackTilesInRange.Contains(currentHighlightedTile);
         bool noTileHighlighted = currentHighlightedTile == null && previousTileHighlight != null;
         bool newTileHigghlighted = !hitEqualsCurrentTile && previousTileHighlight != null;
@@ -269,5 +347,40 @@ public class MouseController : MonoBehaviour
         {
             uIController.disableAttack();
         }
+    }
+
+    private bool canAttackHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+        Debug.Log("Checking if attack can happen");
+        bool checkAttackCanHappen = false;
+
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+        GameObject enemy = mapManager.getOccupier(enemyPosition);
+
+        if (enemy == null)
+        {
+            Debug.Log("no attacking player found from clients position not doing attack");
+            return false;
+        }
+        if (player == null)
+        {
+            Debug.Log("no enemy found from clients position not doing attack");
+            return false;
+        }
+
+        List<GameObject> testTileRange = new List<GameObject>();
+        uint move = player.GetComponent<CharecterStats>().Move;
+        uint jump = player.GetComponent<CharecterStats>().Jump;
+        Vector3Int tileIndex = mapManager.getTileIndex(player);
+        testTileRange = mapManager.getTilesInRange(move, jump, tileIndex, testTileRange, false);
+        GameObject testTile = mapManager.getTile(playersNewPosition);
+
+        checkAttackCanHappen = testTileRange.Contains(testTile);
+        if (!checkAttackCanHappen)
+        {
+            Debug.Log("movement of player according to server is not possible not doing attack");
+        }
+        print(checkAttackCanHappen);
+        return checkAttackCanHappen;
     }
 }

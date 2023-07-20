@@ -1,23 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIController : MonoBehaviour
+public class PlayerUIController : MonoBehaviour
 {
 
     [SerializeField] private Button endTurn;
     [SerializeField] private Button wait;
     [SerializeField] private Button attack;
 
+    [SerializeField] TMP_Text turnText;
+
     [SerializeField] private GameObject Charecters;
     private TurnManager turnManager;
 
     [SerializeField] private GameObject MouseController;
     private MouseController mouseController;
-
+     
     // Start is called before the first frame update
     void Start()
     {
@@ -30,18 +33,10 @@ public class UIController : MonoBehaviour
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
     }
-
-    
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void endTurnOnClick()
     {
-        turnManager.switchSides();
+        turnManager.LocalChangeTurnVariable();
+        turnManager.NetworkChangeTurnVariable();
         mouseController.playerHasBeenDeselected();    
     }
 
@@ -74,4 +69,52 @@ public class UIController : MonoBehaviour
         attack.interactable = true;
     }
 
+    public void disableEndTurn()
+    {
+        endTurn.interactable = false;
+    }
+
+    public void enableEndTurn()
+    {
+        endTurn.interactable = true;
+    }
+
+    public void EnablePlayerUI(bool enable)
+    {
+        endTurn.interactable = enable;  
+    }
+
+    public void PlayerTurnText(bool yourTurn)
+    {
+        if (turnManager.LocalPlay)
+        {
+            if (yourTurn)
+            {
+                turnText.text = "Player 1 Turn";
+            }
+            else
+            {
+                turnText.text = "Player 2 Turn";
+            }
+
+        }
+        else
+        {
+            if (yourTurn)
+            {
+                turnText.text = "Your turn";
+            }
+            else
+            {
+                turnText.text = "Enemy turn";
+            }
+        }
+    }
+
+    public void DisablePlayerUI()
+    {
+        endTurn.interactable = false;
+        attack.interactable = false;
+        wait.interactable = false;
+    }
 }

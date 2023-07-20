@@ -1,12 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.WSA;
-using static UnityEditor.FilePathAttribute;
+
 
 public class MapManager : MonoBehaviour
 {
@@ -55,10 +50,29 @@ public class MapManager : MonoBehaviour
         GameObject tile = getTile(position);
         occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
     }
+    public void removeFromOccupied(GameObject charecter)
+    {
+        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter); ;
+    }
 
+    public GameObject getOccupier(Vector3 position)
+    {
+        GameObject tile = getTile(position);
+        GameObject output = null;
+        if (isTileOccupied(tile))
+        {
+            output = occupiedTiles.First(x => x.GetTile() == tile).GetOccupier();
+        }
+        return output;
+    }
     public bool isTileOccupied(GameObject tile)
     {
         return occupiedTiles.Any(x => x.GetTile() == tile);
+    }
+
+    public bool isTileOccupied(Vector3 location)
+    {
+        return isTileOccupied(getTile(location));
     }
 
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)
@@ -66,6 +80,15 @@ public class MapManager : MonoBehaviour
         bool output = false;
 
         output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>() != null && x.GetOccupier().GetComponent<CharecterStats>().GoodGuy != goodGuy);
+
+        return output;
+    }
+
+    public bool isThisCharecterInTiles(List<GameObject> tiles, GameObject charecter)
+    {
+        bool output = false;
+
+        output = occupiedTiles.Any(x => tiles.Contains(x.GetTile()) && x.GetOccupier().GetComponent<CharecterStats>() != null && x.GetOccupier() == charecter);
 
         return output;
     }

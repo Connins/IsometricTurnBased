@@ -1,42 +1,77 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-public class TurnManager : MonoBehaviour
+public class TurnManager : NetworkBehaviour
 {
-    [SerializeField] private bool isPlayerTurn;
-    [SerializeField] TMP_Text turnText;
+    [SerializeField] private bool isHostTurn;
     [SerializeField] GameObject mouseController;
+    [SerializeField] NetworkVariable<bool> turnVariable;
+    [SerializeField] GameObject UIManager;
 
     private List<GameObject> goodGuyList = new List<GameObject>();
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
-  
+
+    private bool localPlay = false; 
     // Start is called before the first frame update
     void Start()
     {
-        if (isPlayerTurn)
-        {
-            activePlayerList = new List<GameObject>(goodGuyList);
-        }
-        else
-        {
-            activePlayerList = new List<GameObject>(badGuyList);
-        }
+
     }
 
+    public override void OnNetworkSpawn()
+    {
+        isHostTurn = turnVariable.Value;
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurn());
+        UIManager.GetComponentInChildren<PlayerUIController>().PlayerTurnText(YourTurn());
+        RefreshActiveCharecters();
+    }
+
+    private void OnEnable()
+    {
+        turnVariable.OnValueChanged += OnTurnVariableStateChanged;
+    }
+    private void OnTurnVariableStateChanged(bool previousValue, bool newValue)
+    {
+        isHostTurn = newValue;
+        UIManager.GetComponent<UIManager>().EnablePlayerUI(YourTurnLocal());
+        UIManager.GetComponentInChildren<PlayerUIController>().PlayerTurnText(YourTurnLocal());
+        RefreshActiveCharecters();
+    }
     // Update is called once per frame
     void Update()
     {
-        if(activePlayerList.Count == 0)
+        
+    }
+
+    public void NetworkChangeTurnVariable()
+    {
+        if(IsServer)
         {
-            switchSides();
+            turnVariable.Value = turnVariable.Value == false;
+        }
+        else
+        {
+            SwapSidesServerRpc();
         }
     }
 
+    public void LocalChangeTurnVariable()
+    {
+        isHostTurn = isHostTurn == false;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SwapSidesServerRpc()
+    {
+        turnVariable.Value = turnVariable.Value == false;
+    }
+
     public void addGoodGuy(GameObject goodGuy)
-    { 
+    {
         goodGuyList.Add(goodGuy);
     }
 
@@ -59,6 +94,11 @@ public class TurnManager : MonoBehaviour
     public void charecterDoneAction(GameObject charecter)
     {
         activePlayerList.Remove(charecter);
+        if (activePlayerList.Count == 0)
+        {
+            LocalChangeTurnVariable();
+            NetworkChangeTurnVariable();
+        }
     }
 
     public bool activePlayer(GameObject charecter)
@@ -66,34 +106,51 @@ public class TurnManager : MonoBehaviour
         return activePlayerList.Contains(charecter);
     }
 
-    public void switchSides()
+    public bool YourTurn()
     {
-        isPlayerTurn = isPlayerTurn == false;
-        
-        if(isPlayerTurn)
+        if (IsServer)
+        {
+            return turnVariable.Value;
+        }
+        else
+        {
+            return !turnVariable.Value;
+        }
+    }
+
+    public void IsLocalPlay()
+    {
+        localPlay = true;
+    }
+
+    public bool LocalPlay
+    {
+        get
+        { 
+            return localPlay; 
+        }
+    }
+
+    public bool YourTurnLocal()
+    {
+        if (IsServer)
+        {
+            return isHostTurn;
+        }
+        else
+        {
+            return !isHostTurn;
+        }
+    }
+    public void RefreshActiveCharecters()
+    {
+        if (isHostTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
-            if(activePlayerList.Count > 0)
-            {
-                turnText.text = "Your turn";
-            }
-            else
-            {
-                switchSides();
-            }
-            
         }
         else
         {
             activePlayerList = new List<GameObject>(badGuyList);
-            if (activePlayerList.Count > 0)
-            {
-                turnText.text = "Enemy turn";
-            }
-            else
-            {
-                switchSides();
-            }
         }
     }
 }
