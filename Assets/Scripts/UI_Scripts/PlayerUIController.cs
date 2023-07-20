@@ -35,8 +35,7 @@ public class PlayerUIController : MonoBehaviour
     }
     private void endTurnOnClick()
     {
-        turnManager.LocalChangeTurnVariable();
-        turnManager.NetworkChangeTurnVariable();
+        turnManager.endingTurn();
         mouseController.playerHasBeenDeselected();    
     }
 

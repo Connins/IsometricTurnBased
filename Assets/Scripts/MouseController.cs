@@ -8,7 +8,12 @@ public class MouseController : NetworkBehaviour
     [SerializeField] private LayerMask mapTileMask;
     [SerializeField] private LayerMask charecterMask;
     [SerializeField] private Grid grid;
-    private PlayerUIController uIController;
+    [SerializeField] private GameObject uIManager;
+    [SerializeField] private GameObject yourStatsUI;
+    [SerializeField] private GameObject enemyStatsUI;
+    private StatsUIController yourStatsUIController;
+    private StatsUIController enemyStatsUIController;
+    private PlayerUIController playerUIController;
     private CharecterUIController charecterUIController;
     private MapManager mapManager;
     private TurnManager turnManager;
@@ -26,6 +31,10 @@ public class MouseController : NetworkBehaviour
     private GameObject previousTileHighlight;
     private GameObject charecterHit;
 
+    //StatsUI
+    private GameObject yourCharecter;
+    private GameObject enemyCharecter;
+
     private float offset = 1f;
 
     private List<GameObject> moveTilesInRange;
@@ -38,7 +47,10 @@ public class MouseController : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        uIController = FindAnyObjectByType<PlayerUIController>();
+        playerUIController = uIManager.GetComponentInChildren<PlayerUIController>();
+        yourStatsUIController = yourStatsUI.GetComponent<StatsUIController>();
+        enemyStatsUIController = enemyStatsUI.GetComponent<StatsUIController>();
+
         previousTileHighlight = null;
         moveTilesInRange = new List<GameObject>();
         attackTilesInRange = new List<GameObject>();
@@ -59,7 +71,7 @@ public class MouseController : NetworkBehaviour
 
         if (!attackHappening && playerControl)
         {
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 playerHasBeenDeselected();
             }
@@ -86,7 +98,60 @@ public class MouseController : NetworkBehaviour
         }
         if(!attackHappening)
         {
-            uIController.EnablePlayerUI(playerControl);
+            playerUIController.EnablePlayerUI(playerControl);
+        }
+
+        //Stats UI update loop for mouse controller
+
+        if (Input.GetMouseButtonDown(0) && charecterHit != null)
+        {
+            if(charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys)
+            {
+                yourCharecter = charecterHit;
+            }
+            else
+            {
+                enemyCharecter = charecterHit;
+            }
+        }
+
+        if (yourCharecter != null)
+        {
+            yourStatsUIController.Charecter = yourCharecter;
+        }
+        else
+        {
+            if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys) 
+            {
+                yourStatsUIController.Charecter = charecterHit;
+            }
+            else
+            {
+                yourStatsUIController.Charecter = null;
+            }
+
+        }
+
+        if (enemyCharecter != null)
+        {
+            enemyStatsUIController.Charecter = enemyCharecter;
+        }
+        else
+        {
+            if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != turnManager.YouAreGoodGuys)
+            {
+                enemyStatsUIController.Charecter = charecterHit;
+            }
+            else
+            {
+                enemyStatsUIController.Charecter = null;
+            }
+            
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            killStatsUI();
         }
     }
 
@@ -147,7 +212,7 @@ public class MouseController : NetworkBehaviour
         attackTilesInRange.Clear();
         attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
-        uIController.enableWait();
+        playerUIController.enableWait();
         checkEnemyInRange();
     }
 
@@ -172,7 +237,7 @@ public class MouseController : NetworkBehaviour
     {
         attackHappening = true;
         youAttacked = true;
-        uIController.DisablePlayerUI();
+        playerUIController.DisablePlayerUI();
         currentSelectedEnemy = charecterHit;
 
         if(IsServer && IsClient)
@@ -257,9 +322,11 @@ public class MouseController : NetworkBehaviour
     public void playerHasOfficialyMoved()
     {
         currentSelectedPlayer = null;
+        yourCharecter = null;
+        enemyCharecter = null;
         clearCharectersHighlights();
-        uIController.disableWait();
-        uIController.disableAttack();
+        playerUIController.disableWait();
+        playerUIController.disableAttack();
     }
 
     public void playerHasBeenDeselected()
@@ -270,9 +337,10 @@ public class MouseController : NetworkBehaviour
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
-            uIController.disableWait();
-            uIController.disableAttack();
+            playerUIController.disableWait();
+            playerUIController.disableAttack();
             currentSelectedPlayer = null;
+            killStatsUI();
         }  
     }
 
@@ -341,11 +409,11 @@ public class MouseController : NetworkBehaviour
 
         if (enemyInRange)
         {
-            uIController.enableAttack();
+            playerUIController.enableAttack();
         }
         else
         {
-            uIController.disableAttack();
+            playerUIController.disableAttack();
         }
     }
 
@@ -382,5 +450,11 @@ public class MouseController : NetworkBehaviour
         }
         print(checkAttackCanHappen);
         return checkAttackCanHappen;
+    }
+
+    private void killStatsUI()
+    {
+        yourCharecter = null;
+        enemyCharecter = null;
     }
 }

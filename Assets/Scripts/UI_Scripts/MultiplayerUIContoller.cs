@@ -8,6 +8,9 @@ public class MultiplayerUIContoller : MonoBehaviour
 {
     [SerializeField] private Button host;
     [SerializeField] private Button client;
+    [SerializeField] private GameObject charecters;
+
+    private TurnManager turnManager;
 
     private UIManager UIManager;
     // Start is called before the first frame update
@@ -16,6 +19,7 @@ public class MultiplayerUIContoller : MonoBehaviour
         UIManager = GetComponentInParent<UIManager>();
         host.onClick.AddListener(hostOnClick);
         client.onClick.AddListener(clientOnClick);
+        turnManager = charecters.GetComponent<TurnManager>();
     }
 
     private void hostOnClick()
@@ -27,6 +31,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     private void clientOnClick()
     {
         NetworkManager.Singleton.StartClient();
+        turnManager.YouAreGoodGuys = false;
         UIManager.SwitchUI(2);
     }
 }

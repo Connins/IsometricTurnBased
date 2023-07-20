@@ -15,7 +15,7 @@ public class CharecterStats : NetworkBehaviour
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
-    [SerializeField] private uint stength;
+    [SerializeField] private uint strength;
     [SerializeField] private uint defense;
     [SerializeField] private uint speed;
     [SerializeField] private uint magic;
@@ -85,25 +85,10 @@ public class CharecterStats : NetworkBehaviour
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
-    //accessor functions
-    public uint Move
-    {
-        get { return move; }
-    }
-    public uint Jump
-    { 
-        get { return jump; } 
-    }
-
-    public bool GoodGuy
-    { 
-        get { return goodGuy; } 
-    }
-
     public uint outPutDamage()
     {
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
-        return stength;
+        return strength;
     }
 
     //this only works if server is also a client as ServerRPC command just calls wanted function
@@ -162,6 +147,39 @@ public class CharecterStats : NetworkBehaviour
         mapManager.removeFromOccupied(transform.position);
         turnManager.removeCharecterFromList(gameObject);
         healthBar.gameObject.SetActive(false);
+    }
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //Here is the accessor functions for stats
+
+    public int Health
+    {
+        get { return health; }
+    }
+
+    public uint Strength
+    {
+        get { return strength; }
+    }
+
+    public uint Defence
+    {
+        get { return defense; }
+    }
+    public uint Move
+    {
+        get { return move; }
+    }
+    public uint Jump
+    {
+        get { return jump; }
+    }
+
+    public bool GoodGuy
+    {
+        get { return goodGuy; }
     }
 }
 
