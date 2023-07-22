@@ -7,8 +7,6 @@ using UnityEngine.UI;
 
 public class StatsUIController : MonoBehaviour
 {
-    [SerializeField] Canvas charecterStatsCanvas;
-
     private GameObject charecter;
 
     [SerializeField] TMP_Text health;
@@ -17,14 +15,10 @@ public class StatsUIController : MonoBehaviour
     [SerializeField] TMP_Text move;
     [SerializeField] TMP_Text jump;
 
-    [SerializeField] private Button cancel;
-
-
     // Start is called before the first frame update
     void Start()
     {
-        charecterStatsCanvas.enabled = false;
-        cancel.onClick.AddListener(cancelOnClick);
+        transform.GetComponent<Canvas>().enabled = false;
     }
 
     // Update is called once per frame
@@ -32,8 +26,8 @@ public class StatsUIController : MonoBehaviour
     {
         if (charecter)
         {
-            charecterStatsCanvas.enabled = true;
-            health.text = "Health: " + charecter.GetComponentInChildren<CharecterStats>().Health;
+            transform.GetComponent<Canvas>().enabled = true;
+            health.text = "Health: " + charecter.GetComponentInChildren<CharecterStats>().Health + "/" + charecter.GetComponentInChildren<CharecterStats>().MaxHealth;
             strength.text = "Strength: " + charecter.GetComponentInChildren<CharecterStats>().Strength;
             defence.text = "Defence: " + charecter.GetComponentInChildren<CharecterStats>().Defence;
             move.text = "Move: " + charecter.GetComponentInChildren<CharecterStats>().Move;
@@ -41,15 +35,9 @@ public class StatsUIController : MonoBehaviour
         }
         else
         {
-            charecterStatsCanvas.enabled = false;
+            transform.GetComponent<Canvas>().enabled = false;
         }
     }
-
-    private void cancelOnClick()
-    {
-        Charecter = null;
-    }
-
     public GameObject Charecter
     {
         set { charecter = value; }

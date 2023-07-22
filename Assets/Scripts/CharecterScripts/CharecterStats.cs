@@ -159,6 +159,11 @@ public class CharecterStats : NetworkBehaviour
         get { return health; }
     }
 
+    public uint MaxHealth
+    {
+        get { return maxHealth; }
+    }
+
     public uint Strength
     {
         get { return strength; }
