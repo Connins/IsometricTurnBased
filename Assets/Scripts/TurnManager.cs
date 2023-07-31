@@ -15,7 +15,9 @@ public class TurnManager : NetworkBehaviour
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
 
-    private bool localPlay = false; 
+    private bool localPlay = false;
+    private bool youAreGoodGuys = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,11 +98,19 @@ public class TurnManager : NetworkBehaviour
         activePlayerList.Remove(charecter);
         if (activePlayerList.Count == 0)
         {
-            LocalChangeTurnVariable();
-            NetworkChangeTurnVariable();
+            endingTurn();
         }
     }
 
+    public void endingTurn()
+    {
+        LocalChangeTurnVariable();
+        NetworkChangeTurnVariable();
+        if (LocalPlay)
+        {
+            YouAreGoodGuys = YouAreGoodGuys == false;
+        }
+    }
     public bool activePlayer(GameObject charecter)
     {
         return activePlayerList.Contains(charecter);
@@ -129,6 +139,12 @@ public class TurnManager : NetworkBehaviour
         { 
             return localPlay; 
         }
+    }
+
+    public bool YouAreGoodGuys
+    {
+        get { return youAreGoodGuys; }
+        set { youAreGoodGuys = value; }
     }
 
     public bool YourTurnLocal()
