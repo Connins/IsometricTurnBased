@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -122,6 +123,59 @@ public class MapManager : MonoBehaviour
         return tilesInRange;
     }
 
+    public List<GameObject> getRangedTilesInRange(uint range, Vector3Int location, uint heightBonus)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+        int lowerLimit;
+        if(heightBonus == 0)
+        {
+            lowerLimit = location.y;
+        }
+        else
+        {
+            lowerLimit = 0;
+        }
+        for (var x = 0; x < tiles.GetLength(0); x++)
+        {
+            for (var z = 0; z < tiles.GetLength(2); z++)
+            {
+                int height = heightCalc(location, new Vector3Int(x, 0, z), range, heightBonus);
+                
+          
+
+                if (height >= 0)
+                {
+                    tilesInRange.AddRange(GetRangedValidTilesInCollunm(new Vector3Int(x, height, z), lowerLimit));
+                }
+            }
+        }
+    
+        return tilesInRange;
+    }
+
+    private int heightCalc(Vector3Int startLocation, Vector3Int currentLocation, uint range, uint heightBonus)
+    {
+        int distance = Mathf.Abs(startLocation.x - currentLocation.x) + Mathf.Abs(startLocation.z - currentLocation.z);
+
+        int height;
+        if(heightBonus!= 0)
+        {
+            height = startLocation.y + ((int)range - distance) * (int)heightBonus;
+        }
+        else
+        {
+            if(distance > range)
+            {
+                height = -1;
+            }
+            else
+            {
+                height = startLocation.y;
+            }
+        }
+        return height;
+    }
+
     private void SpawnBaseMap(int x, int z)
     {
         //Idea of this function is to create a grid of blocks from serialized fields
@@ -176,7 +230,7 @@ public class MapManager : MonoBehaviour
         List <Vector3Int> validTilesLocation = new List <Vector3Int>();
 
         if(IsLocationInBounds(location))
-        {
+        { 
             for (var y = -jump; y <= jump; y++)
             {
                 Vector3Int nextLocation = new Vector3Int(location.x, location.y + (int)y, location.z);
@@ -188,6 +242,25 @@ public class MapManager : MonoBehaviour
         }
         
         return validTilesLocation;
+    }
+
+    private List<GameObject> GetRangedValidTilesInCollunm(Vector3Int location, int lowerLimit)
+    {
+        List<GameObject> validTiles = new List<GameObject>();
+
+        if (IsLocationInBounds(location))
+        {
+            for (var y = location.y; y >= lowerLimit; y--)
+            {
+                Vector3Int nextLocation = new Vector3Int(location.x, y, location.z);
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, false))
+                {
+                    validTiles.Add(tiles[nextLocation.x, nextLocation.y, nextLocation.z]);
+                }
+            }
+        }
+
+        return validTiles;
     }
 
     private bool IsLocationInBounds(Vector3Int location)

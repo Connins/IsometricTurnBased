@@ -206,11 +206,21 @@ public class MouseController : NetworkBehaviour
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
+        uint heightBonus;
+        if (weaponRange > 1)
+        {
+            heightBonus = 2;
+        }
+        else
+        {
+            heightBonus = 0;
+        }
         moveTilesInRange.Clear();
         moveTilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
-        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        
+        attackTilesInRange = mapManager.getRangedTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         playerUIController.enableWait();
         checkEnemyInRange();
@@ -223,10 +233,19 @@ public class MouseController : NetworkBehaviour
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
+        uint heightBonus;
+        if (weaponRange > 1)
+        {
+            heightBonus = 2;
+        }
+        else
+        {
+            heightBonus = 0;
+        }
 
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
-        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        attackTilesInRange = mapManager.getRangedTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
 
         checkEnemyInRange();
