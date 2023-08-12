@@ -253,7 +253,7 @@ public class MapManager : MonoBehaviour
             for (var y = location.y; y >= lowerLimit; y--)
             {
                 Vector3Int nextLocation = new Vector3Int(location.x, y, location.z);
-                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, false))
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, true))
                 {
                     validTiles.Add(tiles[nextLocation.x, nextLocation.y, nextLocation.z]);
                 }
