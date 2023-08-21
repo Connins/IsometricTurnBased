@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MouseController : NetworkBehaviour
 {
@@ -262,9 +263,11 @@ public class MouseController : NetworkBehaviour
         if(IsServer && IsClient)
         {
             attackAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
+            print("here2");
         }
         if(!IsServer && IsClient)
         {
+            print("here");
             //need to tell server to check if attack is legit and then it can send clients to attack.
             checkAttackCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
         }
@@ -455,20 +458,46 @@ public class MouseController : NetworkBehaviour
             return false;
         }
 
-        List<GameObject> testTileRange = new List<GameObject>();
-        uint move = player.GetComponent<CharecterStats>().Move;
-        uint jump = player.GetComponent<CharecterStats>().Jump;
-        Vector3Int tileIndex = mapManager.getTileIndex(player);
-        testTileRange = mapManager.getTilesInRange(move, jump, tileIndex, testTileRange, false);
-        GameObject testTile = mapManager.getTile(playersNewPosition);
+        bool isMovementAllowed = player.GetComponent<PlayerController>().canMovementHappen(playersNewPosition);
 
-        checkAttackCanHappen = testTileRange.Contains(testTile);
-        if (!checkAttackCanHappen)
+        if (!isMovementAllowed)
         {
             Debug.Log("movement of player according to server is not possible not doing attack");
         }
-        print(checkAttackCanHappen);
+
+        bool isAttackAllowed = isAttackInRange(playersOriginalPosition, playersNewPosition, enemyPosition);
+        
+        if (!isAttackAllowed)
+        {
+            Debug.Log("Enemy is not in range of player on server not doing attack");
+        }
+        checkAttackCanHappen = isMovementAllowed && isAttackAllowed;
+
         return checkAttackCanHappen;
+    }
+
+    private bool isAttackInRange(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+        uint weaponRange = player.GetComponent<WeaponStats>().Range;
+        uint heightBonus;
+        if (weaponRange > 1)
+        {
+            heightBonus = 2;
+        }
+        else
+        {
+            heightBonus = 0;
+        }
+        List<GameObject> testAttackTileRange = new List<GameObject>();
+        testAttackTileRange = mapManager.getRangedTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
+        GameObject enemyTile = mapManager.getTile(enemyPosition);
+        bool isAttackAllowed = testAttackTileRange.Contains(enemyTile);
+        if (!isAttackAllowed)
+        {
+            Debug.Log("Enemy is not in range of player on server");
+        }
+        return isAttackAllowed;
     }
 
     private void killStatsUI()
