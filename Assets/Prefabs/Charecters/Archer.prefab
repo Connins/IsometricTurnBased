@@ -3656,6 +3656,7 @@ MonoBehaviour:
   range: 3
   weight: 0
   weaponDamage: 3
+  heightBonus: 2
 --- !u!114 &8088119012268108124
 MonoBehaviour:
   m_ObjectHideFlags: 0

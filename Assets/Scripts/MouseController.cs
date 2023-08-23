@@ -234,16 +234,8 @@ public class MouseController : NetworkBehaviour
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
-        uint heightBonus;
-        if (weaponRange > 1)
-        {
-            heightBonus = 2;
-        }
-        else
-        {
-            heightBonus = 0;
-        }
-
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
+        
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
         attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
