@@ -471,17 +471,9 @@ public class MouseController : NetworkBehaviour
     {
         GameObject player = mapManager.getOccupier(playersOriginalPosition);
         uint weaponRange = player.GetComponent<WeaponStats>().Range;
-        uint heightBonus;
-        if (weaponRange > 1)
-        {
-            heightBonus = 2;
-        }
-        else
-        {
-            heightBonus = 0;
-        }
-        List<GameObject> testAttackTileRange = new List<GameObject>();
-        testAttackTileRange = mapManager.getAttackTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
+
+        List<GameObject> testAttackTileRange = mapManager.getAttackTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
         GameObject enemyTile = mapManager.getTile(enemyPosition);
         bool isAttackAllowed = testAttackTileRange.Contains(enemyTile);
         if (!isAttackAllowed)
