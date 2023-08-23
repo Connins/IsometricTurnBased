@@ -18676,8 +18676,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 685507669}
     m_Modifications:
     - target: {fileID: -2438226224446410489, guid: 15b41b131fdb07f4ba2eca78b281c893, type: 3}
+      propertyPath: goodGuy
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2438226224446410489, guid: 15b41b131fdb07f4ba2eca78b281c893, type: 3}
       propertyPath: strength
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2438226224446410489, guid: 15b41b131fdb07f4ba2eca78b281c893, type: 3}
+      propertyPath: attackAnimationTime
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 1216584602457261637, guid: 15b41b131fdb07f4ba2eca78b281c893, type: 3}
       propertyPath: m_RootOrder

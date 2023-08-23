@@ -320,7 +320,8 @@ public class MouseController : NetworkBehaviour
         currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
 
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
-        StartCoroutine(enemyHit(0.9f, damage));
+        float attackAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
+        StartCoroutine(enemyHit(attackAnimationTime, damage));
     }
     IEnumerator enemyHit(float delayTime, uint damage)
     {

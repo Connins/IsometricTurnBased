@@ -523,16 +523,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthServerState:
     m_InternalValue: 10
-  health: 10
   maxHealth: 10
   move: 3
   jump: 1
-  stength: 3
+  strength: 0
   defense: 0
   speed: 0
   magic: 0
   magicDefense: 0
   goodGuy: 1
+  attackAnimationTime: 0.9
   healthBar: {fileID: 0}
 --- !u!114 &-8052259700170811187
 MonoBehaviour:
