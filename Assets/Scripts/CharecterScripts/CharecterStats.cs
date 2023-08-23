@@ -21,6 +21,7 @@ public class CharecterStats : NetworkBehaviour
     [SerializeField] private uint magic;
     [SerializeField] private uint magicDefense;
     [SerializeField] private bool goodGuy;
+    [SerializeField] private float attackAnimationTime;
 
     private TurnManager turnManager;
     private MapManager mapManager;
@@ -185,6 +186,11 @@ public class CharecterStats : NetworkBehaviour
     public bool GoodGuy
     {
         get { return goodGuy; }
+    }
+
+    public float AttackAnimationTime
+    {
+        get { return attackAnimationTime; }
     }
 }
 

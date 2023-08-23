@@ -10,10 +10,12 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int yBound;
     [SerializeField] private int zBound;
 
+    [SerializeField] private LayerMask mapTileMask;
+
     private List<OccupiedTile> occupiedTiles = new List<OccupiedTile>();
 
     private GameObject[,,] tiles;
-
+    
     //accessor functions
     public GameObject getTile(Vector3 position)
     {
@@ -98,7 +100,7 @@ public class MapManager : MonoBehaviour
         return occupiedTiles.Find(x => x.GetOccupier() == occupier).GetTileIndex();
     }
 
-    public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
+    public List<GameObject> getMovementTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
         GameObject tile = tiles[location.x, location.y, location.z];
         //Checks if we have already stepped on tile if so just return current held tilesInRange
@@ -114,12 +116,103 @@ public class MapManager : MonoBehaviour
             {
                 foreach (var nextLocation in validTilesLocation)
                 {
-                    tilesInRange = getTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
+                    tilesInRange = getMovementTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
                 }
             }
         }
 
         return tilesInRange;
+    }
+
+    public List<GameObject> getAttackTilesInRange(uint range, Vector3Int tileIndex, uint heightBonus)
+    {
+        //melee units
+        if (range == 1)
+        {
+            return getMeleeTilesInRange(tileIndex);
+        }
+        //archer units        
+        if (range > 1) 
+        {
+            return getRangedTilesInRange(range, tileIndex, heightBonus);
+        }
+
+        return new List<GameObject>();
+        
+    }
+
+    public List<GameObject> getMeleeTilesInRange(Vector3Int tileIndex)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+
+        List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(tileIndex, 1, true);
+
+        if (validTilesLocation.Count != 0)
+        {
+            foreach (var tileLocation in validTilesLocation)
+            {
+                tilesInRange.Add(tiles[tileLocation.x, tileLocation.y, tileLocation.z]);
+            }
+        }
+        return tilesInRange;
+    }
+    public List<GameObject> getRangedTilesInRange(uint range, Vector3Int tileIndex, uint heightBonus)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+        List<GameObject> tilesToRemoveFromInRange = new List<GameObject>();
+        int lowerLimit = 0;
+        
+        for (var x = 0; x < tiles.GetLength(0); x++)
+        {
+            for (var z = 0; z < tiles.GetLength(2); z++)
+            {
+                int height = heightCalc(tileIndex, new Vector3Int(x, 0, z), range, heightBonus);
+               
+                if (height >= 0)
+                {
+                    tilesInRange.AddRange(GetRangedValidTilesInCollunm(new Vector3Int(x, height, z), lowerLimit));
+                }
+            }
+        }
+
+        //Raycast test to see if unit could see unit on all tiles
+        float tileYOffset = 2;
+        Vector3 offset = new Vector3(0.5f, 0.5f, 0.5f);
+        GameObject startingTile = tiles[tileIndex.x,tileIndex.y,tileIndex.z];
+        Vector3 startPoint = startingTile.transform.position;
+        startPoint.y = startPoint.y + tileYOffset;
+        tilesToRemoveFromInRange.Add(startingTile);
+        foreach (GameObject tile in tilesInRange)
+        {
+            Vector3 endPoint = tile.transform.position;
+            endPoint.y = endPoint.y + tileYOffset;
+            
+            Vector3 rayDirection = endPoint - startPoint;
+
+            RaycastHit hitInfo;
+
+            if (Physics.Raycast(startPoint + offset, rayDirection, out hitInfo, rayDirection.magnitude, mapTileMask))
+            {
+                tilesToRemoveFromInRange.Add(tile);
+            }
+            
+        }
+
+        foreach (GameObject tile in tilesToRemoveFromInRange)
+        {
+            tilesInRange.Remove(tile);
+        }
+
+        return tilesInRange;
+    }
+
+    private int heightCalc(Vector3Int startLocation, Vector3Int currentLocation, uint range, uint heightBonus)
+    {
+        int distance = Mathf.Abs(startLocation.x - currentLocation.x) + Mathf.Abs(startLocation.z - currentLocation.z);
+
+        int height = startLocation.y + ((int)range - distance) * (int)heightBonus;
+         
+        return height;
     }
 
     private void SpawnBaseMap(int x, int z)
@@ -176,7 +269,7 @@ public class MapManager : MonoBehaviour
         List <Vector3Int> validTilesLocation = new List <Vector3Int>();
 
         if(IsLocationInBounds(location))
-        {
+        { 
             for (var y = -jump; y <= jump; y++)
             {
                 Vector3Int nextLocation = new Vector3Int(location.x, location.y + (int)y, location.z);
@@ -188,6 +281,25 @@ public class MapManager : MonoBehaviour
         }
         
         return validTilesLocation;
+    }
+
+    private List<GameObject> GetRangedValidTilesInCollunm(Vector3Int tileIndex, int lowerLimit)
+    {
+        List<GameObject> validTiles = new List<GameObject>();
+
+        if (IsLocationInBounds(tileIndex))
+        {
+            for (var y = tileIndex.y; y >= lowerLimit; y--)
+            {
+                Vector3Int nextLocation = new Vector3Int(tileIndex.x, y, tileIndex.z);
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, true))
+                {
+                    validTiles.Add(tiles[nextLocation.x, nextLocation.y, nextLocation.z]);
+                }
+            }
+        }
+
+        return validTiles;
     }
 
     private bool IsLocationInBounds(Vector3Int location)

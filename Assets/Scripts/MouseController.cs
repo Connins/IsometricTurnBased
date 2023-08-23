@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MouseController : NetworkBehaviour
 {
@@ -206,11 +207,13 @@ public class MouseController : NetworkBehaviour
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
         moveTilesInRange.Clear();
-        moveTilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
-        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        
+        attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         playerUIController.enableWait();
         checkEnemyInRange();
@@ -223,10 +226,11 @@ public class MouseController : NetworkBehaviour
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
-
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
+        
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
-        attackTilesInRange = mapManager.getTilesInRange(weaponRange, 1, tileIndex, attackTilesInRange, true);
+        attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
 
         checkEnemyInRange();
@@ -300,7 +304,8 @@ public class MouseController : NetworkBehaviour
         currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
 
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
-        StartCoroutine(enemyHit(0.9f, damage));
+        float attackAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
+        StartCoroutine(enemyHit(attackAnimationTime, damage));
     }
     IEnumerator enemyHit(float delayTime, uint damage)
     {
@@ -436,20 +441,38 @@ public class MouseController : NetworkBehaviour
             return false;
         }
 
-        List<GameObject> testTileRange = new List<GameObject>();
-        uint move = player.GetComponent<CharecterStats>().Move;
-        uint jump = player.GetComponent<CharecterStats>().Jump;
-        Vector3Int tileIndex = mapManager.getTileIndex(player);
-        testTileRange = mapManager.getTilesInRange(move, jump, tileIndex, testTileRange, false);
-        GameObject testTile = mapManager.getTile(playersNewPosition);
+        bool isMovementAllowed = player.GetComponent<PlayerController>().canMovementHappen(playersNewPosition);
 
-        checkAttackCanHappen = testTileRange.Contains(testTile);
-        if (!checkAttackCanHappen)
+        if (!isMovementAllowed)
         {
             Debug.Log("movement of player according to server is not possible not doing attack");
         }
-        print(checkAttackCanHappen);
+
+        bool isAttackAllowed = isAttackInRange(playersOriginalPosition, playersNewPosition, enemyPosition);
+        
+        if (!isAttackAllowed)
+        {
+            Debug.Log("Enemy is not in range of player on server not doing attack");
+        }
+        checkAttackCanHappen = isMovementAllowed && isAttackAllowed;
+
         return checkAttackCanHappen;
+    }
+
+    private bool isAttackInRange(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
+    {
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+        uint weaponRange = player.GetComponent<WeaponStats>().Range;
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
+
+        List<GameObject> testAttackTileRange = mapManager.getAttackTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
+        GameObject enemyTile = mapManager.getTile(enemyPosition);
+        bool isAttackAllowed = testAttackTileRange.Contains(enemyTile);
+        if (!isAttackAllowed)
+        {
+            Debug.Log("Enemy is not in range of player on server");
+        }
+        return isAttackAllowed;
     }
 
     private void killStatsUI()

@@ -8,6 +8,7 @@ public class WeaponStats : MonoBehaviour
     [SerializeField] private uint range;
     [SerializeField] private uint weight;
     [SerializeField] private uint weaponDamage;
+    [SerializeField] private uint heightBonus;
 
 
     void Start()
@@ -34,5 +35,10 @@ public class WeaponStats : MonoBehaviour
     public uint WeaponDamage
     {
         get { return weaponDamage; }
+    }
+
+    public uint HeightBonus
+    {
+        get { return heightBonus; }
     }
 }

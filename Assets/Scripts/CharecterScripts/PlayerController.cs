@@ -98,10 +98,38 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void UpdateServerTransformServerRpc(Vector3 targetPosition, Quaternion targetRotation)
     {
-        Debug.Log("Should do a check to see if move is possible to avoid cheaters");
-        UpdateServerTransform(targetPosition, targetRotation); 
+        Debug.Log("Checking if movement can happen before updating");
+        if (canMovementHappen(targetPosition))
+        {
+            UpdateServerTransform(targetPosition, targetRotation);
+        }
+        else
+        {
+            Debug.Log("movement of player according to server is not possible not updating server transform state");
+        }
     }
 
+
+    public bool canMovementHappen(Vector3 targetPosition)
+    {
+        bool isMovementAllowed = false;
+
+        uint move = GetComponent<CharecterStats>().Move;
+        uint jump = GetComponent<CharecterStats>().Jump;
+
+        Vector3Int tileIndex = mapManager.getTileIndex(transform.gameObject);
+        List<GameObject> testMovementTileRange = new List<GameObject>();
+        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false);
+        GameObject testTile = mapManager.getTile(targetPosition);
+        isMovementAllowed = testMovementTileRange.Contains(testTile);
+
+        if (!isMovementAllowed)
+        {
+            Debug.Log("movement of player according to server is not possible");
+        }
+
+        return isMovementAllowed;
+    }
     public void UpdateServerTransform(Vector3 targetPosition, Quaternion targetRotation)
     {
         TransformState state = new TransformState()
