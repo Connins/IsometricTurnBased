@@ -119,7 +119,7 @@ public class PlayerController : NetworkBehaviour
 
         Vector3Int tileIndex = mapManager.getTileIndex(transform.gameObject);
         List<GameObject> testMovementTileRange = new List<GameObject>();
-        testMovementTileRange = mapManager.getTilesInRange(move, jump, tileIndex, testMovementTileRange, false);
+        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false);
         GameObject testTile = mapManager.getTile(targetPosition);
         isMovementAllowed = testMovementTileRange.Contains(testTile);
 

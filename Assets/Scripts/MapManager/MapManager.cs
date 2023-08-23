@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -102,7 +100,7 @@ public class MapManager : MonoBehaviour
         return occupiedTiles.Find(x => x.GetOccupier() == occupier).GetTileIndex();
     }
 
-    public List<GameObject> getTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
+    public List<GameObject> getMovementTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
     {
         GameObject tile = tiles[location.x, location.y, location.z];
         //Checks if we have already stepped on tile if so just return current held tilesInRange
@@ -118,7 +116,7 @@ public class MapManager : MonoBehaviour
             {
                 foreach (var nextLocation in validTilesLocation)
                 {
-                    tilesInRange = getTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
+                    tilesInRange = getMovementTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
                 }
             }
         }
@@ -126,27 +124,50 @@ public class MapManager : MonoBehaviour
         return tilesInRange;
     }
 
+    public List<GameObject> getAttackTilesInRange(uint range, Vector3Int tileIndex, uint heightBonus)
+    {
+        //melee units
+        if (range == 1)
+        {
+            return getMeleeTilesInRange(tileIndex);
+        }
+        //archer units        
+        if (range > 1) 
+        {
+            return getRangedTilesInRange(range, tileIndex, heightBonus);
+        }
+
+        return new List<GameObject>();
+        
+    }
+
+    public List<GameObject> getMeleeTilesInRange(Vector3Int tileIndex)
+    {
+        List<GameObject> tilesInRange = new List<GameObject>();
+
+        List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(tileIndex, 1, true);
+
+        if (validTilesLocation.Count != 0)
+        {
+            foreach (var tileLocation in validTilesLocation)
+            {
+                tilesInRange.Add(tiles[tileLocation.x, tileLocation.y, tileLocation.z]);
+            }
+        }
+        return tilesInRange;
+    }
     public List<GameObject> getRangedTilesInRange(uint range, Vector3Int tileIndex, uint heightBonus)
     {
         List<GameObject> tilesInRange = new List<GameObject>();
         List<GameObject> tilesToRemoveFromInRange = new List<GameObject>();
-        int lowerLimit;
-        if(heightBonus == 0)
-        {
-            lowerLimit = tileIndex.y;
-        }
-        else
-        {
-            lowerLimit = 0;
-        }
+        int lowerLimit = 0;
+        
         for (var x = 0; x < tiles.GetLength(0); x++)
         {
             for (var z = 0; z < tiles.GetLength(2); z++)
             {
                 int height = heightCalc(tileIndex, new Vector3Int(x, 0, z), range, heightBonus);
-                
-          
-
+               
                 if (height >= 0)
                 {
                     tilesInRange.AddRange(GetRangedValidTilesInCollunm(new Vector3Int(x, height, z), lowerLimit));
@@ -154,6 +175,7 @@ public class MapManager : MonoBehaviour
             }
         }
 
+        //Raycast test to see if unit could see unit on all tiles
         float tileYOffset = 2;
         Vector3 offset = new Vector3(0.5f, 0.5f, 0.5f);
         GameObject startingTile = tiles[tileIndex.x,tileIndex.y,tileIndex.z];
@@ -188,22 +210,8 @@ public class MapManager : MonoBehaviour
     {
         int distance = Mathf.Abs(startLocation.x - currentLocation.x) + Mathf.Abs(startLocation.z - currentLocation.z);
 
-        int height;
-        if(heightBonus!= 0)
-        {
-            height = startLocation.y + ((int)range - distance) * (int)heightBonus;
-        }
-        else
-        {
-            if(distance > range)
-            {
-                height = -1;
-            }
-            else
-            {
-                height = startLocation.y;
-            }
-        }
+        int height = startLocation.y + ((int)range - distance) * (int)heightBonus;
+         
         return height;
     }
 

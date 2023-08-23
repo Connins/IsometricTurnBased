@@ -217,11 +217,11 @@ public class MouseController : NetworkBehaviour
             heightBonus = 0;
         }
         moveTilesInRange.Clear();
-        moveTilesInRange = mapManager.getTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         
-        attackTilesInRange = mapManager.getRangedTilesInRange(weaponRange, tileIndex, heightBonus);
+        attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         playerUIController.enableWait();
         checkEnemyInRange();
@@ -246,7 +246,7 @@ public class MouseController : NetworkBehaviour
 
         currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(currentHighlightedTile);
         Vector3Int tileIndex = new Vector3Int((int)(currentSelectedPlayer.transform.position.x - offset), (int)(currentSelectedPlayer.transform.position.y - offset), (int)(currentSelectedPlayer.transform.position.z - offset));
-        attackTilesInRange = mapManager.getRangedTilesInRange(weaponRange, tileIndex, heightBonus);
+        attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
 
         checkEnemyInRange();
@@ -263,11 +263,9 @@ public class MouseController : NetworkBehaviour
         if(IsServer && IsClient)
         {
             attackAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
-            print("here2");
         }
         if(!IsServer && IsClient)
         {
-            print("here");
             //need to tell server to check if attack is legit and then it can send clients to attack.
             checkAttackCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedEnemy.transform.position);
         }
@@ -490,7 +488,7 @@ public class MouseController : NetworkBehaviour
             heightBonus = 0;
         }
         List<GameObject> testAttackTileRange = new List<GameObject>();
-        testAttackTileRange = mapManager.getRangedTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
+        testAttackTileRange = mapManager.getAttackTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
         GameObject enemyTile = mapManager.getTile(enemyPosition);
         bool isAttackAllowed = testAttackTileRange.Contains(enemyTile);
         if (!isAttackAllowed)
