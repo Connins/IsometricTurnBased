@@ -207,15 +207,7 @@ public class MouseController : NetworkBehaviour
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
-        uint heightBonus;
-        if (weaponRange > 1)
-        {
-            heightBonus = 2;
-        }
-        else
-        {
-            heightBonus = 0;
-        }
+        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
         moveTilesInRange.Clear();
         moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
