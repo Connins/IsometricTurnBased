@@ -567,6 +567,7 @@ MonoBehaviour:
   moveDistance: 1
   damageValue: 0
   directionHighlight: {fileID: 4912634024342955663}
+  actionHighlight: {fileID: 3161675745506140400}
 --- !u!114 &9063657154561651645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3513,11 +3514,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 23268507332656140, guid: 6576d5990c9184d4690472055b8e50cf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 23268507332656140, guid: 6576d5990c9184d4690472055b8e50cf, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 2531f5287aa82ba4db72b205c0bb2fb2, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6576d5990c9184d4690472055b8e50cf, type: 3}
+--- !u!1 &3161675745506140400 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1207660587937952, guid: 6576d5990c9184d4690472055b8e50cf, type: 3}
+  m_PrefabInstance: {fileID: 3162878284334026832}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3167701645936923476 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4823384067883780, guid: 6576d5990c9184d4690472055b8e50cf, type: 3}

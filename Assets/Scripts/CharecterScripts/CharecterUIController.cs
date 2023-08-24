@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class CharecterUIController : MonoBehaviour
 {
@@ -13,6 +11,7 @@ public class CharecterUIController : MonoBehaviour
 
     private TMP_Text damageText;
     [SerializeField] private GameObject directionHighlight;
+    [SerializeField] private GameObject actionHighlight;
 
     void Start()
     {
@@ -47,5 +46,10 @@ public class CharecterUIController : MonoBehaviour
     public void setDirectionHighlight(bool value)
     {
         directionHighlight.GetComponent<MeshRenderer>().enabled = value;
+    }
+
+    public void setActionHighlight(bool value)
+    {
+        actionHighlight.GetComponent<MeshRenderer>().enabled = value;
     }
 }

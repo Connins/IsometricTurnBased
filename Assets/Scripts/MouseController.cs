@@ -447,7 +447,6 @@ public class MouseController : NetworkBehaviour
         {
             Debug.Log("movement of player according to server is not possible not doing attack");
         }
-
         bool isAttackAllowed = isAttackInRange(playersOriginalPosition, playersNewPosition, enemyPosition);
         
         if (!isAttackAllowed)
@@ -463,8 +462,7 @@ public class MouseController : NetworkBehaviour
     {
         GameObject player = mapManager.getOccupier(playersOriginalPosition);
         uint weaponRange = player.GetComponent<WeaponStats>().Range;
-        uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
-
+        uint heightBonus = player.GetComponent<WeaponStats>().HeightBonus;
         List<GameObject> testAttackTileRange = mapManager.getAttackTilesInRange(weaponRange, new Vector3Int((int)playersNewPosition.x - 1, (int)playersNewPosition.y - 1, (int)playersNewPosition.z - 1), heightBonus);
         GameObject enemyTile = mapManager.getTile(enemyPosition);
         bool isAttackAllowed = testAttackTileRange.Contains(enemyTile);

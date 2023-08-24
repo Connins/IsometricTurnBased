@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 public class TurnManager : NetworkBehaviour
@@ -96,6 +97,7 @@ public class TurnManager : NetworkBehaviour
     public void charecterDoneAction(GameObject charecter)
     {
         activePlayerList.Remove(charecter);
+        charecter.GetComponent<CharecterUIController>().setActionHighlight(false);
         if (activePlayerList.Count == 0)
         {
             endingTurn();
@@ -160,6 +162,10 @@ public class TurnManager : NetworkBehaviour
     }
     public void RefreshActiveCharecters()
     {
+        foreach (GameObject charecter in activePlayerList)
+        {
+            charecter.GetComponent<CharecterUIController>().setActionHighlight(false);
+        }
         if (isHostTurn)
         {
             activePlayerList = new List<GameObject>(goodGuyList);
@@ -168,5 +174,14 @@ public class TurnManager : NetworkBehaviour
         {
             activePlayerList = new List<GameObject>(badGuyList);
         }
+
+        if (YourTurn())
+        {
+            foreach (GameObject charecter in activePlayerList)
+            {
+                charecter.GetComponent<CharecterUIController>().setActionHighlight(true);
+            }
+        }
+        
     }
 }
