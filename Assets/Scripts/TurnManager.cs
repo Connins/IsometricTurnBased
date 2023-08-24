@@ -175,7 +175,7 @@ public class TurnManager : NetworkBehaviour
             activePlayerList = new List<GameObject>(badGuyList);
         }
 
-        if (YourTurn())
+        if (YourTurn() || localPlay)
         {
             foreach (GameObject charecter in activePlayerList)
             {
