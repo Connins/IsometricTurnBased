@@ -64,9 +64,16 @@ public class MouseController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        charecterControlUpdateLoop();
+        statsUIControllerUpdateLoop();
+    }
+
+    private void charecterControlUpdateLoop()
+    {
         bool playerControl = turnManager.LocalPlay;
 
-        if (!playerControl) {
+        if (!playerControl)
+        {
             playerControl = turnManager.YourTurn() && turnManager.YourTurnLocal();
         }
 
@@ -97,16 +104,16 @@ public class MouseController : NetworkBehaviour
                 }
             }
         }
-        if(!attackHappening)
+        if (!attackHappening)
         {
             playerUIController.EnablePlayerUI(playerControl);
         }
-
-        //Stats UI update loop for mouse controller
-
+    }
+    private void statsUIControllerUpdateLoop()
+    {
         if (Input.GetMouseButtonDown(0) && charecterHit != null)
         {
-            if(charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys)
+            if (charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys)
             {
                 yourCharecter = charecterHit;
             }
@@ -122,7 +129,7 @@ public class MouseController : NetworkBehaviour
         }
         else
         {
-            if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys) 
+            if (charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy == turnManager.YouAreGoodGuys)
             {
                 yourStatsUIController.Charecter = charecterHit;
             }
@@ -139,7 +146,7 @@ public class MouseController : NetworkBehaviour
         }
         else
         {
-            if(charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != turnManager.YouAreGoodGuys)
+            if (charecterHit != null && charecterHit.GetComponent<CharecterStats>().GoodGuy != turnManager.YouAreGoodGuys)
             {
                 enemyStatsUIController.Charecter = charecterHit;
             }
@@ -147,7 +154,7 @@ public class MouseController : NetworkBehaviour
             {
                 enemyStatsUIController.Charecter = null;
             }
-            
+
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
