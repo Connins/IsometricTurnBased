@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Canvas menuUI;
     [SerializeField] private Canvas networkUI;
     [SerializeField] private Canvas playerUI;
+    [SerializeField] private Canvas resultsUI;
 
     private List<Canvas> UIList = new List<Canvas>();
     private Canvas currentUI;
@@ -18,6 +19,7 @@ public class UIManager : MonoBehaviour
         UIList.Add(menuUI);
         UIList.Add(networkUI);
         UIList.Add(playerUI);
+        UIList.Add(resultsUI);
         SwitchUI(0);
     }
 

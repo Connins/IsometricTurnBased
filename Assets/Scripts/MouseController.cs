@@ -64,10 +64,18 @@ public class MouseController : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        charecterControlUpdateLoop();
-        statsUIControllerUpdateLoop();
+        if(turnManager.MatchHappening)
+        {
+            charecterControlUpdateLoop();
+            statsUIControllerUpdateLoop();
+            highlightCurentTile();
+        }
     }
-
+    void FixedUpdate()
+    {
+        currentHighlightedTile = GetObject(mapTileMask);
+        charecterHit = GetObject(charecterMask);
+    }
     private void charecterControlUpdateLoop()
     {
         bool playerControl = turnManager.LocalPlay;
@@ -163,13 +171,7 @@ public class MouseController : NetworkBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        currentHighlightedTile = GetObject(mapTileMask);
-        charecterHit = GetObject(charecterMask);
-
-        highlightCurentTile();
-    }
+   
 
     private GameObject GetObject(LayerMask mask)
     {
@@ -480,9 +482,11 @@ public class MouseController : NetworkBehaviour
         return isAttackAllowed;
     }
 
-    private void killStatsUI()
+    public void killStatsUI()
     {
         yourCharecter = null;
+        yourStatsUIController.Charecter = null;
         enemyCharecter = null;
+        enemyStatsUIController.Charecter = null;
     }
 }

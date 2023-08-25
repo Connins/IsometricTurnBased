@@ -3641,7 +3641,7 @@ MonoBehaviour:
   magicDefense: 0
   goodGuy: 1
   attackAnimationTime: 1.2
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 2549764318623964389}
 --- !u!114 &1289313223814795701
 MonoBehaviour:
   m_ObjectHideFlags: 0

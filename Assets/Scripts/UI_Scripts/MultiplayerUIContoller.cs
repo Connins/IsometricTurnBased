@@ -26,6 +26,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     {
         NetworkManager.Singleton.StartHost();
         UIManager.SwitchUI(2);
+        turnManager.MatchHappening = true;
     }
 
     private void clientOnClick()
@@ -33,5 +34,6 @@ public class MultiplayerUIContoller : MonoBehaviour
         NetworkManager.Singleton.StartClient();
         turnManager.YouAreGoodGuys = false;
         UIManager.SwitchUI(2);
+        turnManager.MatchHappening = true;
     }
 }

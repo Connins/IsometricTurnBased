@@ -27,6 +27,7 @@ public class MenuUIController : MonoBehaviour
         turnManager.IsLocalPlay();
         NetworkManager.Singleton.StartHost();
         UIManager.SwitchUI(2);
+        turnManager.MatchHappening = true;
     }
 
     private void onlineOnClick()
