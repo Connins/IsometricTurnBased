@@ -26,12 +26,12 @@ public class MenuUIController : MonoBehaviour
     {
         turnManager.IsLocalPlay();
         NetworkManager.Singleton.StartHost();
-        UIManager.SwitchUI(2);
+        UIManager.SwitchUI("PlayerUI");
         turnManager.MatchHappening = true;
     }
 
     private void onlineOnClick()
     {
-        UIManager.SwitchUI(1);
+        UIManager.SwitchUI("MultiplayerMenu");
     }
 }

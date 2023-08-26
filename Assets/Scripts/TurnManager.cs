@@ -110,7 +110,7 @@ public class TurnManager : NetworkBehaviour
             goodGuysWon = true;
         }
         UIManager.GetComponentInChildren<ResultsUIController>().EndGameText(goodGuysWon);
-        UIManager.GetComponent<UIManager>().SwitchUI(3);
+        UIManager.GetComponent<UIManager>().SwitchUI("ResultsCanvas");
     }
     public void charecterDoneAction(GameObject charecter)
     {

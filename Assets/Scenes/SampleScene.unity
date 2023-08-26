@@ -851,7 +851,7 @@ GameObject:
   - component: {fileID: 79309200}
   m_Layer: 5
   m_Name: PlayerUI
-  m_TagString: Untagged
+  m_TagString: UICanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1619,7 +1619,7 @@ GameObject:
   - component: {fileID: 229779730}
   m_Layer: 0
   m_Name: YourStats
-  m_TagString: Untagged
+  m_TagString: UICanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3222,8 +3222,8 @@ GameObject:
   - component: {fileID: 363632152}
   - component: {fileID: 363632155}
   m_Layer: 0
-  m_Name: Multiplayer_Menu
-  m_TagString: Untagged
+  m_Name: MultiplayerMenu
+  m_TagString: UICanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7500,7 +7500,7 @@ GameObject:
   - component: {fileID: 919165173}
   m_Layer: 0
   m_Name: Menu
-  m_TagString: Untagged
+  m_TagString: UICanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11296,7 +11296,7 @@ GameObject:
   - component: {fileID: 1310340830}
   m_Layer: 5
   m_Name: ResultsCanvas
-  m_TagString: Untagged
+  m_TagString: UICanvas
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

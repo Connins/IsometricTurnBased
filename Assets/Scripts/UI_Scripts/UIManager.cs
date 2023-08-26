@@ -11,33 +11,43 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Canvas resultsUI;
 
     private List<Canvas> UIList = new List<Canvas>();
+    public Dictionary<string, GameObject> UIDictionary = new Dictionary<string, GameObject>();
     private Canvas currentUI;
     // Start is called before the first frame update
     void Start()
     {
+        GameObject[] UICanvases = GameObject.FindGameObjectsWithTag("UICanvas");
+
+        foreach (GameObject canvasObject in UICanvases)
+        {
+            string identifier = ExtractIdentifier(canvasObject);
+            UIDictionary.Add(identifier, canvasObject);
+        }
+
         currentUI = menuUI;
-        UIList.Add(menuUI);
-        UIList.Add(networkUI);
-        UIList.Add(playerUI);
-        UIList.Add(resultsUI);
-        SwitchUI(0);
+        
+        SwitchUI("Menu");
     }
 
-    public void SwitchUI(int UIIndex)
+    private string ExtractIdentifier(GameObject canvasObject)
+    {
+        return canvasObject.name; 
+    }
+
+    public void SwitchUI(string identifier)
     {
         currentUI.enabled = false;
-        currentUI = UIList[UIIndex];
+        currentUI = UIDictionary[identifier].GetComponent<Canvas>();
         currentUI.enabled = true;
     }
-
     public void ShowCurrentUI(bool show)
     {
         currentUI.enabled = show;
     }
 
-    public void ShowUI(bool show, int UIIndex)
+    public void ShowUI(bool show, string identifier)
     {
-        UIList[UIIndex].enabled = show;
+        UIDictionary[identifier].GetComponent<Canvas>().enabled = show;
     }
 
     public void EnablePlayerUI(bool enable)

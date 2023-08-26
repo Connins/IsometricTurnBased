@@ -25,7 +25,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     private void hostOnClick()
     {
         NetworkManager.Singleton.StartHost();
-        UIManager.SwitchUI(2);
+        UIManager.SwitchUI("PlayerUI");
         turnManager.MatchHappening = true;
     }
 
@@ -33,7 +33,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     {
         NetworkManager.Singleton.StartClient();
         turnManager.YouAreGoodGuys = false;
-        UIManager.SwitchUI(2);
+        UIManager.SwitchUI("PlayerUI");
         turnManager.MatchHappening = true;
     }
 }
