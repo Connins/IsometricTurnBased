@@ -12,12 +12,15 @@ public class TurnManager : NetworkBehaviour
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
 
-    private bool localPlay = false;
-    private bool youAreGoodGuys = true;
-    private bool matchHappening = false;
+    private bool localPlay;
+    private bool youAreGoodGuys;
+    private bool matchHappening;
     // Start is called before the first frame update
     void Start()
     {
+        localPlay = GlobalParameters.IsLocalPlay;
+        YouAreGoodGuys = GlobalParameters.YouAreGoodGuys;
+        matchHappening = GlobalParameters.MatchHappening;
 
     }
 
@@ -169,11 +172,6 @@ public class TurnManager : NetworkBehaviour
         {
             return !turnVariable.Value;
         }
-    }
-
-    public void IsLocalPlay()
-    {
-        localPlay = true;
     }
     public bool YourTurnLocal()
     {

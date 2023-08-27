@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,10 +6,9 @@ public class MenuUIController : MonoBehaviour
 {
     [SerializeField] private Button localPlay;
     [SerializeField] private Button online;
-    
-    [SerializeField] private GameObject Charecters;
-    private TurnManager turnManager;
-    
+    [SerializeField] private GameObject SceneManager;
+
+
     private UIManager UIManager;
     // Start is called before the first frame update
     void Start()
@@ -19,15 +16,14 @@ public class MenuUIController : MonoBehaviour
         UIManager = GetComponentInParent<UIManager>();
         localPlay.onClick.AddListener(localPlayOnClick);
         online.onClick.AddListener(onlineOnClick);
-        turnManager = Charecters.GetComponent<TurnManager>();
     }
 
     private void localPlayOnClick()
     {
-        turnManager.IsLocalPlay();
-        NetworkManager.Singleton.StartHost();
-        UIManager.SwitchUI("PlayerUI");
-        turnManager.MatchHappening = true;
+        GlobalParameters.IsLocalPlay = true;
+        GlobalParameters.IsHost = true;
+        GlobalParameters.MatchHappening = true;
+        SceneManager.GetComponent<SceneLoader>().LoadScene("TestLevel");
     }
 
     private void onlineOnClick()
