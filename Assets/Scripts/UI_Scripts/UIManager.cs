@@ -5,12 +5,7 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private Canvas menuUI;
-    [SerializeField] private Canvas networkUI;
-    [SerializeField] private Canvas playerUI;
-    [SerializeField] private Canvas resultsUI;
-
-    private List<Canvas> UIList = new List<Canvas>();
+    
     public Dictionary<string, GameObject> UIDictionary = new Dictionary<string, GameObject>();
     private Canvas currentUI;
     // Start is called before the first frame update
@@ -22,11 +17,11 @@ public class UIManager : MonoBehaviour
         {
             string identifier = ExtractIdentifier(canvasObject);
             UIDictionary.Add(identifier, canvasObject);
-        }
-
-        currentUI = menuUI;
-        
-        SwitchUI("Menu");
+            if (canvasObject.GetComponent<Canvas>().enabled)
+            {
+                currentUI = canvasObject.GetComponent<Canvas>();
+            }
+        }        
     }
 
     private string ExtractIdentifier(GameObject canvasObject)
@@ -36,7 +31,10 @@ public class UIManager : MonoBehaviour
 
     public void SwitchUI(string identifier)
     {
-        currentUI.enabled = false;
+        if(currentUI !=  null)
+        {
+            currentUI.enabled = false;
+        }
         currentUI = UIDictionary[identifier].GetComponent<Canvas>();
         currentUI.enabled = true;
     }
@@ -52,7 +50,7 @@ public class UIManager : MonoBehaviour
 
     public void EnablePlayerUI(bool enable)
     {
-        playerUI.GetComponent<PlayerUIController>().EnablePlayerUI(enable);
+        UIDictionary["PlayerUI"].GetComponent<Canvas>().GetComponent<PlayerUIController>().EnablePlayerUI(enable);
     }
 
 }
