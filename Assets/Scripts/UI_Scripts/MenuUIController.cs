@@ -21,8 +21,8 @@ public class MenuUIController : MonoBehaviour
     private void localPlayOnClick()
     {
         GlobalParameters.IsLocalPlay = true;
-        GlobalParameters.IsHost = true;
         GlobalParameters.MatchHappening = true;
+        GlobalParameters.IsHost = true;
         SceneManager.GetComponent<SceneLoader>().LoadScene("TestLevel");
     }
 

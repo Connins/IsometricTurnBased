@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     public Dictionary<string, GameObject> UIDictionary = new Dictionary<string, GameObject>();
     private Canvas currentUI;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         GameObject[] UICanvases = GameObject.FindGameObjectsWithTag("UICanvas");
 
@@ -50,7 +50,7 @@ public class UIManager : MonoBehaviour
 
     public void EnablePlayerUI(bool enable)
     {
-        UIDictionary["PlayerUI"].GetComponent<Canvas>().GetComponent<PlayerUIController>().EnablePlayerUI(enable);
+        UIDictionary["PlayerUI"].GetComponent<PlayerUIController>().EnablePlayerUI(enable);
     }
 
 }

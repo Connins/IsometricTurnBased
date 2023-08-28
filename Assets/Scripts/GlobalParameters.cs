@@ -1,18 +1,13 @@
 public static class GlobalParameters 
 {
     private static bool isLocalPlay = false;
-    private static bool isHost = true;
+    static bool isHost = true;
     private static bool matchHappening = false;
     private static bool youAreGoodGuys = true;
     public static bool IsLocalPlay
     {
         get { return isLocalPlay; }
         set { isLocalPlay = value; }
-    }
-    public static bool IsHost
-    {
-        get { return isHost; }
-        set { isHost = value; }
     }
 
     public static bool MatchHappening
@@ -25,5 +20,11 @@ public static class GlobalParameters
     {
         get { return youAreGoodGuys; }
         set { youAreGoodGuys = value; }
+    }
+
+    public static bool IsHost
+    {
+        get { return isHost; }
+        set { isHost = value; }
     }
 }

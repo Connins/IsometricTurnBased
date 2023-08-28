@@ -20,8 +20,8 @@ public class TurnManager : NetworkBehaviour
     {
         localPlay = GlobalParameters.IsLocalPlay;
         YouAreGoodGuys = GlobalParameters.YouAreGoodGuys;
+        setupNetwork();
         matchHappening = GlobalParameters.MatchHappening;
-
     }
 
     public override void OnNetworkSpawn()
@@ -161,6 +161,18 @@ public class TurnManager : NetworkBehaviour
             }
         }
         
+    }
+
+    private void setupNetwork()
+    {
+        if (GlobalParameters.IsHost)
+        {
+            NetworkManager.Singleton.StartHost();
+        }
+        else
+        {
+            NetworkManager.Singleton.StartClient();
+        }
     }
     public bool YourTurn()
     {
