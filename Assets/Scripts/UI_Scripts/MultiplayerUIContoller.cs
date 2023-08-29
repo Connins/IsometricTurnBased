@@ -27,7 +27,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     {
         GlobalParameters.IsHost = true;
         GlobalParameters.MatchHappening = true;
-        SceneManager.GetComponent<SceneLoader>().LoadScene("TestLevel");
+        UIManager.SwitchUI("LevelSelect");
     }
 
     private void clientOnClick()
@@ -35,6 +35,6 @@ public class MultiplayerUIContoller : MonoBehaviour
         GlobalParameters.IsHost = false;
         GlobalParameters.YouAreGoodGuys = false;
         GlobalParameters.MatchHappening = true;
-        SceneManager.GetComponent<SceneLoader>().LoadScene("TestLevel");
+        UIManager.SwitchUI("LevelSelect");
     }
 }

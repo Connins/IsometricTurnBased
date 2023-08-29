@@ -1,4 +1,3 @@
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +22,7 @@ public class MenuUIController : MonoBehaviour
         GlobalParameters.IsLocalPlay = true;
         GlobalParameters.MatchHappening = true;
         GlobalParameters.IsHost = true;
-        SceneManager.GetComponent<SceneLoader>().LoadScene("TestLevel");
+        UIManager.SwitchUI("LevelSelect");
     }
 
     private void onlineOnClick()
