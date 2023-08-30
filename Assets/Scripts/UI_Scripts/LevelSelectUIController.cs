@@ -12,6 +12,8 @@ public class LevelSelectUIController : MonoBehaviour
         buttonManager.InitializeCanvasButtons(transform.gameObject);
         buttonManager.GetButton("TestLevel").onClick.AddListener(TestLevelOnClick);
         buttonManager.GetButton("EqualLevel").onClick.AddListener(EqualLevelOnClick);
+        buttonManager.GetButton("MountainLevel").onClick.AddListener(MountainLevelOnClick);
+
     }
 
     private void TestLevelOnClick()
@@ -22,5 +24,9 @@ public class LevelSelectUIController : MonoBehaviour
     private void EqualLevelOnClick()
     {
         SceneManager.GetComponent<SceneLoader>().LoadScene("EqualLevel");
+    }
+    private void MountainLevelOnClick()
+    {
+        SceneManager.GetComponent<SceneLoader>().LoadScene("MountainLevel");
     }
 }

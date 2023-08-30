@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/EqualLevel.unity
     guid: 792a711142daafb499b1827605b66f29
+  - enabled: 1
+    path: Assets/Scenes/MountainLevel.unity
+    guid: 862ef28552a8e3145b147e252da937ce
   m_configObjects: {}
