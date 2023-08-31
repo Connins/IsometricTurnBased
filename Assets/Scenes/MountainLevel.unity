@@ -15982,6 +15982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
+  rotationSpeed: 50
   moveDirection: {x: 0, y: 0, z: 0}
   dampenHorizontalCameraSpeed: 0.6
   rotationDuration: 0.4
