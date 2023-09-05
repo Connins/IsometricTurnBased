@@ -12,13 +12,16 @@ public class TurnManager : NetworkBehaviour
     private List<GameObject> badGuyList = new List<GameObject>();
     private List<GameObject> activePlayerList = new List<GameObject>();
 
-    private bool localPlay = false;
-    private bool youAreGoodGuys = true;
-
+    private bool localPlay;
+    private bool youAreGoodGuys;
+    private bool matchHappening;
     // Start is called before the first frame update
     void Start()
     {
-
+        localPlay = GlobalParameters.IsLocalPlay;
+        YouAreGoodGuys = GlobalParameters.YouAreGoodGuys;
+        setupNetwork();
+        matchHappening = GlobalParameters.MatchHappening;
     }
 
     public override void OnNetworkSpawn()
@@ -89,6 +92,28 @@ public class TurnManager : NetworkBehaviour
         {
             badGuyList.Remove(charecter);
         }
+
+        if(goodGuyList.Count == 0 || badGuyList.Count == 0) 
+        {
+            endGame();
+        }
+    }
+
+    private void endGame()
+    {
+        mouseController.GetComponent<MouseController>().killStatsUI();
+        matchHappening = false;
+        bool goodGuysWon;
+        if (goodGuyList.Count == 0)
+        {
+            goodGuysWon = false;
+        }
+        else
+        {
+            goodGuysWon = true;
+        }
+        UIManager.GetComponentInChildren<ResultsUIController>().EndGameText(goodGuysWon);
+        UIManager.GetComponent<UIManager>().SwitchUI("ResultsCanvas");
     }
     public void charecterDoneAction(GameObject charecter)
     {
@@ -112,50 +137,7 @@ public class TurnManager : NetworkBehaviour
     public bool activePlayer(GameObject charecter)
     {
         return activePlayerList.Contains(charecter);
-    }
-
-    public bool YourTurn()
-    {
-        if (IsServer)
-        {
-            return turnVariable.Value;
-        }
-        else
-        {
-            return !turnVariable.Value;
-        }
-    }
-
-    public void IsLocalPlay()
-    {
-        localPlay = true;
-    }
-
-    public bool LocalPlay
-    {
-        get
-        { 
-            return localPlay; 
-        }
-    }
-
-    public bool YouAreGoodGuys
-    {
-        get { return youAreGoodGuys; }
-        set { youAreGoodGuys = value; }
-    }
-
-    public bool YourTurnLocal()
-    {
-        if (IsServer)
-        {
-            return isHostTurn;
-        }
-        else
-        {
-            return !isHostTurn;
-        }
-    }
+    } 
     public void RefreshActiveCharecters()
     {
         foreach (GameObject charecter in activePlayerList)
@@ -179,5 +161,58 @@ public class TurnManager : NetworkBehaviour
             }
         }
         
+    }
+
+    private void setupNetwork()
+    {
+        if (GlobalParameters.IsHost)
+        {
+            NetworkManager.Singleton.StartHost();
+        }
+        else
+        {
+            NetworkManager.Singleton.StartClient();
+        }
+    }
+    public bool YourTurn()
+    {
+        if (IsServer)
+        {
+            return turnVariable.Value;
+        }
+        else
+        {
+            return !turnVariable.Value;
+        }
+    }
+    public bool YourTurnLocal()
+    {
+        if (IsServer)
+        {
+            return isHostTurn;
+        }
+        else
+        {
+            return !isHostTurn;
+        }
+    }
+    public bool LocalPlay
+    {
+        get
+        {
+            return localPlay;
+        }
+    }
+
+    public bool YouAreGoodGuys
+    {
+        get { return youAreGoodGuys; }
+        set { youAreGoodGuys = value; }
+    }
+
+    public bool MatchHappening
+    {
+        get { return matchHappening; }
+        set { matchHappening = value; }
     }
 }

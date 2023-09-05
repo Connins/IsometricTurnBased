@@ -84,7 +84,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3f8cc1efd612b5d4fb8e58ba2c911540, type: 2}
+  - {fileID: 2100000, guid: 6b9df14991d687d498e92fd12e4084fb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3521,7 +3521,7 @@ GameObject:
   - component: {fileID: 8088119012268108124}
   - component: {fileID: -7796533390699034911}
   m_Layer: 3
-  m_Name: Archer
+  m_Name: Archer Bad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3639,7 +3639,7 @@ MonoBehaviour:
   speed: 0
   magic: 0
   magicDefense: 0
-  goodGuy: 1
+  goodGuy: 0
   attackAnimationTime: 1.2
   healthBar: {fileID: 2549764318623964389}
 --- !u!114 &1289313223814795701

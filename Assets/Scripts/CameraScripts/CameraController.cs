@@ -8,9 +8,11 @@ using static UnityEngine.GraphicsBuffer;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float rotationSpeed = 2f;
     [SerializeField] private Vector3 moveDirection;
     [SerializeField] private float dampenHorizontalCameraSpeed;
     [SerializeField] private float rotationDuration;
+    private float angleOffset = 0.001f;
 
     bool rotateClockwise;
     bool rotateAntiClockwise;
@@ -26,7 +28,15 @@ public class CameraController : MonoBehaviour
     {
         HandleInput();
         Move();
-        Rotate();
+        
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            Rotate();
+        }
+        else
+        {
+            SnapRotate();
+        }
     }
     
 
@@ -59,15 +69,39 @@ public class CameraController : MonoBehaviour
         transform.position += moveDirection * Time.deltaTime * moveSpeed;
     }
 
-    private void Rotate()
+    private void SnapRotate()
     {
         if (rotateClockwise && !coroutineActive)
         {
-            StartCoroutine(RotateOverTime(transform.rotation, Quaternion.Euler(0, transform.rotation.eulerAngles.y + 90, 0), rotationDuration));
+            StartCoroutine(RotateOverTime(transform.rotation, SnapToNearest90Degrees(transform.rotation * Quaternion.Euler(0, 45 + angleOffset, 0)), rotationDuration));
         }
         if (rotateAntiClockwise && !coroutineActive)
         {
-            StartCoroutine(RotateOverTime(transform.rotation, Quaternion.Euler(0, transform.rotation.eulerAngles.y - 90, 0), rotationDuration));
+            StartCoroutine(RotateOverTime(transform.rotation, SnapToNearest90Degrees(transform.rotation * Quaternion.Euler(0, -45 - angleOffset, 0)), rotationDuration));
+        }
+    }
+
+    private Quaternion SnapToNearest90Degrees(Quaternion currentRotation)
+    {
+        Vector3 euler = currentRotation.eulerAngles;
+        euler.x = Mathf.Round(euler.x / 90) * 90;
+        euler.y = Mathf.Round(euler.y / 90) * 90;
+        euler.z = Mathf.Round(euler.z / 90) * 90;
+        return Quaternion.Euler(euler);
+    }
+
+    private void Rotate()
+    {
+        // Calculate the rotation amount based on the input and speed
+        float rotationAmount = rotationSpeed * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.Q))
+        {
+            transform.Rotate(Vector3.up, rotationAmount);
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            transform.Rotate(Vector3.up, -rotationAmount);
         }
     }
 

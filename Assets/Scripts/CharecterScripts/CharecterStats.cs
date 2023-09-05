@@ -30,7 +30,7 @@ public class CharecterStats : NetworkBehaviour
     public Slider healthBar;
 
     public override void OnNetworkSpawn()
-    { 
+    {
         health = healthServerState.Value;
         healthBar.value = health;
     }
@@ -75,7 +75,6 @@ public class CharecterStats : NetworkBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
-             
     }
 
     // Update is called once per frame

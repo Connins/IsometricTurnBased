@@ -5,42 +5,52 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private Canvas menuUI;
-    [SerializeField] private Canvas networkUI;
-    [SerializeField] private Canvas playerUI;
-
-    private List<Canvas> UIList = new List<Canvas>();
+    
+    public Dictionary<string, GameObject> UIDictionary = new Dictionary<string, GameObject>();
     private Canvas currentUI;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        currentUI = menuUI;
-        UIList.Add(menuUI);
-        UIList.Add(networkUI);
-        UIList.Add(playerUI);
-        SwitchUI(0);
+        GameObject[] UICanvases = GameObject.FindGameObjectsWithTag("UICanvas");
+
+        foreach (GameObject canvasObject in UICanvases)
+        {
+            string identifier = ExtractIdentifier(canvasObject);
+            UIDictionary.Add(identifier, canvasObject);
+            if (canvasObject.GetComponent<Canvas>().enabled)
+            {
+                currentUI = canvasObject.GetComponent<Canvas>();
+            }
+        }        
     }
 
-    public void SwitchUI(int UIIndex)
+    private string ExtractIdentifier(GameObject canvasObject)
     {
-        currentUI.enabled = false;
-        currentUI = UIList[UIIndex];
+        return canvasObject.name; 
+    }
+
+    public void SwitchUI(string identifier)
+    {
+        if(currentUI !=  null)
+        {
+            currentUI.enabled = false;
+        }
+        currentUI = UIDictionary[identifier].GetComponent<Canvas>();
         currentUI.enabled = true;
     }
-
     public void ShowCurrentUI(bool show)
     {
         currentUI.enabled = show;
     }
 
-    public void ShowUI(bool show, int UIIndex)
+    public void ShowUI(bool show, string identifier)
     {
-        UIList[UIIndex].enabled = show;
+        UIDictionary[identifier].GetComponent<Canvas>().enabled = show;
     }
 
     public void EnablePlayerUI(bool enable)
     {
-        playerUI.GetComponent<PlayerUIController>().EnablePlayerUI(enable);
+        UIDictionary["PlayerUI"].GetComponent<PlayerUIController>().EnablePlayerUI(enable);
     }
 
 }

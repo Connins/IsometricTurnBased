@@ -429,7 +429,7 @@ GameObject:
   - component: {fileID: 9063657154561651645}
   - component: {fileID: -2641036443346380492}
   m_Layer: 3
-  m_Name: CombatGuy
+  m_Name: CombatGuy Bad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -531,7 +531,7 @@ MonoBehaviour:
   speed: 0
   magic: 0
   magicDefense: 0
-  goodGuy: 1
+  goodGuy: 0
   attackAnimationTime: 0.9
   healthBar: {fileID: 0}
 --- !u!114 &-8052259700170811187
@@ -2279,7 +2279,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 41680dad0f0243748b4e228f49a2e3c4, type: 2}
+  - {fileID: 2100000, guid: 6b9df14991d687d498e92fd12e4084fb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
