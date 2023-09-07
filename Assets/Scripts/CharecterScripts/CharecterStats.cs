@@ -90,37 +90,7 @@ public class CharecterStats : NetworkBehaviour
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
         return strength;
     }
-
-    //this only works if server is also a client as ServerRPC command just calls wanted function
-    //it does not call a clientRPC command
-    public void NetworkTakeHit(uint damage)
-    {
-        if(IsServer)
-        {
-            TakeHitClientRPC(damage);
-            healthServerState.Value -= (int)damage;
-        }
-        else
-        {
-            TakeHit(damage);
-            TakeHitServerRPC(damage);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void TakeHitServerRPC(uint damage)
-    {
-        TakeHit(damage);
-        healthServerState.Value -= (int)damage;
-    }
-    
-    [ClientRpc]
-    public void TakeHitClientRPC(uint damage)
-    {
-        TakeHit(damage);
-    }
-
-    public void TakeHit(uint damage)
+    public void TakeHit(uint damage, int angle)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         if (IsServer)
