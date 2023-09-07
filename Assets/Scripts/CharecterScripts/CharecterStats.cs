@@ -20,8 +20,10 @@ public class CharecterStats : NetworkBehaviour
     [SerializeField] private uint speed;
     [SerializeField] private uint magic;
     [SerializeField] private uint magicDefense;
-    [SerializeField] private bool goodGuy;
     [SerializeField] private float attackAnimationTime;
+
+    [SerializeField] private bool goodGuy;
+    [SerializeField] private bool isShieldGuy;
 
     private TurnManager turnManager;
     private MapManager mapManager;
@@ -90,15 +92,17 @@ public class CharecterStats : NetworkBehaviour
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
         return strength;
     }
-    public void TakeHit(uint damage, int angle)
+    public void TakeHit(uint damage, float angle)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
+        int damageAfterModifiers = (int)Mathf.Round(damage * angleDamageModifier(angle));
         if (IsServer)
         {
-            healthServerState.Value -= (int)damage;
+            healthServerState.Value -= damageAfterModifiers;
         }
-        health -= (int)damage;
-        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
+        health -= damageAfterModifiers;
+
+        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-damageAfterModifiers);
 
         if (health <= 0)
         {
@@ -110,6 +114,22 @@ public class CharecterStats : NetworkBehaviour
         }
     }
 
+    private float angleDamageModifier(float angle)
+    {
+        float modifier = 1f;
+
+        if(angle < 44.9)
+        {
+            modifier = 2f;
+        }
+
+        if(isShieldGuy &&  angle > 134.9)
+        {
+            modifier = 0.5f;
+        }
+
+        return modifier;
+    }
     private void die()
     {
         GetComponent<Animator>().SetTrigger("Death");

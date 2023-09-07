@@ -312,18 +312,15 @@ public class MouseController : NetworkBehaviour
 
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         float attackAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
-        float angle = Quaternion.Angle(Quaternion.identity, Quaternion.Inverse(currentSelectedPlayer.transform.rotation) * currentSelectedEnemy.transform.rotation); 
-        print(angle);
-        StartCoroutine(enemyHit(attackAnimationTime, damage));
-
-        
+        float angle = Quaternion.Angle(Quaternion.identity, Quaternion.Inverse(currentSelectedPlayer.transform.rotation) * currentSelectedEnemy.transform.rotation);
+        StartCoroutine(enemyHit(attackAnimationTime, damage, angle));    
 
     }
-    IEnumerator enemyHit(float delayTime, uint damage)
+    IEnumerator enemyHit(float delayTime, uint damage, float angle)
     {
         currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage, 0);
+        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage, angle);
         attackHappening = false;
         inAttackMode = false;
         if(youAttacked)
