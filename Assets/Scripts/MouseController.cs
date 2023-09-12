@@ -333,7 +333,7 @@ public class MouseController : NetworkBehaviour
         
         if(!IsHost)
         {
-            Debug.Log("client who did not attack is updating server transform to ensure they are not snapped into position due to server change variable causing animation to change befopre this couroutine finishes");
+            Debug.Log("client who is not the host is updating server transform to ensure they are not snapped into position due to server change variable causing animation to change befopre this couroutine finishes");
             currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
         }
 

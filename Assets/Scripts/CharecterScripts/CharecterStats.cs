@@ -31,6 +31,11 @@ public class CharecterStats : NetworkBehaviour
     private Canvas canvas;
     public Slider healthBar;
 
+    private float backDamageAngle = 44.9f;
+    private float backDamageModifier = 1.5f;
+    private float shieldDamageAngle = 134.9f;
+    private float shieldDamageModifier = 0.5f;
+
     public override void OnNetworkSpawn()
     {
         health = healthServerState.Value;
@@ -110,7 +115,14 @@ public class CharecterStats : NetworkBehaviour
         }
         else
         {
-            GetComponent<Animator>().Play("TakeHit");
+            if(isShieldGuy && angle > shieldDamageAngle)
+            {
+                GetComponent<Animator>().Play("Blocking");
+            }
+            else
+            {
+                GetComponent<Animator>().Play("TakeHit");
+            }
         }
     }
 
@@ -118,14 +130,14 @@ public class CharecterStats : NetworkBehaviour
     {
         float modifier = 1f;
 
-        if(angle < 44.9)
+        if(angle < backDamageAngle)
         {
-            modifier = 2f;
+            modifier = backDamageModifier;
         }
 
-        if(isShieldGuy &&  angle > 134.9)
+        if(isShieldGuy &&  angle > shieldDamageAngle)
         {
-            modifier = 0.5f;
+            modifier = shieldDamageModifier;
         }
 
         return modifier;
