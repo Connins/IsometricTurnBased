@@ -150,38 +150,19 @@ public class PlayerController : NetworkBehaviour
             snapRotateCharecter(targetPosition);
         }
     }
+
+    public void RotateCharecter(Vector3 targetPosition)
+    {
+        targetPosition.y = transform.position.y;
+        transform.LookAt(targetPosition);
+    }
     public void snapRotateCharecter(Vector3 targetPosition)
     {
         targetPosition.y = transform.position.y;
         transform.LookAt(targetPosition);
-        Quaternion targetRotation = Quaternion.Euler(0, Mathf.Round(transform.rotation.eulerAngles.y / 90f) * 90f, 0);
+        float offset = 0.001f;
+        Quaternion targetRotation = Quaternion.Euler(0, Mathf.Round((transform.rotation.eulerAngles.y + offset) / 90f) * 90f, 0);
         MoveCharecter(transform.position, targetRotation);
     }
 
-    //this only works if server is also a client as ServerRPC command just calls wanted function
-    //it does not call a clientRPC command
-    public void NetworkOfficiallyMoved()
-    {
-        if (IsServer)
-        {
-            OfficiallyMovedClientRpc();
-        }
-        else
-        {
-            OfficiallyMovedServerRpc();
-            turnManager.charecterDoneAction(gameObject);
-        }
-    }
-
-    [ClientRpc]
-    private void OfficiallyMovedClientRpc()
-    {
-        turnManager.charecterDoneAction(gameObject);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void OfficiallyMovedServerRpc()
-    {
-        turnManager.charecterDoneAction(gameObject);
-    }
 }

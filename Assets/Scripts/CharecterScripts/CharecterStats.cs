@@ -20,14 +20,21 @@ public class CharecterStats : NetworkBehaviour
     [SerializeField] private uint speed;
     [SerializeField] private uint magic;
     [SerializeField] private uint magicDefense;
-    [SerializeField] private bool goodGuy;
     [SerializeField] private float attackAnimationTime;
+
+    [SerializeField] private bool goodGuy;
+    [SerializeField] private bool isShieldGuy;
 
     private TurnManager turnManager;
     private MapManager mapManager;
 
     private Canvas canvas;
     public Slider healthBar;
+
+    private float backDamageAngle = 44.9f;
+    private float backDamageModifier = 1.5f;
+    private float shieldDamageAngle = 134.9f;
+    private float shieldDamageModifier = 0.5f;
 
     public override void OnNetworkSpawn()
     {
@@ -90,45 +97,17 @@ public class CharecterStats : NetworkBehaviour
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
         return strength;
     }
-
-    //this only works if server is also a client as ServerRPC command just calls wanted function
-    //it does not call a clientRPC command
-    public void NetworkTakeHit(uint damage)
-    {
-        if(IsServer)
-        {
-            TakeHitClientRPC(damage);
-            healthServerState.Value -= (int)damage;
-        }
-        else
-        {
-            TakeHit(damage);
-            TakeHitServerRPC(damage);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void TakeHitServerRPC(uint damage)
-    {
-        TakeHit(damage);
-        healthServerState.Value -= (int)damage;
-    }
-    
-    [ClientRpc]
-    public void TakeHitClientRPC(uint damage)
-    {
-        TakeHit(damage);
-    }
-
-    public void TakeHit(uint damage)
+    public void TakeHit(uint damage, float angle)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
+        int damageAfterModifiers = (int)Mathf.Round(damage * angleDamageModifier(angle));
         if (IsServer)
         {
-            healthServerState.Value -= (int)damage;
+            healthServerState.Value -= damageAfterModifiers;
         }
-        health -= (int)damage;
-        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-(int)damage);
+        health -= damageAfterModifiers;
+
+        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-damageAfterModifiers);
 
         if (health <= 0)
         {
@@ -136,10 +115,33 @@ public class CharecterStats : NetworkBehaviour
         }
         else
         {
-            GetComponent<Animator>().Play("TakeHit");
+            if(isShieldGuy && angle > shieldDamageAngle)
+            {
+                GetComponent<Animator>().Play("Blocking");
+            }
+            else
+            {
+                GetComponent<Animator>().Play("TakeHit");
+            }
         }
     }
 
+    private float angleDamageModifier(float angle)
+    {
+        float modifier = 1f;
+
+        if(angle < backDamageAngle)
+        {
+            modifier = backDamageModifier;
+        }
+
+        if(isShieldGuy &&  angle > shieldDamageAngle)
+        {
+            modifier = shieldDamageModifier;
+        }
+
+        return modifier;
+    }
     private void die()
     {
         GetComponent<Animator>().SetTrigger("Death");

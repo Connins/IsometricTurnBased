@@ -533,6 +533,7 @@ MonoBehaviour:
   magicDefense: 0
   goodGuy: 1
   attackAnimationTime: 0.9
+  isShieldGuy: 1
   healthBar: {fileID: 0}
 --- !u!114 &-8052259700170811187
 MonoBehaviour:

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class MouseController : NetworkBehaviour
 {
@@ -309,19 +308,19 @@ public class MouseController : NetworkBehaviour
         {
             currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition);
         }
-        currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
-        currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        currentSelectedPlayer.GetComponent<PlayerController>().RotateCharecter(currentSelectedEnemy.transform.position);
 
         uint damage = currentSelectedPlayer.GetComponent<CharecterStats>().outPutDamage();
         float attackAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
-        StartCoroutine(enemyHit(attackAnimationTime, damage));
+        float angle = Quaternion.Angle(Quaternion.identity, Quaternion.Inverse(currentSelectedPlayer.transform.rotation) * currentSelectedEnemy.transform.rotation);
+        StartCoroutine(enemyHit(attackAnimationTime, damage, angle));    
+
     }
-    IEnumerator enemyHit(float delayTime, uint damage)
+    IEnumerator enemyHit(float delayTime, uint damage, float angle)
     {
         currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
         yield return new WaitForSeconds(delayTime);
-        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage);
-        currentSelectedEnemy = null;
+        currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage, angle);
         attackHappening = false;
         inAttackMode = false;
         if(youAttacked)
@@ -329,6 +328,15 @@ public class MouseController : NetworkBehaviour
             turnManager.charecterDoneAction(currentSelectedPlayer);
             youAttacked = false;
         }
+        currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
+        currentSelectedEnemy = null;
+        
+        if(!IsHost)
+        {
+            Debug.Log("client who is not the host is updating server transform to ensure they are not snapped into position due to server change variable causing animation to change befopre this couroutine finishes");
+            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        }
+
         playerHasOfficialyMoved();
 
         yield return null;
