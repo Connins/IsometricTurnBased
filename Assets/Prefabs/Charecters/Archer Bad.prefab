@@ -3520,6 +3520,7 @@ GameObject:
   - component: {fileID: 1289313223814795701}
   - component: {fileID: 8088119012268108124}
   - component: {fileID: -7796533390699034911}
+  - component: {fileID: 1684965823292037425}
   m_Layer: 3
   m_Name: Archer Bad
   m_TagString: Untagged
@@ -3639,8 +3640,9 @@ MonoBehaviour:
   speed: 0
   magic: 0
   magicDefense: 0
-  goodGuy: 0
   attackAnimationTime: 1.2
+  goodGuy: 0
+  isShieldGuy: 0
   healthBar: {fileID: 2549764318623964389}
 --- !u!114 &1289313223814795701
 MonoBehaviour:
@@ -3688,6 +3690,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b34e56fdfc57f8429d17859fa637685, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1684965823292037425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6906583044688505338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38bed9207acc1264488f6d8ed15e290f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeTime: 1
+  moveSpeed: 1
+  moveDistance: 1
+  damageValue: 0
 --- !u!1 &7363479242261063072
 GameObject:
   m_ObjectHideFlags: 0
