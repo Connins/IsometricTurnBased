@@ -193,7 +193,7 @@ public class MouseController : NetworkBehaviour
     {
         foreach (GameObject tile in tiles)
         {
-            tile.GetComponent<Highlight>().ToggleHighlight(highlight);
+            tile.GetComponent<Highlight>().highlightMaterial(highlight);
         }
     }
 
@@ -413,12 +413,12 @@ public class MouseController : NetworkBehaviour
 
         if ((noTileHighlighted || newTileHigghlighted) && !previousTileInTilesInRange)
         {
-            previousTileHighlight.GetComponent<Highlight>().ToggleHighlight("noHighlight");
+            previousTileHighlight.GetComponent<Highlight>().highlightMaterial("noHighlight");
         }
 
         if (currentHighlightedTile && !currentTileInAttackTilesInRange)
         {
-            currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight("inMoveRangeHighlight");
+            currentHighlightedTile.GetComponent<Highlight>().highlightMaterial("inMoveRangeHighlight");
             previousTileHighlight = currentHighlightedTile;
         }
     }
