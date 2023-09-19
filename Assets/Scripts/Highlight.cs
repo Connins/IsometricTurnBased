@@ -8,7 +8,7 @@ public class Highlight : MonoBehaviour
 {
     //we assign all the renderers here through the inspector
     [SerializeField] private List<Renderer> renderers;
-    private Color color = Color.white;
+    private Color colorWhite = Color.white;
     private Dictionary<string, Color> colourModifier = new Dictionary<string, Color>();
     private Color originalColour;
     //helper list to cache all the materials ofd this object
@@ -20,11 +20,12 @@ public class Highlight : MonoBehaviour
         foreach (var renderer in renderers)
         {
             originalColour = renderer.material.color;
+            renderer.material.DisableKeyword("_EMISSION");
             //A single child-object might have mutliple materials on it
             //that is why we need to all materials with "s"
             materials.AddRange(new List<Material>(renderer.materials));
         }
-
+        
         initializeHighlightMap();
     }
     public void highlightMaterial(string highlight)
@@ -39,7 +40,7 @@ public class Highlight : MonoBehaviour
             if (highlight == "inMoveRangeHighlight")
             {
                 renderer.material.EnableKeyword("_EMISSION");
-                renderer.material.SetColor("_EmissionColor", color * 0.5f);
+                renderer.material.SetColor("_EmissionColor", colorWhite * 0.5f);
             }
         }
     }
