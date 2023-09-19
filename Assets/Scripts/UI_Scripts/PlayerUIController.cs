@@ -5,9 +5,12 @@ using UnityEngine.UI;
 public class PlayerUIController : MonoBehaviour
 {
 
-    [SerializeField] private Button endTurn;
-    [SerializeField] private Button wait;
-    [SerializeField] private Button attack;
+    private Button endTurn;
+    private Button wait;
+    private Button attack;
+    private Button capture;
+
+    private ButtonManager buttonManager = new ButtonManager();
 
     [SerializeField] TMP_Text turnText;
 
@@ -20,11 +23,19 @@ public class PlayerUIController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        buttonManager.InitializeCanvasButtons(transform.gameObject);
+        endTurn = buttonManager.GetButton("EndTurn");
+        wait = buttonManager.GetButton("Wait");
+        attack = buttonManager.GetButton("Attack");
+        capture = buttonManager.GetButton("Capture");
+
         endTurn.onClick.AddListener(endTurnOnClick);
         wait.onClick.AddListener(waitOnClick);
         wait.interactable = false;
         attack.onClick.AddListener(attackOnClick);
         attack.interactable = false;
+        capture.onClick.AddListener(captureOnClick);
+        capture.interactable = false;
 
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
@@ -45,33 +56,14 @@ public class PlayerUIController : MonoBehaviour
         mouseController.setInAttackMode(true);
     }
 
-    public void disableWait()
+    private void captureOnClick()
     {
-        wait.interactable = false;
+        //does something
     }
 
-    public void enableWait()
+    public void enableButton(bool enable, string button)
     {
-        wait.interactable = true;
-    }
-    public void disableAttack()
-    {
-        attack.interactable = false;
-    }
-
-    public void enableAttack()
-    {
-        attack.interactable = true;
-    }
-
-    public void disableEndTurn()
-    {
-        endTurn.interactable = false;
-    }
-
-    public void enableEndTurn()
-    {
-        endTurn.interactable = true;
+        buttonManager.GetButton(button).interactable = enable;
     }
 
     public void EnablePlayerUI(bool enable)

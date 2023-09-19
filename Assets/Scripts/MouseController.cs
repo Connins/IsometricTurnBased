@@ -223,7 +223,7 @@ public class MouseController : NetworkBehaviour
         
         attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
-        playerUIController.enableWait();
+        playerUIController.enableButton(true, "Wait");
         checkEnemyInRange();
     }
 
@@ -347,8 +347,8 @@ public class MouseController : NetworkBehaviour
         yourCharecter = null;
         enemyCharecter = null;
         clearCharectersHighlights();
-        playerUIController.disableWait();
-        playerUIController.disableAttack();
+        playerUIController.enableButton(false, "Wait");
+        playerUIController.enableButton(false, "Attack");
     }
 
     public void playerHasBeenDeselected()
@@ -359,8 +359,8 @@ public class MouseController : NetworkBehaviour
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
-            playerUIController.disableWait();
-            playerUIController.disableAttack();
+            playerUIController.enableButton(false, "Wait");
+            playerUIController.enableButton(false, "Attack");
             currentSelectedPlayer = null;
             killStatsUI();
         }  
@@ -431,12 +431,17 @@ public class MouseController : NetworkBehaviour
 
         if (enemyInRange)
         {
-            playerUIController.enableAttack();
+            playerUIController.enableButton(true, "Attack");
         }
         else
         {
-            playerUIController.disableAttack();
+            playerUIController.enableButton(false, "Attack");
         }
+    }
+
+    private void checkOnCapturePoint()
+    {
+
     }
 
     private bool canAttackHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
