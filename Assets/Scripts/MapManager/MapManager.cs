@@ -13,9 +13,10 @@ public class MapManager : MonoBehaviour
     [SerializeField] private LayerMask mapTileMask;
 
     private List<OccupiedTile> occupiedTiles = new List<OccupiedTile>();
-
+    public List<GameObject> capturePoints;
     private GameObject[,,] tiles;
-    
+
+
     //accessor functions
     public GameObject getTile(Vector3 position)
     {
@@ -26,8 +27,18 @@ public class MapManager : MonoBehaviour
     {
         tiles = new GameObject[xBound, yBound, zBound];
         MapTiles();
+        FillCapturePoints();
     }
 
+    private void FillCapturePoints()
+    {
+        GameObject[] capturePointsFound = GameObject.FindGameObjectsWithTag("CapturePoint");
+
+        foreach (var capturePoint in capturePointsFound)
+        {
+            capturePoints.Add(capturePoint);      
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -77,6 +88,10 @@ public class MapManager : MonoBehaviour
         return isTileOccupied(getTile(location));
     }
 
+    public bool isTileACapturePoint(GameObject tile)
+    {
+        return capturePoints.Any(x => x == tile);
+    }
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)
     {
         bool output = false;
