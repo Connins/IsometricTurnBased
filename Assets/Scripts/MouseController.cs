@@ -225,6 +225,7 @@ public class MouseController : NetworkBehaviour
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
         playerUIController.enableButton(true, "Wait");
         checkEnemyInRange();
+        checkOnCapturePoint();
     }
 
     private void selectTileAndMovePlayer()
@@ -242,6 +243,7 @@ public class MouseController : NetworkBehaviour
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
 
         checkEnemyInRange();
+        checkOnCapturePoint();
 
     }
 
@@ -441,7 +443,11 @@ public class MouseController : NetworkBehaviour
 
     private void checkOnCapturePoint()
     {
-
+        GameObject tile = mapManager.getTile(currentSelectedPlayer.transform.position);
+        if (mapManager.isTileACapturePoint(tile))
+        {
+            playerUIController.enableButton(true, "Capture");
+        }
     }
 
     private bool canAttackHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
