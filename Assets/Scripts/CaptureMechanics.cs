@@ -5,19 +5,20 @@ using UnityEngine.UI;
 
 public class CaptureMechanics : NetworkBehaviour
 {
-
     [SerializeField] NetworkVariable<int> captureHealthServerState;
-    private int captureHealth;
 
+    private int captureHealth;
     private Canvas canvas;
     private Slider captureHealthBar;
     private int maxCaptureHealth = 20;
+    private Highlight highlight;
 
     private void Awake()
     {
         canvas = GetComponentInChildren<Canvas>();
         captureHealthBar = GetComponentInChildren<Slider>();
         captureHealthBar.maxValue = maxCaptureHealth;
+        highlight = GetComponent<Highlight>();
     }
     public override void OnNetworkSpawn()
     {
@@ -59,11 +60,11 @@ public class CaptureMechanics : NetworkBehaviour
     {
         if(goodGuy)
         {
-            //swap material to yellow
+            highlight.changeOriginalColour("yellow");
         }
         else
         {
-            //swap material to red
+            highlight.changeOriginalColour("red");
         }
     }
 }

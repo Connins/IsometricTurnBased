@@ -49,5 +49,14 @@ public class Highlight : MonoBehaviour
         colourModifier.Add("noHighlight", originalColour);
         colourModifier.Add("inMoveRangeHighlight", originalColour);
         colourModifier.Add("inAttackRangeHighlight", new Color(0.9433962f, 0.3070487f, 0.3985098f, 1f));
+        colourModifier.Add("red", Color.red);
+        colourModifier.Add("yellow", Color.yellow);
+    }
+
+    public void changeOriginalColour(string colour)
+    {
+        originalColour = colourModifier[colour];
+        colourModifier["noHighlight"] = originalColour;
+        colourModifier["inMoveRangeHighlight"] = originalColour;
     }
 }

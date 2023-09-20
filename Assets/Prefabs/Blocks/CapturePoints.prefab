@@ -848,6 +848,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   captureHealthServerState:
     m_InternalValue: 20
+  captureBlockMaterial: {fileID: 2100000, guid: 7f9a38bae6f2a934fad4829deea68524, type: 2}
+  red: {fileID: 2100000, guid: 6b9df14991d687d498e92fd12e4084fb, type: 2}
+  yellow: {fileID: 2100000, guid: 8b0087364658cf541887021ead7d9b65, type: 2}
+  renderer: {fileID: 8317126883142486111}
 --- !u!114 &1879915656387732918
 MonoBehaviour:
   m_ObjectHideFlags: 0
