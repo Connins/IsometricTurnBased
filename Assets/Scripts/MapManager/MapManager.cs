@@ -16,13 +16,6 @@ public class MapManager : MonoBehaviour
     public List<GameObject> capturePoints;
     private GameObject[,,] tiles;
 
-
-    //accessor functions
-    public GameObject getTile(Vector3 position)
-    {
-        return tiles[(int)position.x - 1, (int)position.y - 1, (int)position.z - 1];
-    }
-
     private void Awake()
     {
         tiles = new GameObject[xBound, yBound, zBound];
@@ -68,6 +61,16 @@ public class MapManager : MonoBehaviour
         occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter); ;
     }
 
+    //accessor functions
+    public GameObject getTile(Vector3 position)
+    {
+        return tiles[(int)position.x - 1, (int)position.y - 1, (int)position.z - 1];
+    }
+
+    public GameObject getTile(GameObject charecter)
+    {
+        return getTile(charecter.transform.position);
+    }
     public GameObject getOccupier(Vector3 position)
     {
         GameObject tile = getTile(position);
