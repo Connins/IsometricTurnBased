@@ -549,12 +549,12 @@ public class MouseController : NetworkBehaviour
 
         if (enemy == null)
         {
-            Debug.Log("no attacking player found from clients position not doing attack");
+            Debug.Log("no enemy found from clients position not doing attack");
             return false;
         }
         if (player == null)
         {
-            Debug.Log("no enemy found from clients position not doing attack");
+            Debug.Log("no attacking player found from clients position not doing attack");
             return false;
         }
 
@@ -577,7 +577,35 @@ public class MouseController : NetworkBehaviour
 
     private bool CanCaptureHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
     {
-        return true;
+        Debug.Log("Checking if capture can happen");
+        bool checkCaptureCanHappen = false;
+
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+
+        if (player == null)
+        {
+            Debug.Log("no player found from clients position not doing attack");
+            return false;
+        }
+
+        bool isMovementAllowed = player.GetComponent<PlayerController>().canMovementHappen(playersNewPosition);
+
+        if (!isMovementAllowed)
+        {
+            Debug.Log("movement of player according to server is not possible not doing capture");
+        }
+
+        GameObject tile = mapManager.getTile(playersNewPosition);
+        bool isCapturePoint = mapManager.isTileACapturePoint(tile);
+
+        if (!isCapturePoint)
+        {
+            Debug.Log("Position of player is not a capture point not doing capture");
+        }
+        
+        checkCaptureCanHappen = isMovementAllowed && isCapturePoint;
+
+        return checkCaptureCanHappen;
     }
     private bool isAttackInRange(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
     {
