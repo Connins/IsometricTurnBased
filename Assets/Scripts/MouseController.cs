@@ -318,6 +318,7 @@ public class MouseController : NetworkBehaviour
         StartCoroutine(enemyHit(attackAnimationTime, damage, angle));    
 
     }
+
     IEnumerator enemyHit(float delayTime, uint damage, float angle)
     {
         currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
@@ -325,32 +326,117 @@ public class MouseController : NetworkBehaviour
         currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage, angle);
         attackHappening = false;
         inAttackMode = false;
-        if(youAttacked)
+        if (youAttacked)
         {
             turnManager.charecterDoneAction(currentSelectedPlayer);
             youAttacked = false;
         }
         currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
         currentSelectedEnemy = null;
-        
-        if(!IsHost)
+
+        if (!IsHost)
         {
             Debug.Log("client who is not the host is updating server transform to ensure they are not snapped into position due to server change variable causing animation to change befopre this couroutine finishes");
             currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
         }
 
-        playerHasOfficialyMoved();
+        ResetHighlightsAndSelectedCharecters();
 
         yield return null;
     }
-    public void playerHasOfficialyMoved()
+    public void NetworkCaptureAndOfficiallyMove()
+    {
+        attackHappening = true;
+        youAttacked = true;
+        playerUIController.DisablePlayerUI();
+
+        if (IsServer && IsClient)
+        {
+            CaptureAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position);
+        }
+        if (!IsServer && IsClient)
+        {
+            //need to tell server to check if capture is legit and then it can send clients to attack.
+            CheckCaptureCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position);
+        }
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void CheckCaptureCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    {
+
+        if (CanCaptureHappen(playersOriginalPosition, playersNewPosition))
+        {
+            CaptureAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition);
+        }
+        else
+        {
+            Debug.Log("client is requesting a capture but there was a descrepency between client and server");
+        }
+    }
+
+    [ClientRpc]
+    private void CaptureAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    {
+        if (youAttacked)
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersNewPosition);
+        }
+        else
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersOriginalPosition);
+        }
+
+        if (currentSelectedPlayer == null)
+        {
+            Debug.Log("no player found");
+        }
+
+        CaptureAndOfficiallyMove(playersNewPosition);
+    }
+
+    private void CaptureAndOfficiallyMove(Vector3 playerPosition)
+    {
+
+
+        if (!youAttacked)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition);
+        }
+        //currentSelectedPlayer.GetComponent<PlayerController>().RotateCharecter(currentSelectedEnemy.transform.position);
+
+        int captrurePoints = currentSelectedPlayer.GetComponent<CharecterStats>().Health;
+        bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
+        float captureAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
+
+        GameObject capturePoint = mapManager.getTile(currentSelectedPlayer);
+        capturePoint.GetComponent<CaptureMechanics>().beingCaptured(captrurePoints, goodGuy);
+        
+        attackHappening = false;
+        
+        if (youAttacked)
+        {
+            turnManager.charecterDoneAction(currentSelectedPlayer);
+            youAttacked = false;
+        }
+
+        if (!IsHost)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        }
+
+        ResetHighlightsAndSelectedCharecters();
+
+
+    }
+    public void ResetHighlightsAndSelectedCharecters()
     {
         currentSelectedPlayer = null;
         yourCharecter = null;
         enemyCharecter = null;
         clearCharectersHighlights();
-        playerUIController.enableButton(false, "Wait");
-        playerUIController.enableButton(false, "Attack");
+        playerUIController.DefaultPlayerUI();
     }
 
     public void playerHasBeenDeselected()
@@ -361,8 +447,7 @@ public class MouseController : NetworkBehaviour
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
-            playerUIController.enableButton(false, "Wait");
-            playerUIController.enableButton(false, "Attack");
+            playerUIController.DefaultPlayerUI();
             currentSelectedPlayer = null;
             killStatsUI();
         }  
@@ -381,7 +466,7 @@ public class MouseController : NetworkBehaviour
             setInWaitMode(false);
             turnManager.charecterDoneAction(currentSelectedPlayer);
             currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
-            playerHasOfficialyMoved();
+            ResetHighlightsAndSelectedCharecters();
         }
     }
     public void clearCharectersHighlights()
@@ -448,6 +533,10 @@ public class MouseController : NetworkBehaviour
         {
             playerUIController.enableButton(true, "Capture");
         }
+        else
+        {
+            playerUIController.enableButton(false, "Capture");
+        }
     }
 
     private bool canAttackHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
@@ -486,6 +575,10 @@ public class MouseController : NetworkBehaviour
         return checkAttackCanHappen;
     }
 
+    private bool CanCaptureHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    {
+        return true;
+    }
     private bool isAttackInRange(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
     {
         GameObject player = mapManager.getOccupier(playersOriginalPosition);
