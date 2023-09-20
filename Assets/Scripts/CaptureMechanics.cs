@@ -13,6 +13,12 @@ public class CaptureMechanics : NetworkBehaviour
     private Slider captureHealthBar;
     private int maxCaptureHealth = 20;
 
+    private void Awake()
+    {
+        canvas = GetComponentInChildren<Canvas>();
+        captureHealthBar = GetComponentInChildren<Slider>();
+        captureHealthBar.maxValue = maxCaptureHealth;
+    }
     public override void OnNetworkSpawn()
     {
         captureHealth = captureHealthServerState.Value;
@@ -22,9 +28,7 @@ public class CaptureMechanics : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        canvas = GetComponentInChildren<Canvas>();
-        captureHealthBar = GetComponentInChildren<Slider>();
-        captureHealthBar.maxValue = maxCaptureHealth;
+        
     }
 
     // Update is called once per frame
@@ -42,7 +46,7 @@ public class CaptureMechanics : NetworkBehaviour
         }
         captureHealth -= damage;
 
-        GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-damage);
+        GetComponent<DamageIndicatorController>().startDamageIndicatorCoroutine(-damage);
 
         if (captureHealth <= 0)
         {

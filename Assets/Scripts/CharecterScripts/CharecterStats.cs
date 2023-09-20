@@ -69,14 +69,15 @@ public class CharecterStats : NetworkBehaviour
         {
             turnManager.addBadGuy(gameObject);
         }
+        canvas = GetComponentInChildren<Canvas>();
+        healthBar = GetComponentInChildren<Slider>();
+        healthBar.maxValue = maxHealth;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        canvas = GetComponentInChildren<Canvas>();
-        healthBar = GetComponentInChildren<Slider>();
-        healthBar.maxValue = maxHealth;
+        
     }
 
     // Update is called once per frame

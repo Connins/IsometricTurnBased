@@ -19,9 +19,8 @@ public class PlayerUIController : MonoBehaviour
 
     [SerializeField] private GameObject MouseController;
     private MouseController mouseController;
-     
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
         buttonManager.InitializeCanvasButtons(transform.gameObject);
         endTurn = buttonManager.GetButton("EndTurn");
@@ -39,6 +38,12 @@ public class PlayerUIController : MonoBehaviour
 
         turnManager = Charecters.GetComponent<TurnManager>();
         mouseController = MouseController.GetComponent<MouseController>();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
     }
     private void endTurnOnClick()
     {
@@ -58,7 +63,7 @@ public class PlayerUIController : MonoBehaviour
 
     private void captureOnClick()
     {
-        //does something
+        mouseController.NetworkCaptureAndOfficiallyMove();
     }
 
     public void enableButton(bool enable, string button)
@@ -102,5 +107,13 @@ public class PlayerUIController : MonoBehaviour
         endTurn.interactable = false;
         attack.interactable = false;
         wait.interactable = false;
+        capture.interactable = false;
+    }
+
+    public void DefaultPlayerUI()
+    {
+        attack.interactable = false;
+        wait.interactable = false;
+        capture.interactable = false;
     }
 }

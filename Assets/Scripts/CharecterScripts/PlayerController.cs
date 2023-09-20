@@ -17,13 +17,12 @@ public class PlayerController : NetworkBehaviour
     private TurnManager turnManager;
 
     NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
         grid = FindAnyObjectByType<Grid>();
         mapManager = grid.GetComponent<MapManager>();
         playerTransform = GetComponent<Transform>();
-        mapManager.addToOccupied(transform.gameObject, transform.position);
         turnManager = gameObject.GetComponentInParent<TurnManager>();
     }
 
@@ -33,6 +32,12 @@ public class PlayerController : NetworkBehaviour
         //I cannot seem to stop this occurring
         //so we need to sort out occupied tiles with this.
         mapManager.removeFromOccupied(transform.gameObject);
+        mapManager.addToOccupied(transform.gameObject, transform.position);
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
     private void OnEnable()
