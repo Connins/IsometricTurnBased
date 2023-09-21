@@ -1,5 +1,4 @@
 using Unity.Netcode;
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +15,7 @@ public class CaptureMechanics : NetworkBehaviour
     private int maxCaptureHealth = 20;
     private Highlight highlight;
     private TurnManager turnManager;
+    private MapManager mapManager;
 
     private void Awake()
     {
@@ -25,6 +25,8 @@ public class CaptureMechanics : NetworkBehaviour
         highlight = GetComponent<Highlight>();
         GameObject charecters = GameObject.FindGameObjectWithTag("CharectersGameObject");
         turnManager = charecters.GetComponent<TurnManager>();
+        GameObject grid = GameObject.FindGameObjectWithTag("Grid");
+        mapManager = grid.GetComponent<MapManager>();
     }
     public override void OnNetworkSpawn()
     {
@@ -45,6 +47,10 @@ public class CaptureMechanics : NetworkBehaviour
         canvas.transform.SetPositionAndRotation(canvas.transform.position, Camera.main.transform.rotation);
     }
 
+    public void ResetCapturePoints()
+    {
+        captureHealth = maxCaptureHealth;
+    }
     public void beingCaptured(int damage, bool goodGuy)
     {
         if (IsServer)

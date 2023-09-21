@@ -142,7 +142,7 @@ public class CharecterStats : NetworkBehaviour
     {
         GetComponent<Animator>().SetTrigger("Death");
         GetComponent<CapsuleCollider>().enabled = false;
-        mapManager.removeFromOccupied(transform.position);
+        mapManager.removeFromOccupied(gameObject);
         turnManager.removeCharecterFromList(gameObject);
         healthBar.gameObject.SetActive(false);
     }

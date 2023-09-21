@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class MapManager : MonoBehaviour
@@ -54,11 +55,11 @@ public class MapManager : MonoBehaviour
     public void removeFromOccupied(Vector3 position)
     {
         GameObject tile = getTile(position);
-        occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
+        occupiedTiles.RemoveAll(x => x.GetTile() == tile);
     }
     public void removeFromOccupied(GameObject charecter)
     {
-        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter); ;
+        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter);
     }
 
     //accessor functions

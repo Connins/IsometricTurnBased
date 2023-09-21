@@ -31,8 +31,8 @@ public class PlayerController : NetworkBehaviour
         //This needs to occur as when client connects it changes transform of game object to host automatically 
         //I cannot seem to stop this occurring
         //so we need to sort out occupied tiles with this.
-        mapManager.removeFromOccupied(transform.gameObject);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
+        mapManager.removeFromOccupied(gameObject);
+        mapManager.addToOccupied(gameObject, transform.position);
     }
 
     // Start is called before the first frame update
@@ -63,9 +63,9 @@ public class PlayerController : NetworkBehaviour
     }
     public void Moving(Vector3 targetPosition, Quaternion targetRotation)
     {
-        mapManager.removeFromOccupied(transform.position);
+        mapManager.removeFromOccupied(gameObject);
         playerTransform.SetPositionAndRotation(targetPosition, targetRotation);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
+        mapManager.addToOccupied(gameObject, transform.position);
     }
     public void MoveCharecter(GameObject hit)
     {
