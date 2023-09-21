@@ -5606,7 +5606,7 @@ GameObject:
   - component: {fileID: 685507670}
   m_Layer: 0
   m_Name: Charecters
-  m_TagString: Untagged
+  m_TagString: CharectersGameObject
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16630,7 +16630,7 @@ GameObject:
   - component: {fileID: 1804041880}
   m_Layer: 0
   m_Name: Grid
-  m_TagString: Untagged
+  m_TagString: Grid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

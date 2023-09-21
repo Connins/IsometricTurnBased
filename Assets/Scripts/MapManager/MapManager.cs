@@ -81,6 +81,10 @@ public class MapManager : MonoBehaviour
         }
         return output;
     }
+    public List<GameObject> CapturePoints
+    {
+        get { return capturePoints; }
+    }
     public bool isTileOccupied(GameObject tile)
     {
         return occupiedTiles.Any(x => x.GetTile() == tile);
