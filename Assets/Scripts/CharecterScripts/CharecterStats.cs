@@ -49,10 +49,8 @@ public class CharecterStats : NetworkBehaviour
         
         if(health != healthServerState.Value)
         {
-            Debug.Log("Health network variable changes are detected before actual health change has occured" +
-                " This is stopping any reconciliation we need ticking system to avoid this");
-            //Debug.Log("Health does not match the network variable health doing very basic reconciliation");
-            //health = healthServerState.Value;
+            Debug.Log("Health does not match the network variable health doing very basic reconciliation");
+            health = healthServerState.Value;
         }
     }
 
@@ -97,10 +95,12 @@ public class CharecterStats : NetworkBehaviour
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         int damageAfterModifiers = (int)Mathf.Round(damage * angleDamageModifier(angle));
-        if (IsServer)
+        if (!IsHost)
         {
-            healthServerState.Value -= damageAfterModifiers;
+            //Not the host should call this update as reconciliation can happen before local damage change occurs if we dont do it this way
+            UpdateServerHealthServerRpc(damageAfterModifiers);
         }
+
         health -= damageAfterModifiers;
 
         GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-damageAfterModifiers);
@@ -147,7 +147,11 @@ public class CharecterStats : NetworkBehaviour
         healthBar.gameObject.SetActive(false);
     }
 
-
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateServerHealthServerRpc(int damage)
+    {
+        healthServerState.Value -= damage;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     //Here is the accessor functions for stats
