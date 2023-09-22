@@ -63,7 +63,7 @@ public class PlayerUIController : MonoBehaviour
 
     private void captureOnClick()
     {
-        mouseController.NetworkCaptureAndOfficiallyMove();
+        mouseController.setInCaptureMode(true);
     }
 
     public void enableButton(bool enable, string button)

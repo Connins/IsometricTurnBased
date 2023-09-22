@@ -24,8 +24,9 @@ public class MouseController : NetworkBehaviour
 
 
     private GameObject currentSelectedEnemy;
-    [SerializeField] private bool inAttackMode;
-    [SerializeField] private bool inWaitMode;
+    private bool inAttackMode;
+    private bool inWaitMode;
+    private bool inCaptureMode;
 
     private GameObject currentHighlightedTile;
     private GameObject previousTileHighlight;
@@ -90,9 +91,9 @@ public class MouseController : NetworkBehaviour
             {
                 playerHasBeenDeselected();
             }
-            if (inWaitMode && currentHighlightedTile != null)
+            if ((inWaitMode || inCaptureMode) && currentHighlightedTile != null)
             {
-                chooseRotation();
+                chooseRotationAndWaitOrCapture();
             }
             else if (Input.GetMouseButtonDown(0))
             {
@@ -352,23 +353,23 @@ public class MouseController : NetworkBehaviour
 
         if (IsServer && IsClient)
         {
-            CaptureAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position);
+            CaptureAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
         }
         if (!IsServer && IsClient)
         {
             //need to tell server to check if capture is legit and then it can send clients to attack.
-            CheckCaptureCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position);
+            CheckCaptureCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
         }
 
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CheckCaptureCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    private void CheckCaptureCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Quaternion playersNewRotation)
     {
 
         if (CanCaptureHappen(playersOriginalPosition, playersNewPosition))
         {
-            CaptureAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition);
+            CaptureAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition, playersNewRotation);
         }
         else
         {
@@ -377,7 +378,7 @@ public class MouseController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void CaptureAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    private void CaptureAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Quaternion playersNewRotation)
     {
         if (youAttacked)
         {
@@ -393,18 +394,15 @@ public class MouseController : NetworkBehaviour
             Debug.Log("no player found");
         }
 
-        CaptureAndOfficiallyMove(playersNewPosition);
+        CaptureAndOfficiallyMove(playersNewPosition, playersNewRotation);
     }
 
-    private void CaptureAndOfficiallyMove(Vector3 playerPosition)
+    private void CaptureAndOfficiallyMove(Vector3 playerPosition, Quaternion playerRotation)
     {
-
-
         if (!youAttacked)
         {
-            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition);
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition, playerRotation);
         }
-        //currentSelectedPlayer.GetComponent<PlayerController>().RotateCharecter(currentSelectedEnemy.transform.position);
 
         int captrurePoints = currentSelectedPlayer.GetComponent<CharecterStats>().Health;
         bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
@@ -447,6 +445,7 @@ public class MouseController : NetworkBehaviour
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
+            setInCaptureMode(false);
             playerUIController.DefaultPlayerUI();
             currentSelectedPlayer = null;
             killStatsUI();
@@ -458,17 +457,26 @@ public class MouseController : NetworkBehaviour
         selectedPlayersOriginalPosition = currentSelectedPlayer.transform.position;
         selectedPlayersOriginalRotation = currentSelectedPlayer.transform.rotation;
     }
-    private void chooseRotation()
+    private void chooseRotationAndWaitOrCapture()
     {
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter();
         if (Input.GetMouseButtonDown(0))
         {
-            setInWaitMode(false);
-            turnManager.charecterDoneAction(currentSelectedPlayer);
-            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
-            ResetHighlightsAndSelectedCharecters();
+            if(inWaitMode)
+            {
+                setInWaitMode(false);
+                turnManager.charecterDoneAction(currentSelectedPlayer);
+                currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+                ResetHighlightsAndSelectedCharecters();
+            }
+            if (inCaptureMode)
+            {
+                setInCaptureMode(false);
+                NetworkCaptureAndOfficiallyMove();
+            }
         }
     }
+
     public void clearCharectersHighlights()
     {
         highlightTiles(moveTilesInRange, "noHighlight");
@@ -486,9 +494,21 @@ public class MouseController : NetworkBehaviour
         inWaitMode = isInWaitMode;
         if (inWaitMode)
         {
+            playerUIController.DefaultPlayerUI();
             clearCharectersHighlights();
         }
         currentSelectedPlayer.GetComponent<CharecterUIController>().setDirectionHighlight(inWaitMode);
+    }
+
+    public void setInCaptureMode(bool isInCaptureMode)
+    {
+        inCaptureMode = isInCaptureMode;
+        if (inCaptureMode)
+        {
+            playerUIController.DefaultPlayerUI();
+            clearCharectersHighlights();
+        }
+        currentSelectedPlayer.GetComponent<CharecterUIController>().setDirectionHighlight(inCaptureMode);
     }
     private void highlightCurentTile()
     { 
