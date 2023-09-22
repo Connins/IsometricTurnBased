@@ -34,6 +34,18 @@ public class CaptureMechanics : NetworkBehaviour
         captureHealthBar.value = captureHealth;
     }
 
+    private void OnEnable()
+    {
+        captureHealthServerState.OnValueChanged += OnCaptureHealthServerStateChanged;
+    }
+    private void OnCaptureHealthServerStateChanged(int previousValue, int newValue)
+    {
+        if (captureHealth != captureHealthServerState.Value)
+        {
+            Debug.Log("captureHealth does not match the network variable captureHealth doing very basic reconciliation");
+            captureHealth = captureHealthServerState.Value;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -50,14 +62,24 @@ public class CaptureMechanics : NetworkBehaviour
     public void ResetCapturePoints()
     {
         captureHealth = maxCaptureHealth;
+
+        if (IsServer)
+        {
+            captureHealthServerState.Value = maxCaptureHealth;
+        }
+        else
+        {
+            UpdateServerCapturePointsServerRpc(maxCaptureHealth);
+        }
     }
     public void beingCaptured(int damage, bool goodGuy)
     {
-        if (IsServer)
-        {
-            captureHealthServerState.Value -= damage;
-        }
         captureHealth -= damage;
+
+        if (!IsHost)
+        {
+            UpdateServerCapturePointsServerRpc(captureHealth);
+        }
 
         GetComponent<DamageIndicatorController>().startDamageIndicatorCoroutine(-damage);
 
@@ -84,8 +106,14 @@ public class CaptureMechanics : NetworkBehaviour
             highlight.changeOriginalColour("red");
             capturedByGoodGuy = false;
         }
-
+        ResetCapturePoints();
         turnManager.CheckCapturePoints();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateServerCapturePointsServerRpc(int value)
+    {
+        captureHealthServerState.Value = value;
     }
 
     //accessor functions
@@ -97,5 +125,5 @@ public class CaptureMechanics : NetworkBehaviour
     public bool CapturedByGoodGuy
     {
         get { return capturedByGoodGuy; } 
-    }
+    } 
 }

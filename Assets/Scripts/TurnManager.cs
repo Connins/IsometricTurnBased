@@ -150,6 +150,20 @@ public class TurnManager : NetworkBehaviour
     {
         activePlayerList.Remove(charecter);
         charecter.GetComponent<CharecterUIController>().setActionHighlight(false);
+
+        if(mapManager.isCharecterOnCapturePoint(charecter))
+        {
+            charecter.GetComponent<CharecterStats>().OnCapturePoint = mapManager.getTile(charecter);
+        }
+        else
+        {
+            if (charecter.GetComponent<CharecterStats>().OnCapturePoint)
+            {
+                charecter.GetComponent<CharecterStats>().OnCapturePoint.GetComponent<CaptureMechanics>().ResetCapturePoints();
+                charecter.GetComponent<CharecterStats>().OnCapturePoint = null;
+            }
+        }
+
         if (activePlayerList.Count == 0)
         {
             endingTurn();

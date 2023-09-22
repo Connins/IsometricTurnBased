@@ -58,5 +58,6 @@ public class Highlight : MonoBehaviour
         originalColour = colourModifier[colour];
         colourModifier["noHighlight"] = originalColour;
         colourModifier["inMoveRangeHighlight"] = originalColour;
+        highlightMaterial("noHighlight");
     }
 }

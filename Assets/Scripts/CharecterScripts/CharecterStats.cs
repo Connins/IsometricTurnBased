@@ -26,6 +26,8 @@ public class CharecterStats : NetworkBehaviour
     private Canvas canvas;
     public Slider healthBar;
 
+    private GameObject onCapturePoint;
+
     private float backDamageAngle = 44.9f;
     private float backDamageModifier = 1.5f;
     private float shieldDamageAngle = 134.9f;
@@ -70,6 +72,7 @@ public class CharecterStats : NetworkBehaviour
         canvas = GetComponentInChildren<Canvas>();
         healthBar = GetComponentInChildren<Slider>();
         healthBar.maxValue = maxHealth;
+        onCapturePoint = null;
     }
 
     // Start is called before the first frame update
@@ -192,6 +195,12 @@ public class CharecterStats : NetworkBehaviour
     public float AttackAnimationTime
     {
         get { return attackAnimationTime; }
+    }
+
+    public GameObject OnCapturePoint
+    {
+        get { return onCapturePoint; }
+        set { onCapturePoint = value; }
     }
 }
 

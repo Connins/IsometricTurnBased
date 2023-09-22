@@ -528,8 +528,7 @@ public class MouseController : NetworkBehaviour
 
     private void checkOnCapturePoint()
     {
-        GameObject tile = mapManager.getTile(currentSelectedPlayer.transform.position);
-        if (mapManager.isTileACapturePoint(tile))
+        if (mapManager.isCharecterOnCapturePoint(currentSelectedPlayer))
         {
             playerUIController.enableButton(true, "Capture");
         }

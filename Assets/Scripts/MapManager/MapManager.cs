@@ -100,6 +100,12 @@ public class MapManager : MonoBehaviour
     {
         return capturePoints.Any(x => x == tile);
     }
+
+    public bool isCharecterOnCapturePoint(GameObject charecter)
+    {
+        GameObject tile = getTile(charecter);
+        return capturePoints.Any(x => x == tile);
+    }
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)
     {
         bool output = false;
