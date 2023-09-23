@@ -84,7 +84,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3f8cc1efd612b5d4fb8e58ba2c911540, type: 2}
+  - {fileID: 2100000, guid: 63d259719aaf8694bac54d22d4a7792b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3633,7 +3633,7 @@ MonoBehaviour:
   healthServerState:
     m_InternalValue: 10
   maxHealth: 10
-  move: 3
+  move: 5
   jump: 1
   strength: 5
   defense: 0
@@ -3672,10 +3672,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3505b8d895628749b0bdf734e2a2ef0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeTime: 1
-  moveSpeed: 1
-  moveDistance: 1
-  damageValue: 0
   directionHighlight: {fileID: 6364240944751801156}
   actionHighlight: {fileID: 7228964749784357178}
 --- !u!114 &-7796533390699034911

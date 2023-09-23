@@ -525,7 +525,7 @@ MonoBehaviour:
   healthServerState:
     m_InternalValue: 10
   maxHealth: 10
-  move: 3
+  move: 5
   jump: 1
   strength: 5
   defense: 0
