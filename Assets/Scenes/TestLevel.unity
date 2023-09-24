@@ -5530,7 +5530,7 @@ GameObject:
   - component: {fileID: 722467485}
   m_Layer: 0
   m_Name: MouseController
-  m_TagString: Untagged
+  m_TagString: MouseController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5557,8 +5557,6 @@ MonoBehaviour:
   uIManager: {fileID: 1278001127}
   yourStatsUI: {fileID: 229779728}
   enemyStatsUI: {fileID: 714381241}
-  inAttackMode: 0
-  inWaitMode: 0
 --- !u!4 &722467484
 Transform:
   m_ObjectHideFlags: 0

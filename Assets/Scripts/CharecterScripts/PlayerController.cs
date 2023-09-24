@@ -121,10 +121,10 @@ public class PlayerController : NetworkBehaviour
 
         uint move = GetComponent<CharecterStats>().Move;
         uint jump = GetComponent<CharecterStats>().Jump;
-
+        bool goodGuy = GetComponent<CharecterStats>().GoodGuy;
         Vector3Int tileIndex = mapManager.getTileIndex(transform.gameObject);
         List<GameObject> testMovementTileRange = new List<GameObject>();
-        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false);
+        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false, goodGuy);
         GameObject testTile = mapManager.getTile(targetPosition);
         isMovementAllowed = testMovementTileRange.Contains(testTile);
 

@@ -215,10 +215,11 @@ public class MouseController : NetworkBehaviour
         Vector3Int tileIndex = mapManager.getTileIndex(currentSelectedPlayer);
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
+        bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
         uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
         moveTilesInRange.Clear();
-        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false, goodGuy);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         
