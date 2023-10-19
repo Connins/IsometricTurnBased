@@ -7,6 +7,7 @@ public class TurnManager : NetworkBehaviour
     [SerializeField] GameObject mouseController;
     [SerializeField] NetworkVariable<bool> turnVariable;
     [SerializeField] GameObject UIManager;
+    private MapManager mapManager;
 
     private List<GameObject> goodGuyList = new List<GameObject>();
     private List<GameObject> badGuyList = new List<GameObject>();
@@ -22,6 +23,8 @@ public class TurnManager : NetworkBehaviour
         YouAreGoodGuys = GlobalParameters.YouAreGoodGuys;
         setupNetwork();
         matchHappening = GlobalParameters.MatchHappening;
+        GameObject grid = GameObject.FindGameObjectWithTag("Grid");
+        mapManager = grid.GetComponent<MapManager>();
     }
 
     public override void OnNetworkSpawn()
@@ -93,25 +96,53 @@ public class TurnManager : NetworkBehaviour
             badGuyList.Remove(charecter);
         }
 
-        if(goodGuyList.Count == 0 || badGuyList.Count == 0) 
+        if(goodGuyList.Count == 0) 
         {
-            endGame();
+            endGame(false);
+        }
+        if(badGuyList.Count == 0)
+        {
+            endGame(true);
         }
     }
 
-    private void endGame()
+    public void CheckCapturePoints()
+    {
+        List<GameObject> capturePoints = mapManager.CapturePoints;
+        int goodGuysCapturedPoints = 0;
+        int badGuysCapturedPoints = 0;
+        int numberOfCapturePoints = capturePoints.Count;
+
+        foreach (GameObject capturePoint in capturePoints)
+        {
+            CaptureMechanics captureMechanics = capturePoint.GetComponent<CaptureMechanics>();
+            if (captureMechanics.IsCaptured) 
+            {
+                if (captureMechanics.CapturedByGoodGuy)
+                {
+                    goodGuysCapturedPoints++;
+                }
+                else
+                {
+                    badGuysCapturedPoints++;
+                }
+            }
+        }
+        
+        if (goodGuysCapturedPoints > numberOfCapturePoints / 2)
+        {
+            endGame(true);
+        }
+        if (badGuysCapturedPoints > numberOfCapturePoints / 2)
+        {
+            endGame(false);
+        }
+    }
+
+    private void endGame(bool goodGuysWon)
     {
         mouseController.GetComponent<MouseController>().killStatsUI();
         matchHappening = false;
-        bool goodGuysWon;
-        if (goodGuyList.Count == 0)
-        {
-            goodGuysWon = false;
-        }
-        else
-        {
-            goodGuysWon = true;
-        }
         UIManager.GetComponentInChildren<ResultsUIController>().EndGameText(goodGuysWon);
         UIManager.GetComponent<UIManager>().SwitchUI("ResultsCanvas");
     }
@@ -119,6 +150,20 @@ public class TurnManager : NetworkBehaviour
     {
         activePlayerList.Remove(charecter);
         charecter.GetComponent<CharecterUIController>().setActionHighlight(false);
+
+        if(mapManager.isCharecterOnCapturePoint(charecter))
+        {
+            charecter.GetComponent<CharecterStats>().OnCapturePoint = mapManager.getTile(charecter);
+        }
+        else
+        {
+            if (charecter.GetComponent<CharecterStats>().OnCapturePoint)
+            {
+                charecter.GetComponent<CharecterStats>().OnCapturePoint.GetComponent<CaptureMechanics>().ResetCapturePoints();
+                charecter.GetComponent<CharecterStats>().OnCapturePoint = null;
+            }
+        }
+
         if (activePlayerList.Count == 0)
         {
             endingTurn();

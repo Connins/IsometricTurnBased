@@ -1,9 +1,4 @@
-using JetBrains.Annotations;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,6 +26,8 @@ public class CharecterStats : NetworkBehaviour
     private Canvas canvas;
     public Slider healthBar;
 
+    private GameObject onCapturePoint;
+
     private float backDamageAngle = 44.9f;
     private float backDamageModifier = 1.5f;
     private float shieldDamageAngle = 134.9f;
@@ -54,10 +51,8 @@ public class CharecterStats : NetworkBehaviour
         
         if(health != healthServerState.Value)
         {
-            Debug.Log("Health network variable changes are detected before actual health change has occured" +
-                " This is stopping any reconciliation we need ticking system to avoid this");
-            //Debug.Log("Health does not match the network variable health doing very basic reconciliation");
-            //health = healthServerState.Value;
+            Debug.Log("Health does not match the network variable health doing very basic reconciliation");
+            health = healthServerState.Value;
         }
     }
 
@@ -74,14 +69,16 @@ public class CharecterStats : NetworkBehaviour
         {
             turnManager.addBadGuy(gameObject);
         }
+        canvas = GetComponentInChildren<Canvas>();
+        healthBar = GetComponentInChildren<Slider>();
+        healthBar.maxValue = maxHealth;
+        onCapturePoint = null;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        canvas = GetComponentInChildren<Canvas>();
-        healthBar = GetComponentInChildren<Slider>();
-        healthBar.maxValue = maxHealth;
+        
     }
 
     // Update is called once per frame
@@ -101,10 +98,12 @@ public class CharecterStats : NetworkBehaviour
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         int damageAfterModifiers = (int)Mathf.Round(damage * angleDamageModifier(angle));
-        if (IsServer)
+        if (!IsHost)
         {
-            healthServerState.Value -= damageAfterModifiers;
+            //Not the host should call this update as reconciliation can happen before local damage change occurs if we dont do it this way
+            UpdateServerHealthServerRpc(damageAfterModifiers);
         }
+
         health -= damageAfterModifiers;
 
         GetComponent<CharecterUIController>().startDamageIndicatorCoroutine(-damageAfterModifiers);
@@ -146,12 +145,16 @@ public class CharecterStats : NetworkBehaviour
     {
         GetComponent<Animator>().SetTrigger("Death");
         GetComponent<CapsuleCollider>().enabled = false;
-        mapManager.removeFromOccupied(transform.position);
+        mapManager.removeFromOccupied(gameObject);
         turnManager.removeCharecterFromList(gameObject);
         healthBar.gameObject.SetActive(false);
     }
 
-
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateServerHealthServerRpc(int damage)
+    {
+        healthServerState.Value -= damage;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     //Here is the accessor functions for stats
@@ -192,6 +195,12 @@ public class CharecterStats : NetworkBehaviour
     public float AttackAnimationTime
     {
         get { return attackAnimationTime; }
+    }
+
+    public GameObject OnCapturePoint
+    {
+        get { return onCapturePoint; }
+        set { onCapturePoint = value; }
     }
 }
 

@@ -428,6 +428,7 @@ GameObject:
   - component: {fileID: 7608409571335250782}
   - component: {fileID: 9063657154561651645}
   - component: {fileID: -2641036443346380492}
+  - component: {fileID: -9064017192603533115}
   m_Layer: 3
   m_Name: CombatGuy Bad
   m_TagString: Untagged
@@ -524,17 +525,17 @@ MonoBehaviour:
   healthServerState:
     m_InternalValue: 10
   maxHealth: 10
-  move: 3
+  move: 5
   jump: 1
   strength: 5
   defense: 0
   speed: 0
   magic: 0
   magicDefense: 0
-  goodGuy: 0
   attackAnimationTime: 0.9
+  goodGuy: 0
   isShieldGuy: 1
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 2269447118339701090}
 --- !u!114 &-8052259700170811187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -563,10 +564,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3505b8d895628749b0bdf734e2a2ef0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeTime: 1
-  moveSpeed: 1
-  moveDistance: 1
-  damageValue: 0
   directionHighlight: {fileID: 4912634024342955663}
   actionHighlight: {fileID: 3161675745506140400}
 --- !u!114 &9063657154561651645
@@ -597,6 +594,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b34e56fdfc57f8429d17859fa637685, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-9064017192603533115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2585366715313242247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38bed9207acc1264488f6d8ed15e290f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeTime: 1
+  moveSpeed: 1
+  moveDistance: 1
+  damageValue: 0
 --- !u!1 &2585372602549368335
 GameObject:
   m_ObjectHideFlags: 0

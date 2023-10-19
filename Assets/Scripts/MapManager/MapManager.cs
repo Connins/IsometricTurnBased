@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class MapManager : MonoBehaviour
@@ -13,21 +14,25 @@ public class MapManager : MonoBehaviour
     [SerializeField] private LayerMask mapTileMask;
 
     private List<OccupiedTile> occupiedTiles = new List<OccupiedTile>();
-
+    public List<GameObject> capturePoints;
     private GameObject[,,] tiles;
-    
-    //accessor functions
-    public GameObject getTile(Vector3 position)
-    {
-        return tiles[(int)position.x - 1, (int)position.y - 1, (int)position.z - 1];
-    }
 
     private void Awake()
     {
         tiles = new GameObject[xBound, yBound, zBound];
         MapTiles();
+        FillCapturePoints();
     }
 
+    private void FillCapturePoints()
+    {
+        GameObject[] capturePointsFound = GameObject.FindGameObjectsWithTag("CapturePoint");
+
+        foreach (var capturePoint in capturePointsFound)
+        {
+            capturePoints.Add(capturePoint);      
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -50,22 +55,41 @@ public class MapManager : MonoBehaviour
     public void removeFromOccupied(Vector3 position)
     {
         GameObject tile = getTile(position);
-        occupiedTiles.RemoveAll(x => x.GetTile() == tile); ;
+        occupiedTiles.RemoveAll(x => x.GetTile() == tile);
     }
     public void removeFromOccupied(GameObject charecter)
     {
-        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter); ;
+        occupiedTiles.RemoveAll(x => x.GetOccupier() == charecter);
     }
 
+    //accessor functions
+    public GameObject getTile(Vector3 position)
+    {
+        return tiles[(int)position.x - 1, (int)position.y - 1, (int)position.z - 1];
+    }
+
+    public GameObject getTile(GameObject charecter)
+    {
+        return getTile(charecter.transform.position);
+    }
     public GameObject getOccupier(Vector3 position)
     {
         GameObject tile = getTile(position);
+        return getOccupier(tile);
+    }
+
+    public GameObject getOccupier(GameObject tile)
+    {
         GameObject output = null;
         if (isTileOccupied(tile))
         {
             output = occupiedTiles.First(x => x.GetTile() == tile).GetOccupier();
         }
         return output;
+    }
+    public List<GameObject> CapturePoints
+    {
+        get { return capturePoints; }
     }
     public bool isTileOccupied(GameObject tile)
     {
@@ -77,6 +101,16 @@ public class MapManager : MonoBehaviour
         return isTileOccupied(getTile(location));
     }
 
+    public bool isTileACapturePoint(GameObject tile)
+    {
+        return capturePoints.Any(x => x == tile);
+    }
+
+    public bool isCharecterOnCapturePoint(GameObject charecter)
+    {
+        GameObject tile = getTile(charecter);
+        return capturePoints.Any(x => x == tile);
+    }
     public bool isEnemyInTiles(List<GameObject> tiles, bool goodGuy)
     {
         bool output = false;
@@ -100,7 +134,7 @@ public class MapManager : MonoBehaviour
         return occupiedTiles.Find(x => x.GetOccupier() == occupier).GetTileIndex();
     }
 
-    public List<GameObject> getMovementTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible)
+    public List<GameObject> getMovementTilesInRange(uint move, uint jump, Vector3Int location, List<GameObject> tilesInRange, bool passible, bool goodGuy)
     {
         GameObject tile = tiles[location.x, location.y, location.z];
         //Checks if we have already stepped on tile if so just return current held tilesInRange
@@ -111,12 +145,12 @@ public class MapManager : MonoBehaviour
 
         if (move > 0)
         {
-            List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(location, jump, passible);
+            List<Vector3Int> validTilesLocation = GetValidTilesNextToThisTile(location, jump, passible, goodGuy);
             if (validTilesLocation.Count != 0)
             {
                 foreach (var nextLocation in validTilesLocation)
                 {
-                    tilesInRange = getMovementTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible);
+                    tilesInRange = getMovementTilesInRange(move - 1, jump, nextLocation, tilesInRange, passible, goodGuy);
                 }
             }
         }
@@ -249,7 +283,7 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-    private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump, bool passible)
+    private List<Vector3Int> GetValidTilesNextToThisTile(Vector3Int location, uint jump, bool passible, bool? goodGuy = null)
     {
         List<Vector3Int> validTilesLocation = new List<Vector3Int>();
         Vector3Int xForward = new Vector3Int(location.x + 1, location.y, location.z);
@@ -257,14 +291,14 @@ public class MapManager : MonoBehaviour
         Vector3Int zForward = new Vector3Int(location.x, location.y, location.z + 1);
         Vector3Int zBackward = new Vector3Int(location.x, location.y, location.z - 1);
 
-        validTilesLocation.AddRange(GetValidTilesInCollunm(xForward, jump, passible));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(xBackward, jump, passible));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(zForward, jump, passible));
-        validTilesLocation.AddRange(GetValidTilesInCollunm(zBackward, jump, passible));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xForward, jump, passible, goodGuy));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(xBackward, jump, passible, goodGuy));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zForward, jump, passible, goodGuy));
+        validTilesLocation.AddRange(GetValidTilesInCollunm(zBackward, jump, passible, goodGuy));
 
         return validTilesLocation;
     }
-    private List<Vector3Int> GetValidTilesInCollunm(Vector3Int location, uint jump, bool passible)
+    private List<Vector3Int> GetValidTilesInCollunm(Vector3Int location, uint jump, bool passible, bool? goodGuy = null)
     {
         List <Vector3Int> validTilesLocation = new List <Vector3Int>();
 
@@ -273,7 +307,7 @@ public class MapManager : MonoBehaviour
             for (var y = -jump; y <= jump; y++)
             {
                 Vector3Int nextLocation = new Vector3Int(location.x, location.y + (int)y, location.z);
-                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, passible))
+                if (IsLocationInBounds(nextLocation) && IsTileStandable(nextLocation, passible, goodGuy))
                 {
                     validTilesLocation.Add(nextLocation);
                 }
@@ -306,15 +340,35 @@ public class MapManager : MonoBehaviour
     {
         return location.x >= 0 && location.y >= 0 && location.z >= 0 && location.x < xBound && location.y < yBound && location.z < zBound;
     }
-    private bool IsTileStandable(Vector3Int location, bool passible)
+
+    private bool IsTileStandable(Vector3Int location, bool passible, bool? goodGuy = null)
     {
         bool tileIsThere = tiles[location.x, location.y, location.z] != null;
         bool noTilesAbove = tiles[location.x, location.y + 1, location.z] == null && tiles[location.x, location.y + 2, location.z] == null;
 
         bool output = tileIsThere && noTilesAbove;
-        if (!passible)
+        if (!passible && output)
         {
-            output = output && !isTileOccupied(tiles[location.x, location.y, location.z]);
+            if (isTileOccupied(tiles[location.x, location.y, location.z]))
+            {
+                if (goodGuy.HasValue)
+                {
+                    GameObject occupier = getOccupier(tiles[location.x, location.y, location.z]);
+                    if (occupier.GetComponent<CharecterStats>() != null && occupier.GetComponent<CharecterStats>().GoodGuy == goodGuy.Value)
+                    {
+                        output = true;
+                    }
+                    else
+                    {
+                        output = false;
+                    }
+                }
+                else
+                {
+                    output = false;
+                }
+            }
+
         }
         return output;
     }

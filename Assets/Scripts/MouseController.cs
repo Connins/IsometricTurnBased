@@ -24,8 +24,9 @@ public class MouseController : NetworkBehaviour
 
 
     private GameObject currentSelectedEnemy;
-    [SerializeField] private bool inAttackMode;
-    [SerializeField] private bool inWaitMode;
+    private bool inAttackMode;
+    private bool inWaitMode;
+    private bool inCaptureMode;
 
     private GameObject currentHighlightedTile;
     private GameObject previousTileHighlight;
@@ -90,9 +91,9 @@ public class MouseController : NetworkBehaviour
             {
                 playerHasBeenDeselected();
             }
-            if (inWaitMode && currentHighlightedTile != null)
+            if ((inWaitMode || inCaptureMode) && currentHighlightedTile != null)
             {
-                chooseRotation();
+                chooseRotationAndWaitOrCapture();
             }
             else if (Input.GetMouseButtonDown(0))
             {
@@ -193,7 +194,7 @@ public class MouseController : NetworkBehaviour
     {
         foreach (GameObject tile in tiles)
         {
-            tile.GetComponent<Highlight>().ToggleHighlight(highlight);
+            tile.GetComponent<Highlight>().highlightMaterial(highlight);
         }
     }
 
@@ -214,17 +215,19 @@ public class MouseController : NetworkBehaviour
         Vector3Int tileIndex = mapManager.getTileIndex(currentSelectedPlayer);
         uint move = currentSelectedPlayer.GetComponent<CharecterStats>().Move;
         uint jump = currentSelectedPlayer.GetComponent<CharecterStats>().Jump;
+        bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
         uint weaponRange = currentSelectedPlayer.GetComponent<WeaponStats>().Range;
         uint heightBonus = currentSelectedPlayer.GetComponent<WeaponStats>().HeightBonus;
         moveTilesInRange.Clear();
-        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false);
+        moveTilesInRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, moveTilesInRange, false, goodGuy);
         highlightTiles(moveTilesInRange, "inMoveRangeHighlight");
         attackTilesInRange.Clear();
         
         attackTilesInRange = mapManager.getAttackTilesInRange(weaponRange, tileIndex, heightBonus);
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
-        playerUIController.enableWait();
+        playerUIController.enableButton(true, "Wait");
         checkEnemyInRange();
+        checkOnCapturePoint();
     }
 
     private void selectTileAndMovePlayer()
@@ -242,6 +245,7 @@ public class MouseController : NetworkBehaviour
         highlightTiles(attackTilesInRange, "inAttackRangeHighlight");
 
         checkEnemyInRange();
+        checkOnCapturePoint();
 
     }
 
@@ -316,6 +320,7 @@ public class MouseController : NetworkBehaviour
         StartCoroutine(enemyHit(attackAnimationTime, damage, angle));    
 
     }
+
     IEnumerator enemyHit(float delayTime, uint damage, float angle)
     {
         currentSelectedPlayer.GetComponent<CharecterAnimationController>().PlayAnimation("Attack");
@@ -323,32 +328,114 @@ public class MouseController : NetworkBehaviour
         currentSelectedEnemy.GetComponent<CharecterStats>().TakeHit(damage, angle);
         attackHappening = false;
         inAttackMode = false;
-        if(youAttacked)
+        if (youAttacked)
         {
             turnManager.charecterDoneAction(currentSelectedPlayer);
             youAttacked = false;
         }
         currentSelectedPlayer.GetComponent<PlayerController>().snapRotateCharecter(currentSelectedEnemy.transform.position);
         currentSelectedEnemy = null;
-        
-        if(!IsHost)
+
+        if (!IsHost)
         {
             Debug.Log("client who is not the host is updating server transform to ensure they are not snapped into position due to server change variable causing animation to change befopre this couroutine finishes");
             currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
         }
 
-        playerHasOfficialyMoved();
+        ResetHighlightsAndSelectedCharecters();
 
         yield return null;
     }
-    public void playerHasOfficialyMoved()
+    public void NetworkCaptureAndOfficiallyMove()
+    {
+        attackHappening = true;
+        youAttacked = true;
+        playerUIController.DisablePlayerUI();
+
+        if (IsServer && IsClient)
+        {
+            CaptureAndOfficiallyMoveClientRPC(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        }
+        if (!IsServer && IsClient)
+        {
+            //need to tell server to check if capture is legit and then it can send clients to attack.
+            CheckCaptureCanHappenServerRpc(selectedPlayersOriginalPosition, currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        }
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void CheckCaptureCanHappenServerRpc(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Quaternion playersNewRotation)
+    {
+
+        if (CanCaptureHappen(playersOriginalPosition, playersNewPosition))
+        {
+            CaptureAndOfficiallyMoveClientRPC(playersOriginalPosition, playersNewPosition, playersNewRotation);
+        }
+        else
+        {
+            Debug.Log("client is requesting a capture but there was a descrepency between client and server");
+        }
+    }
+
+    [ClientRpc]
+    private void CaptureAndOfficiallyMoveClientRPC(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Quaternion playersNewRotation)
+    {
+        if (youAttacked)
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersNewPosition);
+        }
+        else
+        {
+            currentSelectedPlayer = mapManager.getOccupier(playersOriginalPosition);
+        }
+
+        if (currentSelectedPlayer == null)
+        {
+            Debug.Log("no player found");
+        }
+
+        CaptureAndOfficiallyMove(playersNewPosition, playersNewRotation);
+    }
+
+    private void CaptureAndOfficiallyMove(Vector3 playerPosition, Quaternion playerRotation)
+    {
+        if (!youAttacked)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().MoveCharecter(playerPosition, playerRotation);
+        }
+
+        int captrurePoints = currentSelectedPlayer.GetComponent<CharecterStats>().Health;
+        bool goodGuy = currentSelectedPlayer.GetComponent<CharecterStats>().GoodGuy;
+        float captureAnimationTime = currentSelectedPlayer.GetComponent<CharecterStats>().AttackAnimationTime;
+
+        GameObject capturePoint = mapManager.getTile(currentSelectedPlayer);
+        capturePoint.GetComponent<CaptureMechanics>().beingCaptured(captrurePoints, goodGuy);
+        
+        attackHappening = false;
+        
+        if (youAttacked)
+        {
+            turnManager.charecterDoneAction(currentSelectedPlayer);
+            youAttacked = false;
+        }
+
+        if (!IsHost)
+        {
+            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+        }
+
+        ResetHighlightsAndSelectedCharecters();
+
+
+    }
+    public void ResetHighlightsAndSelectedCharecters()
     {
         currentSelectedPlayer = null;
         yourCharecter = null;
         enemyCharecter = null;
         clearCharectersHighlights();
-        playerUIController.disableWait();
-        playerUIController.disableAttack();
+        playerUIController.DefaultPlayerUI();
     }
 
     public void playerHasBeenDeselected()
@@ -359,8 +446,8 @@ public class MouseController : NetworkBehaviour
             clearCharectersHighlights();
             setInWaitMode(false);
             setInAttackMode(false);
-            playerUIController.disableWait();
-            playerUIController.disableAttack();
+            setInCaptureMode(false);
+            playerUIController.DefaultPlayerUI();
             currentSelectedPlayer = null;
             killStatsUI();
         }  
@@ -371,17 +458,26 @@ public class MouseController : NetworkBehaviour
         selectedPlayersOriginalPosition = currentSelectedPlayer.transform.position;
         selectedPlayersOriginalRotation = currentSelectedPlayer.transform.rotation;
     }
-    private void chooseRotation()
+    private void chooseRotationAndWaitOrCapture()
     {
         currentSelectedPlayer.GetComponent<PlayerController>().rotateCharecter();
         if (Input.GetMouseButtonDown(0))
         {
-            setInWaitMode(false);
-            turnManager.charecterDoneAction(currentSelectedPlayer);
-            currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
-            playerHasOfficialyMoved();
+            if(inWaitMode)
+            {
+                setInWaitMode(false);
+                turnManager.charecterDoneAction(currentSelectedPlayer);
+                currentSelectedPlayer.GetComponent<PlayerController>().OfficiallyMoveCharecter(currentSelectedPlayer.transform.position, currentSelectedPlayer.transform.rotation);
+                ResetHighlightsAndSelectedCharecters();
+            }
+            if (inCaptureMode)
+            {
+                setInCaptureMode(false);
+                NetworkCaptureAndOfficiallyMove();
+            }
         }
     }
+
     public void clearCharectersHighlights()
     {
         highlightTiles(moveTilesInRange, "noHighlight");
@@ -399,9 +495,21 @@ public class MouseController : NetworkBehaviour
         inWaitMode = isInWaitMode;
         if (inWaitMode)
         {
+            playerUIController.DefaultPlayerUI();
             clearCharectersHighlights();
         }
         currentSelectedPlayer.GetComponent<CharecterUIController>().setDirectionHighlight(inWaitMode);
+    }
+
+    public void setInCaptureMode(bool isInCaptureMode)
+    {
+        inCaptureMode = isInCaptureMode;
+        if (inCaptureMode)
+        {
+            playerUIController.DefaultPlayerUI();
+            clearCharectersHighlights();
+        }
+        currentSelectedPlayer.GetComponent<CharecterUIController>().setDirectionHighlight(inCaptureMode);
     }
     private void highlightCurentTile()
     { 
@@ -413,12 +521,12 @@ public class MouseController : NetworkBehaviour
 
         if ((noTileHighlighted || newTileHigghlighted) && !previousTileInTilesInRange)
         {
-            previousTileHighlight.GetComponent<Highlight>().ToggleHighlight("noHighlight");
+            previousTileHighlight.GetComponent<Highlight>().highlightMaterial("noHighlight");
         }
 
         if (currentHighlightedTile && !currentTileInAttackTilesInRange)
         {
-            currentHighlightedTile.GetComponent<Highlight>().ToggleHighlight("inMoveRangeHighlight");
+            currentHighlightedTile.GetComponent<Highlight>().highlightMaterial("inMoveRangeHighlight");
             previousTileHighlight = currentHighlightedTile;
         }
     }
@@ -431,11 +539,23 @@ public class MouseController : NetworkBehaviour
 
         if (enemyInRange)
         {
-            playerUIController.enableAttack();
+            playerUIController.enableButton(true, "Attack");
         }
         else
         {
-            playerUIController.disableAttack();
+            playerUIController.enableButton(false, "Attack");
+        }
+    }
+
+    private void checkOnCapturePoint()
+    {
+        if (mapManager.isCharecterOnCapturePoint(currentSelectedPlayer))
+        {
+            playerUIController.enableButton(true, "Capture");
+        }
+        else
+        {
+            playerUIController.enableButton(false, "Capture");
         }
     }
 
@@ -449,12 +569,12 @@ public class MouseController : NetworkBehaviour
 
         if (enemy == null)
         {
-            Debug.Log("no attacking player found from clients position not doing attack");
+            Debug.Log("no enemy found from clients position not doing attack");
             return false;
         }
         if (player == null)
         {
-            Debug.Log("no enemy found from clients position not doing attack");
+            Debug.Log("no attacking player found from clients position not doing attack");
             return false;
         }
 
@@ -475,6 +595,38 @@ public class MouseController : NetworkBehaviour
         return checkAttackCanHappen;
     }
 
+    private bool CanCaptureHappen(Vector3 playersOriginalPosition, Vector3 playersNewPosition)
+    {
+        Debug.Log("Checking if capture can happen");
+        bool checkCaptureCanHappen = false;
+
+        GameObject player = mapManager.getOccupier(playersOriginalPosition);
+
+        if (player == null)
+        {
+            Debug.Log("no player found from clients position not doing attack");
+            return false;
+        }
+
+        bool isMovementAllowed = player.GetComponent<PlayerController>().canMovementHappen(playersNewPosition);
+
+        if (!isMovementAllowed)
+        {
+            Debug.Log("movement of player according to server is not possible not doing capture");
+        }
+
+        GameObject tile = mapManager.getTile(playersNewPosition);
+        bool isCapturePoint = mapManager.isTileACapturePoint(tile);
+
+        if (!isCapturePoint)
+        {
+            Debug.Log("Position of player is not a capture point not doing capture");
+        }
+        
+        checkCaptureCanHappen = isMovementAllowed && isCapturePoint;
+
+        return checkCaptureCanHappen;
+    }
     private bool isAttackInRange(Vector3 playersOriginalPosition, Vector3 playersNewPosition, Vector3 enemyPosition)
     {
         GameObject player = mapManager.getOccupier(playersOriginalPosition);

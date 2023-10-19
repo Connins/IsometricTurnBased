@@ -17,13 +17,12 @@ public class PlayerController : NetworkBehaviour
     private TurnManager turnManager;
 
     NetworkVariable<TransformState> serverTransformState = new NetworkVariable<TransformState>();
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
         grid = FindAnyObjectByType<Grid>();
         mapManager = grid.GetComponent<MapManager>();
         playerTransform = GetComponent<Transform>();
-        mapManager.addToOccupied(transform.gameObject, transform.position);
         turnManager = gameObject.GetComponentInParent<TurnManager>();
     }
 
@@ -32,7 +31,13 @@ public class PlayerController : NetworkBehaviour
         //This needs to occur as when client connects it changes transform of game object to host automatically 
         //I cannot seem to stop this occurring
         //so we need to sort out occupied tiles with this.
-        mapManager.removeFromOccupied(transform.gameObject);
+        mapManager.removeFromOccupied(gameObject);
+        mapManager.addToOccupied(gameObject, transform.position);
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
         mapManager.addToOccupied(transform.gameObject, transform.position);
     }
     private void OnEnable()
@@ -58,9 +63,9 @@ public class PlayerController : NetworkBehaviour
     }
     public void Moving(Vector3 targetPosition, Quaternion targetRotation)
     {
-        mapManager.removeFromOccupied(transform.position);
+        mapManager.removeFromOccupied(gameObject);
         playerTransform.SetPositionAndRotation(targetPosition, targetRotation);
-        mapManager.addToOccupied(transform.gameObject, transform.position);
+        mapManager.addToOccupied(gameObject, transform.position);
     }
     public void MoveCharecter(GameObject hit)
     {
@@ -116,10 +121,10 @@ public class PlayerController : NetworkBehaviour
 
         uint move = GetComponent<CharecterStats>().Move;
         uint jump = GetComponent<CharecterStats>().Jump;
-
+        bool goodGuy = GetComponent<CharecterStats>().GoodGuy;
         Vector3Int tileIndex = mapManager.getTileIndex(transform.gameObject);
         List<GameObject> testMovementTileRange = new List<GameObject>();
-        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false);
+        testMovementTileRange = mapManager.getMovementTilesInRange(move, jump, tileIndex, testMovementTileRange, false, goodGuy);
         GameObject testTile = mapManager.getTile(targetPosition);
         isMovementAllowed = testMovementTileRange.Contains(testTile);
 
