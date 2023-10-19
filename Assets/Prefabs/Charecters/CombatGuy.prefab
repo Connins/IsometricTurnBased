@@ -423,12 +423,12 @@ GameObject:
   - component: {fileID: 2501154047397822687}
   - component: {fileID: 2587037693419633133}
   - component: {fileID: 2587037693419633132}
-  - component: {fileID: 5671404576448151122}
   - component: {fileID: -8052259700170811187}
   - component: {fileID: 7608409571335250782}
   - component: {fileID: 9063657154561651645}
   - component: {fileID: -2641036443346380492}
   - component: {fileID: -725532172241710550}
+  - component: {fileID: -6334155191981371365}
   m_Layer: 3
   m_Name: CombatGuy
   m_TagString: Untagged
@@ -444,7 +444,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2585366715313242247}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -510,32 +510,6 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 1
---- !u!114 &5671404576448151122
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2585366715313242247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 423544c0ce1506c4294d97df18d058bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthServerState:
-    m_InternalValue: 10
-  maxHealth: 10
-  move: 5
-  jump: 1
-  strength: 5
-  defense: 0
-  speed: 0
-  magic: 0
-  magicDefense: 0
-  attackAnimationTime: 0.9
-  goodGuy: 1
-  isShieldGuy: 1
-  healthBar: {fileID: 2269447118339701090}
 --- !u!114 &-8052259700170811187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -610,6 +584,31 @@ MonoBehaviour:
   moveSpeed: 1
   moveDistance: 1
   damageValue: 0
+--- !u!114 &-6334155191981371365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2585366715313242247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ce6b8285c0c8cb4aa18bff09e7a16f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthServerState:
+    m_InternalValue: 10
+  maxHealth: 10
+  move: 5
+  jump: 1
+  strength: 5
+  defense: 0
+  speed: 0
+  magic: 0
+  magicDefense: 0
+  attackAnimationTime: 0.9
+  goodGuy: 1
+  healthBar: {fileID: 2269447118339701090}
 --- !u!1 &2585372602549368335
 GameObject:
   m_ObjectHideFlags: 0
