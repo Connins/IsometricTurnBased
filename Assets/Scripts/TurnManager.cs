@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 public class TurnManager : NetworkBehaviour
 {
@@ -49,12 +50,12 @@ public class TurnManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void NetworkChangeTurnVariable()
     {
-        if(IsServer)
+        if (IsServer)
         {
             turnVariable.Value = turnVariable.Value == false;
         }
@@ -96,11 +97,11 @@ public class TurnManager : NetworkBehaviour
             badGuyList.Remove(charecter);
         }
 
-        if(goodGuyList.Count == 0) 
+        if (goodGuyList.Count == 0)
         {
             endGame(false);
         }
-        if(badGuyList.Count == 0)
+        if (badGuyList.Count == 0)
         {
             endGame(true);
         }
@@ -116,7 +117,7 @@ public class TurnManager : NetworkBehaviour
         foreach (GameObject capturePoint in capturePoints)
         {
             CaptureMechanics captureMechanics = capturePoint.GetComponent<CaptureMechanics>();
-            if (captureMechanics.IsCaptured) 
+            if (captureMechanics.IsCaptured)
             {
                 if (captureMechanics.CapturedByGoodGuy)
                 {
@@ -128,7 +129,7 @@ public class TurnManager : NetworkBehaviour
                 }
             }
         }
-        
+
         if (goodGuysCapturedPoints > numberOfCapturePoints / 2)
         {
             endGame(true);
@@ -151,7 +152,7 @@ public class TurnManager : NetworkBehaviour
         activePlayerList.Remove(charecter);
         charecter.GetComponent<CharecterUIController>().setActionHighlight(false);
 
-        if(mapManager.isCharecterOnCapturePoint(charecter))
+        if (mapManager.isCharecterOnCapturePoint(charecter))
         {
             charecter.GetComponent<CharecterStats>().OnCapturePoint = mapManager.getTile(charecter);
         }
@@ -182,7 +183,7 @@ public class TurnManager : NetworkBehaviour
     public bool activePlayer(GameObject charecter)
     {
         return activePlayerList.Contains(charecter);
-    } 
+    }
     public void RefreshActiveCharecters()
     {
         foreach (GameObject charecter in activePlayerList)
@@ -205,7 +206,7 @@ public class TurnManager : NetworkBehaviour
                 charecter.GetComponent<CharecterUIController>().setActionHighlight(true);
             }
         }
-        
+
     }
 
     private void setupNetwork()
@@ -216,6 +217,12 @@ public class TurnManager : NetworkBehaviour
         }
         else
         {
+
+            //NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(
+            //GlobalParameters.HostIP,  // The IP address is a string
+            //(ushort)12345, // The port number is an unsigned short
+            //"0.0.0.0" // The server listen address is a string.
+            //        );
             NetworkManager.Singleton.StartClient();
         }
     }

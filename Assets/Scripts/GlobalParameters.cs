@@ -4,6 +4,7 @@ public static class GlobalParameters
     static bool isHost = true;
     private static bool matchHappening = false;
     private static bool youAreGoodGuys = true;
+    private static string hostIP = ""; 
     public static bool IsLocalPlay
     {
         get { return isLocalPlay; }
@@ -26,5 +27,11 @@ public static class GlobalParameters
     {
         get { return isHost; }
         set { isHost = value; }
+    }
+
+    public static string HostIP
+    {
+        get { return hostIP; }
+        set { hostIP = value; }
     }
 }

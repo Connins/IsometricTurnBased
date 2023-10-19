@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class MultiplayerUIContoller : MonoBehaviour
     [SerializeField] private Button client;
     [SerializeField] private GameObject SceneManager;
 
+    [SerializeField] TMP_InputField hostIP;
     //[SerializeField] private GameObject charecters;
 
     //private TurnManager turnManager;
@@ -21,6 +23,7 @@ public class MultiplayerUIContoller : MonoBehaviour
         UIManager = GetComponentInParent<UIManager>();
         host.onClick.AddListener(hostOnClick);
         client.onClick.AddListener(clientOnClick);
+        hostIP = gameObject.GetComponentInChildren<TMP_InputField>();
     }
 
     private void hostOnClick()
@@ -35,6 +38,7 @@ public class MultiplayerUIContoller : MonoBehaviour
         GlobalParameters.IsHost = false;
         GlobalParameters.YouAreGoodGuys = false;
         GlobalParameters.MatchHappening = true;
+        GlobalParameters.HostIP = hostIP.text;
         UIManager.SwitchUI("LevelSelect");
     }
 }
