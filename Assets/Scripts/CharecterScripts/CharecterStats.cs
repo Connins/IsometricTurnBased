@@ -6,7 +6,7 @@ public class CharecterStats : NetworkBehaviour
 {
 
     [SerializeField] NetworkVariable<int> healthServerState;
-    private int health;
+    protected int health;
     [SerializeField] private uint maxHealth;
     [SerializeField] private uint move;
     [SerializeField] private uint jump;
@@ -18,7 +18,6 @@ public class CharecterStats : NetworkBehaviour
     [SerializeField] private float attackAnimationTime;
 
     [SerializeField] private bool goodGuy;
-    [SerializeField] private bool isShieldGuy;
 
     private TurnManager turnManager;
     private MapManager mapManager;
@@ -28,10 +27,8 @@ public class CharecterStats : NetworkBehaviour
 
     private GameObject onCapturePoint;
 
-    private float backDamageAngle = 44.9f;
-    private float backDamageModifier = 1.5f;
-    private float shieldDamageAngle = 134.9f;
-    private float shieldDamageModifier = 0.5f;
+    protected float backDamageAngle = 44.9f;
+    protected float backDamageModifier = 1.5f;
 
     public override void OnNetworkSpawn()
     {
@@ -94,7 +91,7 @@ public class CharecterStats : NetworkBehaviour
         //This is where we could make calculation on how much damage a charecter outputs keeping it simple for now
         return strength;
     }
-    public void TakeHit(uint damage, float angle)
+    public virtual void TakeHit(uint damage, float angle)
     {
         //could do calculation of how much damage would be taken based on stats but for now will keep it simple
         int damageAfterModifiers = (int)Mathf.Round(damage * angleDamageModifier(angle));
@@ -114,18 +111,11 @@ public class CharecterStats : NetworkBehaviour
         }
         else
         {
-            if(isShieldGuy && angle > shieldDamageAngle)
-            {
-                GetComponent<Animator>().Play("Blocking");
-            }
-            else
-            {
-                GetComponent<Animator>().Play("TakeHit");
-            }
+            GetComponent<Animator>().Play("TakeHit");
         }
     }
 
-    private float angleDamageModifier(float angle)
+    private  float angleDamageModifier(float angle)
     {
         float modifier = 1f;
 
@@ -134,14 +124,9 @@ public class CharecterStats : NetworkBehaviour
             modifier = backDamageModifier;
         }
 
-        if(isShieldGuy &&  angle > shieldDamageAngle)
-        {
-            modifier = shieldDamageModifier;
-        }
-
         return modifier;
     }
-    private void die()
+    protected void die()
     {
         GetComponent<Animator>().SetTrigger("Death");
         GetComponent<CapsuleCollider>().enabled = false;
@@ -151,7 +136,7 @@ public class CharecterStats : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void UpdateServerHealthServerRpc(int damage)
+    protected void UpdateServerHealthServerRpc(int damage)
     {
         healthServerState.Value -= damage;
     }
