@@ -217,12 +217,12 @@ public class TurnManager : NetworkBehaviour
         }
         else
         {
-
-            //NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(
-            //GlobalParameters.HostIP,  // The IP address is a string
-            //(ushort)12345, // The port number is an unsigned short
-            //"0.0.0.0" // The server listen address is a string.
-            //        );
+			if (GlobalParameters.HostIP != "")
+			{
+				UnityTransport transport;
+				transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+				transport.SetConnectionData(GlobalParameters.HostIP, (ushort)12345);
+			}
             NetworkManager.Singleton.StartClient();
         }
     }
